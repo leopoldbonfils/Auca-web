@@ -1,9 +1,5 @@
 import React, { useState } from 'react';
 
-// ── Import your local PNG icons ───────────────────────────────────────────────
-import addReactionIcon from '../assets/addReaction.png';
-import commentIcon     from '../assets/comment.png';
-
 // ── Reactions ─────────────────────────────────────────────────────────────────
 const REACTIONS = [
   { emoji: '❤️', label: 'Love' },
@@ -15,7 +11,7 @@ const REACTIONS = [
   { emoji: '😢', label: 'Sad' },
 ];
 
-// ── Trash icon (keep as SVG — no PNG for delete) ──────────────────────────────
+// ── Trash icon SVG ────────────────────────────────────────────────────────────
 const TrashIcon = () => (
   <svg viewBox="0 0 24 24" width="16" height="16" fill="none"
     stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -63,7 +59,6 @@ function ReactionSummary({ reactions, myReaction }) {
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-      {/* Stacked overlapping emoji circles */}
       <div style={{ display: 'flex', alignItems: 'center' }}>
         {topEmojis.map((emoji, index) => (
           <div key={emoji} style={{
@@ -171,7 +166,7 @@ export default function PostCard({ post, onDelete, onComment }) {
         </div>
 
         {isOwner && (
-          <button onClick={() => onDelete && onDelete(id)} title="Delete"
+          <button onClick={() => onDelete && onDelete(id)}
             style={{ padding: '6px', color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', borderRadius: '6px', transition: 'all 0.15s' }}
             onMouseEnter={e => { e.currentTarget.style.background = '#fee2e2'; e.currentTarget.style.color = '#e53935'; }}
             onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = 'var(--text-muted)'; }}
@@ -180,7 +175,6 @@ export default function PostCard({ post, onDelete, onComment }) {
       </div>
 
       {/* ── BODY ── */}
-
       {type === 'announcement' && (
         <div style={{ margin: '0 18px 14px' }}>
           <div style={{ background: 'linear-gradient(135deg, #0d3b8e, #1a4fa8)', color: '#fff', textAlign: 'center', padding: '10px 16px', fontWeight: 800, fontSize: '14px', letterSpacing: '2.5px', borderRadius: '8px 8px 0 0', textTransform: 'uppercase' }}>
@@ -205,21 +199,19 @@ export default function PostCard({ post, onDelete, onComment }) {
 
       {type === 'post' && (
         <>
-          {/* 1️⃣ Description first */}
           {content && (
             <div style={{ padding: '0 18px', marginBottom: image ? '12px' : '4px' }}>
               <p style={{ fontSize: '14px', color: 'var(--text-primary)', lineHeight: 1.7, margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
                 {displayedContent}
               </p>
               {isLong && (
-                <button onClick={() => setExpanded(p => !p)} style={{ marginTop: '6px', background: 'none', border: 'none', color: 'var(--primary)', fontSize: '13px', fontWeight: 700, cursor: 'pointer', padding: 0, fontFamily: "'Nunito', sans-serif" }}>
+                <button onClick={() => setExpanded(p => !p)}
+                  style={{ marginTop: '6px', background: 'none', border: 'none', color: 'var(--primary)', fontSize: '13px', fontWeight: 700, cursor: 'pointer', padding: 0, fontFamily: "'Nunito', sans-serif" }}>
                   {expanded ? 'Show less' : 'Show more'}
                 </button>
               )}
             </div>
           )}
-
-          {/* 2️⃣ Image below */}
           {image && (
             <div style={{ width: '100%', maxHeight: '480px', overflow: 'hidden', background: 'var(--surface-2)' }}>
               <img src={image} alt="post" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
@@ -228,7 +220,7 @@ export default function PostCard({ post, onDelete, onComment }) {
         </>
       )}
 
-      {/* ── REACTION SUMMARY — LinkedIn stacked style ── */}
+      {/* ── REACTION SUMMARY ── */}
       {totalReactions > 0 && (
         <div style={{ padding: '8px 18px 4px' }}>
           <ReactionSummary reactions={reactions} myReaction={myReaction} />
@@ -241,7 +233,7 @@ export default function PostCard({ post, onDelete, onComment }) {
         padding: '10px 18px 14px', borderTop: '1px solid var(--border)',
       }}>
 
-        {/* ── React button using addReaction.png ── */}
+        {/* ── React button — addReaction.png via require ── */}
         <div style={{ position: 'relative' }}>
           <button
             onClick={() => setShowPicker(p => !p)}
@@ -253,28 +245,29 @@ export default function PostCard({ post, onDelete, onComment }) {
               cursor: 'pointer', transition: 'all 0.15s',
               fontFamily: "'Nunito', sans-serif",
             }}
-            onMouseEnter={e => { if (!myReaction) { e.currentTarget.style.background = 'var(--surface-2)'; e.currentTarget.style.borderColor = 'var(--primary)'; }}}
-            onMouseLeave={e => { if (!myReaction) { e.currentTarget.style.borderColor = 'var(--border)'; }}}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--primary)'; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = myReaction ? 'var(--primary-pale)' : 'var(--border)'; }}
           >
-            {/* Show selected emoji OR addReaction icon */}
             {myReaction ? (
-              <span style={{ fontSize: '18px' }}>{myReaction}</span>
+              /* Show selected emoji when reacted */
+              <span style={{ fontSize: '18px', lineHeight: 1 }}>{myReaction}</span>
             ) : (
+              /* addReaction.png icon — using require so CRA resolves it correctly */
               <img
-                src={addReactionIcon}
+                src={require('../assets/addReaction.png')}
                 alt="react"
-                style={{ width: '20px', height: '20px', opacity: 0.6 }}
+                style={{ width: '22px', height: '22px', objectFit: 'contain' }}
               />
             )}
             <span style={{
               fontSize: '13px', fontWeight: 600,
               color: myReaction ? 'var(--primary)' : 'var(--text-secondary)',
             }}>
-              {myReaction ? myReaction : 'React'}
+              {myReaction ? 'Reacted' : 'React'}
             </span>
           </button>
 
-          {/* Dark pill emoji picker */}
+          {/* ── Dark pill emoji picker ── */}
           {showPicker && (
             <div style={{
               position: 'absolute', bottom: '46px', left: '0',
@@ -304,7 +297,7 @@ export default function PostCard({ post, onDelete, onComment }) {
           )}
         </div>
 
-        {/* ── Comment button using comment.png ── */}
+        {/* ── Comment button — comment.png via require ── */}
         <button
           onClick={() => onComment && onComment(id)}
           style={{
@@ -317,11 +310,11 @@ export default function PostCard({ post, onDelete, onComment }) {
           onMouseEnter={e => { e.currentTarget.style.background = 'var(--primary-pale)'; e.currentTarget.style.borderColor = 'var(--primary)'; }}
           onMouseLeave={e => { e.currentTarget.style.background = 'var(--surface-2)'; e.currentTarget.style.borderColor = 'var(--border)'; }}
         >
-          {/* comment.png icon */}
+          {/* comment.png — using require */}
           <img
-            src={commentIcon}
+            src={require('../assets/comment.png')}
             alt="comment"
-            style={{ width: '20px', height: '20px', opacity: 0.6 }}
+            style={{ width: '22px', height: '22px', objectFit: 'contain' }}
           />
           <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)' }}>
             {commentCount > 0 ? commentCount : 'Comment'}

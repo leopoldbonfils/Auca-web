@@ -107,7 +107,7 @@ export default function Search() {
       {/* Empty state when no query */}
       {!q && (
         <div style={{ textAlign: 'center', padding: '60px 20px', color: '#94a3b8' }}>
-          <div style={{ fontSize: '48px', marginBottom: '12px' }}>🔍</div>
+          <div style={{ fontSize: '48px', marginBottom: '12px' }}></div>
           <div style={{ fontSize: '16px', fontWeight: 600, color: '#5a6a82' }}>Search AUCA</div>
           <div style={{ fontSize: '13px', marginTop: '6px' }}>Type a name, department, or keyword</div>
         </div>

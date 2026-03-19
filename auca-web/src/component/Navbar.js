@@ -1,75 +1,47 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-// ── Icons ─────────────────────────────────────────────────────────────────────
-const HomeIcon = ({ filled }) => (
-  <svg viewBox="0 0 24 24" width="22" height="22" fill={filled ? 'currentColor' : 'none'}
-    stroke="currentColor" strokeWidth={filled ? 0 : 2} strokeLinecap="round" strokeLinejoin="round">
-    <path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/>
-    <path d="M9 21V12h6v9"/>
-  </svg>
-);
-const SearchIcon = () => (
-  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/>
-  </svg>
-);
-const PlusIcon = () => (
-  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="3" y="3" width="18" height="18" rx="4"/>
-    <line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
-  </svg>
-);
-const UserIcon = () => (
-  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
-    <circle cx="12" cy="7" r="4"/>
-  </svg>
-);
-const MoreIcon = () => (
-  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="3" y1="6"  x2="21" y2="6"/>
-    <line x1="3" y1="12" x2="21" y2="12"/>
-    <line x1="3" y1="18" x2="21" y2="18"/>
-  </svg>
-);
-const SunIcon = () => (
-  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="5"/>
-    <line x1="12" y1="1"  x2="12" y2="3"/>
-    <line x1="12" y1="21" x2="12" y2="23"/>
-    <line x1="4.22" y1="4.22"   x2="5.64"  y2="5.64"/>
-    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-    <line x1="1"  y1="12" x2="3"  y2="12"/>
-    <line x1="21" y1="12" x2="23" y2="12"/>
-    <line x1="4.22"  y1="19.78" x2="5.64"  y2="18.36"/>
-    <line x1="18.36" y1="5.64"  x2="19.78" y2="4.22"/>
-  </svg>
-);
-const MoonIcon = () => (
-  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
-  </svg>
-);
-const LogOutIcon = () => (
-  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
-    <polyline points="16 17 21 12 16 7"/>
-    <line x1="21" y1="12" x2="9" y2="12"/>
-  </svg>
-);
-const SettingsIcon = () => (
-  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="3"/>
-    <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06-.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
-  </svg>
-);
+// ── react-icons ───────────────────────────────────────────────────────────────
+import { GoHome, GoHomeFill } from 'react-icons/go';
+import { RiSearchLine } from 'react-icons/ri';
+import { MdOutlineAddBox } from 'react-icons/md';
+import { RiUser3Line } from 'react-icons/ri';
+import { CiCircleMore } from "react-icons/ci";
+import { HiOutlineSun } from 'react-icons/hi';
+import { BsMoonStars } from 'react-icons/bs';
+import { RiLogoutBoxLine } from 'react-icons/ri';
+import { RiSettings3Line } from 'react-icons/ri';
+import { BsThreeDots } from 'react-icons/bs';
 
-// ── Nav items (no Settings — replaced by More) ────────────────────────────────
+// ── AUCA Logo ─────────────────────────────────────────────────────────────────
+let aucaLogo;
+try { aucaLogo = require('../assets/image.png'); } catch (e) { aucaLogo = null; }
+
+// ── Nav items ─────────────────────────────────────────────────────────────────
 const NAV_ITEMS = [
-  { id: 'home',    label: 'Home',        icon: (a) => <HomeIcon filled={a} /> },
-  { id: 'search',  label: 'Search',      icon: () => <SearchIcon /> },
-  { id: 'create',  label: 'Create Post', icon: () => <PlusIcon /> },
-  { id: 'profile', label: 'Profile',     icon: () => <UserIcon /> },
+  {
+    id: 'home',
+    label: 'Home',
+    icon:       <GoHome       size={22} />,
+    iconActive: <GoHomeFill   size={22} />,
+  },
+  {
+    id: 'search',
+    label: 'Search',
+    icon:       <RiSearchLine size={22} />,
+    iconActive: <RiSearchLine size={22} />,
+  },
+  {
+    id: 'create',
+    label: 'Create Post',
+    icon:       <MdOutlineAddBox size={23} />,
+    iconActive: <MdOutlineAddBox size={23} />,
+  },
+  {
+    id: 'profile',
+    label: 'Profile',
+    icon:       <RiUser3Line  size={22} />,
+    iconActive: <RiUser3Line  size={22} />,
+  },
 ];
 
 // ── Toggle switch ─────────────────────────────────────────────────────────────
@@ -78,7 +50,8 @@ function Toggle({ checked, onChange }) {
     <div
       onClick={(e) => { e.stopPropagation(); onChange(!checked); }}
       style={{
-        width: '44px', height: '24px', borderRadius: '12px', cursor: 'pointer', flexShrink: 0,
+        width: '44px', height: '24px', borderRadius: '12px',
+        cursor: 'pointer', flexShrink: 0,
         background: checked ? '#4d8af0' : '#cbd5e1',
         position: 'relative', transition: 'background 0.25s ease',
       }}
@@ -96,12 +69,12 @@ function Toggle({ checked, onChange }) {
 
 // ── Navbar ────────────────────────────────────────────────────────────────────
 export default function Navbar({ activePage, onNavigate, theme, onThemeChange }) {
-  const [hovered,   setHovered]   = useState(null);
-  const [showMore,  setShowMore]  = useState(false);
+  const [hovered,  setHovered]  = useState(null);
+  const [showMore, setShowMore] = useState(false);
   const moreRef = useRef(null);
   const isDark  = theme === 'dark';
 
-  // Close popup when clicking outside
+  // Close popup on outside click
   useEffect(() => {
     const handler = (e) => {
       if (moreRef.current && !moreRef.current.contains(e.target)) {
@@ -114,7 +87,8 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange })
 
   return (
     <nav style={{
-      position: 'fixed', top: 0, left: 0, height: '100vh', width: '240px',
+      position: 'fixed', top: 0, left: 0,
+      height: '100vh', width: '240px',
       background: 'var(--nav-bg)',
       borderRight: '1px solid var(--nav-border)',
       display: 'flex', flexDirection: 'column',
@@ -125,20 +99,27 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange })
       transition: 'background 0.3s, border-color 0.3s',
     }}>
 
-      {/* ── Logo ── */}
-      <div style={{ padding: '24px 20px 16px', borderBottom: '1px solid var(--nav-border)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{
-            width: '36px', height: '36px',
-            background: 'linear-gradient(135deg, #0d3b8e, #1a4fa8)',
-            borderRadius: '10px', display: 'flex', alignItems: 'center',
-            justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: '16px',
-          }}>A</div>
-          <div>
-            <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--primary)', letterSpacing: '-0.5px' }}>AUCA</div>
-            <div style={{ fontSize: '10px', color: 'var(--text-muted)', letterSpacing: '1.5px', textTransform: 'uppercase' }}>Social Hub</div>
+      {/* ── LOGO ── */}
+      <div style={{ padding: '20px 20px 16px', borderBottom: '1px solid var(--nav-border)' }}>
+        {aucaLogo ? (
+          <img
+            src={aucaLogo}
+            alt="AUCA Social Hub"
+            style={{ width: '100%', maxHeight: '64px', objectFit: 'contain', objectPosition: 'left center' }}
+          />
+        ) : (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{
+              width: '36px', height: '36px', background: 'linear-gradient(135deg, #0d3b8e, #1a4fa8)',
+              borderRadius: '10px', display: 'flex', alignItems: 'center',
+              justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: '16px',
+            }}>A</div>
+            <div>
+              <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--primary)' }}>AUCA</div>
+              <div style={{ fontSize: '10px', color: 'var(--text-muted)', letterSpacing: '1.5px', textTransform: 'uppercase' }}>Social Hub</div>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* ── Nav items ── */}
@@ -147,30 +128,39 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange })
           const isActive  = activePage === item.id;
           const isHovered = hovered === item.id;
           return (
-            <button key={item.id}
+            <button
+              key={item.id}
               onMouseEnter={() => setHovered(item.id)}
               onMouseLeave={() => setHovered(null)}
               onClick={() => onNavigate && onNavigate(item.id)}
               style={{
                 display: 'flex', alignItems: 'center', gap: '12px',
                 padding: '11px 14px', borderRadius: '10px', marginBottom: '4px',
-                width: '100%', textAlign: 'left', border: 'none', position: 'relative',
+                width: '100%', textAlign: 'left', border: 'none',
+                position: 'relative',
                 background: isActive
                   ? 'var(--nav-active-bg)'
                   : isHovered ? 'var(--surface-2)' : 'transparent',
                 color: isActive ? 'var(--nav-active-color)' : 'var(--nav-text)',
-                fontWeight: isActive ? 700 : 500, fontSize: '14px',
-                transition: 'all 0.15s', cursor: 'pointer',
+                fontWeight: isActive ? 700 : 500,
+                fontSize: '14px',
+                transition: 'all 0.15s',
+                cursor: 'pointer',
                 fontFamily: "'Nunito', sans-serif",
               }}
             >
+              {/* Active left bar */}
               {isActive && (
                 <span style={{
                   position: 'absolute', left: 0, top: '20%', bottom: '20%',
-                  width: '3px', background: 'var(--primary)', borderRadius: '0 3px 3px 0',
+                  width: '3px', background: 'var(--primary)',
+                  borderRadius: '0 3px 3px 0',
                 }} />
               )}
-              <span style={{ flexShrink: 0 }}>{item.icon(isActive)}</span>
+              {/* Icon — filled when active */}
+              <span style={{ flexShrink: 0, display: 'flex', alignItems: 'center' }}>
+                {isActive ? item.iconActive : item.icon}
+              </span>
               <span>{item.label}</span>
             </button>
           );
@@ -178,7 +168,11 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange })
       </div>
 
       {/* ── Bottom: user card + More button ── */}
-      <div style={{ padding: '12px', borderTop: '1px solid var(--nav-border)', position: 'relative' }} ref={moreRef}>
+      <div style={{
+        padding: '12px',
+        borderTop: '1px solid var(--nav-border)',
+        position: 'relative',
+      }} ref={moreRef}>
 
         {/* User card */}
         <div style={{
@@ -199,6 +193,9 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange })
             </div>
             <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Accountant</div>
           </div>
+          <span style={{ color: 'var(--text-muted)', flexShrink: 0, display: 'flex' }}>
+            <BsThreeDots size={16} />
+          </span>
         </div>
 
         {/* More button */}
@@ -216,36 +213,30 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange })
           onMouseEnter={e => { if (!showMore) e.currentTarget.style.background = 'var(--surface-2)'; }}
           onMouseLeave={e => { if (!showMore) e.currentTarget.style.background = 'transparent'; }}
         >
-          <MoreIcon />
+          <CiCircleMore size={22} />
           <span>More</span>
         </button>
 
-        {/* ── More popup (opens UPWARD) ── */}
+        {/* ── More popup — opens upward ── */}
         {showMore && (
           <div style={{
-            position: 'absolute',
-            bottom: '110px',
-            left: '12px',
-            right: '12px',
-            background: 'var(--surface)',
-            borderRadius: '16px',
+            position: 'absolute', bottom: '110px', left: '12px', right: '12px',
+            background: 'var(--surface)', borderRadius: '16px',
             border: '1px solid var(--border)',
             boxShadow: isDark
               ? '0 -8px 32px rgba(0,0,0,0.5)'
               : '0 -8px 32px rgba(13,59,142,0.15)',
-            overflow: 'hidden',
-            zIndex: 200,
+            overflow: 'hidden', zIndex: 200,
             animation: 'popupIn 0.18s ease',
           }}>
 
-            {/* Dark / Light mode toggle row */}
+            {/* Dark / Light toggle */}
             <div
               onClick={() => onThemeChange(isDark ? 'light' : 'dark')}
               style={{
                 display: 'flex', alignItems: 'center', gap: '12px',
                 padding: '14px 16px', cursor: 'pointer',
-                borderBottom: '1px solid var(--border)',
-                transition: 'background 0.15s',
+                borderBottom: '1px solid var(--border)', transition: 'background 0.15s',
               }}
               onMouseEnter={e => e.currentTarget.style.background = 'var(--surface-2)'}
               onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
@@ -256,7 +247,7 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange })
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 color: isDark ? '#4d8af0' : '#f0a500',
               }}>
-                {isDark ? <MoonIcon /> : <SunIcon />}
+                {isDark ? <BsMoonStars size={18} /> : <HiOutlineSun size={18} />}
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)' }}>
@@ -266,16 +257,15 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange })
                   {isDark ? 'Switch to light' : 'Switch to dark'}
                 </div>
               </div>
-              <Toggle checked={isDark} onChange={(val) => onThemeChange(val ? 'dark' : 'light')} />
+              <Toggle checked={isDark} onChange={val => onThemeChange(val ? 'dark' : 'light')} />
             </div>
 
-            {/* Settings row */}
+            {/* Settings */}
             <div
               style={{
                 display: 'flex', alignItems: 'center', gap: '12px',
                 padding: '14px 16px', cursor: 'pointer',
-                borderBottom: '1px solid var(--border)',
-                transition: 'background 0.15s',
+                borderBottom: '1px solid var(--border)', transition: 'background 0.15s',
               }}
               onMouseEnter={e => e.currentTarget.style.background = 'var(--surface-2)'}
               onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
@@ -286,7 +276,7 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange })
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 color: 'var(--primary)',
               }}>
-                <SettingsIcon />
+                <RiSettings3Line size={18} />
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)' }}>Settings</div>
@@ -294,16 +284,15 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange })
               </div>
             </div>
 
-            {/* Log out row */}
+            {/* Log out */}
             <div
+              onClick={() => alert('Logging out...')}
               style={{
                 display: 'flex', alignItems: 'center', gap: '12px',
-                padding: '14px 16px', cursor: 'pointer',
-                transition: 'background 0.15s',
+                padding: '14px 16px', cursor: 'pointer', transition: 'background 0.15s',
               }}
               onMouseEnter={e => e.currentTarget.style.background = '#fff0f0'}
               onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-              onClick={() => alert('Logging out...')}
             >
               <div style={{
                 width: '34px', height: '34px', borderRadius: '10px', flexShrink: 0,
@@ -311,7 +300,7 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange })
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 color: '#e53935',
               }}>
-                <LogOutIcon />
+                <RiLogoutBoxLine size={18} />
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: '14px', fontWeight: 700, color: '#e53935' }}>Log Out</div>
@@ -322,14 +311,12 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange })
           </div>
         )}
 
-        {/* Popup animation */}
         <style>{`
           @keyframes popupIn {
             from { opacity: 0; transform: translateY(10px); }
             to   { opacity: 1; transform: translateY(0); }
           }
         `}</style>
-
       </div>
     </nav>
   );
