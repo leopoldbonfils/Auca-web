@@ -1,15 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
 
 // ── react-icons ───────────────────────────────────────────────────────────────
-import { GoHome, GoHomeFill }        from 'react-icons/go';
+import { GoHome, GoHomeFill }         from 'react-icons/go';
 import { RiSearchLine, RiSearchFill } from 'react-icons/ri';
-import { FiPlusCircle }              from 'react-icons/fi';
-import { RiUser3Line, RiUser3Fill }  from 'react-icons/ri';
-import { CiCircleMore }              from 'react-icons/ci';
-import { HiOutlineSun }              from 'react-icons/hi';
-import { BsMoonStars }               from 'react-icons/bs';
-import { RiLogoutBoxLine }           from 'react-icons/ri';
-import { RiSettings3Line }           from 'react-icons/ri';
+import { FiPlusCircle }               from 'react-icons/fi';
+import { RiUser3Line, RiUser3Fill }   from 'react-icons/ri';
+import { CiCircleMore }               from 'react-icons/ci';
+import { HiOutlineSun }               from 'react-icons/hi';
+import { BsMoonStars }                from 'react-icons/bs';
+import { RiLogoutBoxLine }            from 'react-icons/ri';
+import { RiSettings3Line }            from 'react-icons/ri';
+import { MdOutlinePersonAddAlt }      from 'react-icons/md';
 
 // ── AUCA Logo ─────────────────────────────────────────────────────────────────
 let aucaLogo;
@@ -17,29 +18,28 @@ try { aucaLogo = require('../assets/image.png'); } catch (e) { aucaLogo = null; 
 
 // ── Nav items ─────────────────────────────────────────────────────────────────
 const NAV_ITEMS = [
-  { id: 'home',    label: 'Home',        icon: <GoHome size={26} />,       iconActive: <GoHomeFill size={26} /> },
-  { id: 'search',  label: 'Search',      icon: <RiSearchLine size={26} />, iconActive: <RiSearchFill size={26} /> },
-  { id: 'create',  label: 'Create',      icon: <FiPlusCircle size={26} />, iconActive: <FiPlusCircle size={26} /> },
-  { id: 'profile', label: 'Profile',     icon: <RiUser3Line size={26} />,  iconActive: <RiUser3Fill size={26} /> },
+  { id: 'home',    label: 'Home',    icon: <GoHome size={30} />,       iconActive: <GoHomeFill size={30} /> },
+  { id: 'search',  label: 'Search',  icon: <RiSearchLine size={30} />, iconActive: <RiSearchFill size={30} /> },
+  { id: 'create',  label: 'Create',  icon: <FiPlusCircle size={30} />, iconActive: <FiPlusCircle size={30} /> },
+  { id: 'profile', label: 'Profile', icon: <RiUser3Line size={30} />,  iconActive: <RiUser3Fill size={30} /> },
 ];
 
-// ── Widths ────────────────────────────────────────────────────────────────────
-const SLIM_W    = 72;   // icon-only width
-const EXPANDED_W = 240; // with labels
+const SLIM_W     = 72;
+const EXPANDED_W = 240;
 
 // ── Toggle ────────────────────────────────────────────────────────────────────
 function Toggle({ checked, onChange }) {
   return (
     <div onClick={e => { e.stopPropagation(); onChange(!checked); }}
       style={{
-        width: '44px', height: '24px', borderRadius: '12px',
+        width: '40px', height: '22px', borderRadius: '11px',
         cursor: 'pointer', flexShrink: 0,
         background: checked ? '#4d8af0' : '#555',
         position: 'relative', transition: 'background 0.25s',
       }}>
       <div style={{
-        position: 'absolute', top: '2px',
-        left: checked ? '22px' : '2px',
+        position: 'absolute', top: '1px',
+        left: checked ? '19px' : '1px',
         width: '20px', height: '20px', borderRadius: '50%',
         background: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,0.3)',
         transition: 'left 0.25s',
@@ -48,43 +48,114 @@ function Toggle({ checked, onChange }) {
   );
 }
 
+// ── Popup wrapper ─────────────────────────────────────────────────────────────
+function Popup({ children, bottom }) {
+  return (
+    <div style={{
+      position: 'absolute',
+      bottom: bottom || '70px',
+      left: '12px',
+      right: '12px',
+      background: 'var(--surface)',
+      borderRadius: '16px',
+      border: '1px solid var(--border)',
+      boxShadow: '0 -8px 32px rgba(0,0,0,0.2)',
+      overflow: 'hidden',
+      zIndex: 300,
+      animation: 'popupIn 0.18s ease',
+    }}>
+      {children}
+    </div>
+  );
+}
+
+// ── PopupRow ──────────────────────────────────────────────────────────────────
+function PopupRow({ iconBg, iconColor, icon, label, sublabel, right, onClick, danger, border = true }) {
+  return (
+    <div
+      onClick={onClick}
+      style={{
+        display: 'flex', alignItems: 'center', gap: '12px',
+        padding: '13px 16px', cursor: 'pointer',
+        borderBottom: border ? '1px solid var(--border)' : 'none',
+        transition: 'background 0.15s',
+      }}
+      onMouseEnter={e => e.currentTarget.style.background = danger ? '#fff0f0' : 'var(--surface-2)'}
+      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+    >
+      <div style={{
+        width: '32px', height: '32px', borderRadius: '8px', flexShrink: 0,
+        background: iconBg || 'var(--primary-pale)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        color: iconColor || 'var(--primary)',
+      }}>
+        {icon}
+      </div>
+      <div style={{ flex: 1 }}>
+        <div style={{ fontSize: '13px', fontWeight: 700, color: danger ? '#e53935' : 'var(--text-primary)' }}>
+          {label}
+        </div>
+        {sublabel && <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{sublabel}</div>}
+      </div>
+      {right && <div>{right}</div>}
+    </div>
+  );
+}
+
 // ── Navbar ────────────────────────────────────────────────────────────────────
 export default function Navbar({ activePage, onNavigate, theme, onThemeChange }) {
-  const [expanded, setExpanded] = useState(false); // hover state
-  const [showMore, setShowMore] = useState(false);
-  const navRef  = useRef(null);
-  const moreRef = useRef(null);
-  const isDark  = theme === 'dark';
+  const [expanded,     setExpanded]     = useState(false);
+  const [showMore,     setShowMore]     = useState(false);
+  const [showAccount,  setShowAccount]  = useState(false);
+  const navRef     = useRef(null);
+  const moreRef    = useRef(null);
+  const accountRef = useRef(null);
+  const isDark     = theme === 'dark';
 
-  // Close More popup on outside click
+  // Close popups on outside click
   useEffect(() => {
     const handler = e => {
-      if (moreRef.current && !moreRef.current.contains(e.target)) {
-        setShowMore(false);
-      }
+      if (moreRef.current    && !moreRef.current.contains(e.target))    setShowMore(false);
+      if (accountRef.current && !accountRef.current.contains(e.target)) setShowAccount(false);
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  const navWidth = expanded ? EXPANDED_W : SLIM_W;
+  // ── Shared button style ──
+  const btnStyle = (isActive, isExpanded) => ({
+    display: 'flex',
+    alignItems: 'center',
+    gap: isExpanded ? '14px' : '0',
+    padding: isExpanded ? '11px 20px' : '11px 0',
+    justifyContent: isExpanded ? 'flex-start' : 'center',
+    width: isExpanded ? 'calc(100% - 16px)' : '100%',
+    margin: isExpanded ? '1px 8px' : '1px 0',
+    border: 'none',
+    borderRadius: isExpanded ? '10px' : '0',
+    background: isActive && isExpanded ? 'var(--nav-active-bg)' : 'transparent',
+    color: isActive ? 'var(--nav-active-color)' : 'var(--nav-text)',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    fontFamily: "'Nunito', sans-serif",
+  });
 
   return (
     <nav
       ref={navRef}
       onMouseEnter={() => setExpanded(true)}
-      onMouseLeave={() => { setExpanded(false); setShowMore(false); }}
+      onMouseLeave={() => { setExpanded(false); setShowMore(false); setShowAccount(false); }}
       style={{
         position: 'fixed', top: 0, left: 0,
         height: '100vh',
-        width: `${navWidth}px`,
+        width: `${expanded ? EXPANDED_W : SLIM_W}px`,
         background: 'var(--nav-bg)',
         borderRight: '1px solid var(--nav-border)',
         display: 'flex', flexDirection: 'column',
         alignItems: expanded ? 'flex-start' : 'center',
         zIndex: 100,
         overflow: 'hidden',
-        transition: 'width 0.25s ease, align-items 0.25s ease',
+        transition: 'width 0.25s ease',
         boxShadow: isDark
           ? '2px 0 24px rgba(0,0,0,0.5)'
           : '2px 0 16px rgba(13,59,142,0.08)',
@@ -93,31 +164,27 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange })
 
       {/* ── LOGO ── */}
       <div style={{
-        padding: expanded ? '24px 20px 20px' : '24px 0 20px',
+        padding: expanded ? '22px 20px 18px' : '22px 0 18px',
         borderBottom: '1px solid var(--nav-border)',
         width: '100%',
         display: 'flex',
         justifyContent: expanded ? 'flex-start' : 'center',
-        alignItems: 'center',
-        transition: 'padding 0.25s',
         flexShrink: 0,
+        transition: 'padding 0.25s',
       }}>
         {aucaLogo ? (
-          <img
-            src={aucaLogo}
-            alt="AUCA"
+          <img src={aucaLogo} alt="AUCA"
             style={{
-              width: expanded ? '120px' : '38px',
-              height: '38px',
+              width: expanded ? '110px' : '36px',
+              height: '36px',
               objectFit: 'contain',
               objectPosition: 'left center',
               transition: 'width 0.25s',
-              marginLeft: expanded ? '0' : '0',
             }}
           />
         ) : (
           <div style={{
-            width: '38px', height: '38px', flexShrink: 0,
+            width: '36px', height: '36px', flexShrink: 0,
             background: 'linear-gradient(135deg, #0d3b8e, #1a4fa8)',
             borderRadius: '10px', display: 'flex', alignItems: 'center',
             justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: '18px',
@@ -126,70 +193,22 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange })
       </div>
 
       {/* ── Nav items ── */}
-      <div style={{
-        flex: 1,
-        width: '100%',
-        padding: '16px 0',
-        overflowY: 'auto',
-        overflowX: 'hidden',
-      }}>
+      <div style={{ flex: 1, width: '100%', padding: '14px 0', overflowY: 'auto', overflowX: 'hidden' }}>
         {NAV_ITEMS.map(item => {
           const isActive = activePage === item.id;
           return (
-            <button
-              key={item.id}
+            <button key={item.id}
               onClick={() => onNavigate && onNavigate(item.id)}
               title={!expanded ? item.label : ''}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: expanded ? '16px' : '0',
-                padding: expanded ? '13px 20px' : '13px 0',
-                justifyContent: expanded ? 'flex-start' : 'center',
-                width: '100%',
-                border: 'none',
-                borderRadius: expanded ? '10px' : '0',
-                margin: expanded ? '2px 8px' : '2px 0',
-                width: expanded ? 'calc(100% - 16px)' : '100%',
-                cursor: 'pointer',
-                position: 'relative',
-                background: isActive && expanded
-                  ? 'var(--nav-active-bg)'
-                  : 'transparent',
-                color: isActive ? 'var(--nav-active-color)' : 'var(--nav-text)',
-                transition: 'all 0.2s ease',
-                fontFamily: "'Nunito', sans-serif",
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.background = isActive && expanded
-                  ? 'var(--nav-active-bg)'
-                  : 'var(--surface-2)';
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.background = isActive && expanded
-                  ? 'var(--nav-active-bg)'
-                  : 'transparent';
-              }}
+              style={btnStyle(isActive, expanded)}
+              onMouseEnter={e => e.currentTarget.style.background = isActive && expanded ? 'var(--nav-active-bg)' : 'var(--surface-2)'}
+              onMouseLeave={e => e.currentTarget.style.background = isActive && expanded ? 'var(--nav-active-bg)' : 'transparent'}
             >
-              {/* Icon */}
-              <span style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                flexShrink: 0,
-                // Bold/thicker stroke when active and NOT expanded (slim mode)
-                filter: isActive && !expanded ? 'drop-shadow(0 0 1px currentColor)' : 'none',
-              }}>
+              <span style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
                 {isActive ? item.iconActive : item.icon}
               </span>
-
-              {/* Label — only when expanded */}
               {expanded && (
-                <span style={{
-                  fontSize: '15px',
-                  fontWeight: isActive ? 700 : 500,
-                  whiteSpace: 'nowrap',
-                  opacity: expanded ? 1 : 0,
-                  transition: 'opacity 0.2s ease',
-                }}>
+                <span style={{ fontSize: '14px', fontWeight: isActive ? 700 : 500, whiteSpace: 'nowrap' }}>
                   {item.label}
                 </span>
               )}
@@ -198,150 +217,125 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange })
         })}
       </div>
 
-      {/* ── Bottom: More button ── */}
+      {/* ── Bottom section ── */}
       <div style={{
-        padding: '12px 0 20px',
+        padding: '10px 0 18px',
         borderTop: '1px solid var(--nav-border)',
         width: '100%',
         flexShrink: 0,
-        position: 'relative',
-      }} ref={moreRef}>
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: expanded ? 'flex-start' : 'center',
+        gap: '0px',
+      }}>
 
-        {/* More button */}
-        <button
-          onClick={() => setShowMore(p => !p)}
-          style={{
-            display: 'flex', alignItems: 'center',
-            gap: expanded ? '16px' : '0',
-            padding: expanded ? '13px 20px' : '13px 0',
-            justifyContent: expanded ? 'flex-start' : 'center',
-            width: expanded ? 'calc(100% - 16px)' : '100%',
-            margin: expanded ? '0 8px' : '0',
-            border: 'none', cursor: 'pointer',
-            borderRadius: expanded ? '10px' : '0',
-            background: showMore && expanded ? 'var(--surface-2)' : 'transparent',
-            color: 'var(--nav-text)',
-            transition: 'all 0.2s ease',
-            fontFamily: "'Nunito', sans-serif",
-          }}
-          onMouseEnter={e => e.currentTarget.style.background = 'var(--surface-2)'}
-          onMouseLeave={e => e.currentTarget.style.background = showMore && expanded ? 'var(--surface-2)' : 'transparent'}
-        >
-          <span style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
-            <CiCircleMore size={26} />
-          </span>
-          {expanded && (
-            <span style={{ fontSize: '15px', fontWeight: 500, whiteSpace: 'nowrap' }}>
-              More
-            </span>
-          )}
-        </button>
-
-        {/* ── More popup ── */}
-        {showMore && expanded && (
-          <div style={{
-            position: 'absolute',
-            bottom: '70px',
-            left: '12px',
-            right: '12px',
-            background: 'var(--surface)',
-            borderRadius: '16px',
-            border: '1px solid var(--border)',
-            boxShadow: isDark
-              ? '0 -8px 32px rgba(0,0,0,0.6)'
-              : '0 -8px 32px rgba(13,59,142,0.15)',
-            overflow: 'hidden',
-            zIndex: 300,
-            animation: 'popupIn 0.18s ease',
-          }}>
-
-            {/* Dark / Light toggle */}
-            <div
-              onClick={() => onThemeChange(isDark ? 'light' : 'dark')}
-              style={{
-                display: 'flex', alignItems: 'center', gap: '12px',
-                padding: '14px 16px', cursor: 'pointer',
-                borderBottom: '1px solid var(--border)', transition: 'background 0.15s',
-              }}
-              onMouseEnter={e => e.currentTarget.style.background = 'var(--surface-2)'}
-              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-            >
-              <div style={{
-                width: '34px', height: '34px', borderRadius: '10px',
-                background: isDark ? '#1a2744' : '#fff7ed',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                color: isDark ? '#4d8af0' : '#f0a500', flexShrink: 0,
-              }}>
-                {isDark ? <BsMoonStars size={18} /> : <HiOutlineSun size={18} />}
-              </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)' }}>
-                  {isDark ? 'Dark Mode' : 'Light Mode'}
-                </div>
-                <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-                  {isDark ? 'Switch to light' : 'Switch to dark'}
-                </div>
-              </div>
-              <Toggle checked={isDark} onChange={val => onThemeChange(val ? 'dark' : 'light')} />
-            </div>
-
-            {/* Settings */}
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: '12px',
-              padding: '14px 16px', cursor: 'pointer',
-              borderBottom: '1px solid var(--border)', transition: 'background 0.15s',
+        {/* ── More button ── */}
+        <div style={{ position: 'relative', width: '100%' }} ref={moreRef}>
+          <button
+            onClick={() => { setShowMore(p => !p); setShowAccount(false); }}
+            title={!expanded ? 'More' : ''}
+            style={{
+              ...btnStyle(false, expanded),
+              background: showMore && expanded ? 'var(--surface-2)' : 'transparent',
             }}
-              onMouseEnter={e => e.currentTarget.style.background = 'var(--surface-2)'}
-              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-            >
-              <div style={{
-                width: '34px', height: '34px', borderRadius: '10px',
-                background: 'var(--primary-pale)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                color: 'var(--primary)', flexShrink: 0,
-              }}>
-                <RiSettings3Line size={18} />
-              </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)' }}>Settings</div>
-                <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Account & preferences</div>
-              </div>
-            </div>
+            onMouseEnter={e => e.currentTarget.style.background = 'var(--surface-2)'}
+            onMouseLeave={e => e.currentTarget.style.background = showMore && expanded ? 'var(--surface-2)' : 'transparent'}
+          >
+            <span style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+              <CiCircleMore size={30} />
+            </span>
+            {expanded && (
+              <span style={{ fontSize: '14px', fontWeight: 500, whiteSpace: 'nowrap' }}>More</span>
+            )}
+          </button>
 
-            {/* Log out */}
-            <div
-              onClick={() => alert('Logging out...')}
-              style={{
-                display: 'flex', alignItems: 'center', gap: '12px',
-                padding: '14px 16px', cursor: 'pointer', transition: 'background 0.15s',
-              }}
-              onMouseEnter={e => e.currentTarget.style.background = '#fff0f0'}
-              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-            >
-              <div style={{
-                width: '34px', height: '34px', borderRadius: '10px',
-                background: '#fff0f0',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                color: '#e53935', flexShrink: 0,
-              }}>
-                <RiLogoutBoxLine size={18} />
-              </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: '14px', fontWeight: 700, color: '#e53935' }}>Log Out</div>
-                <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Sign out of your account</div>
-              </div>
-            </div>
+          {/* More popup — Dark mode + Settings only */}
+          {showMore && expanded && (
+            <Popup bottom="80px">
+              <PopupRow
+                iconBg={isDark ? '#1a2744' : '#fff7ed'}
+                iconColor={isDark ? '#4d8af0' : '#f0a500'}
+                icon={isDark ? <BsMoonStars size={20} /> : <HiOutlineSun size={20} />}
+                label={isDark ? 'Dark Mode' : 'Light Mode'}
+                sublabel={isDark ? 'Switch to light' : 'Switch to dark'}
+                right={<Toggle checked={isDark} onChange={val => onThemeChange(val ? 'dark' : 'light')} />}
+                onClick={() => onThemeChange(isDark ? 'light' : 'dark')}
+              />
+              <PopupRow
+                iconBg="var(--primary-pale)"
+                iconColor="var(--primary)"
+                icon={<RiSettings3Line size={20} />}
+                label="Settings"
+                sublabel="Account & preferences"
+                border={false}
+              />
+            </Popup>
+          )}
+        </div>
 
-          </div>
-        )}
+        {/* ── Account button ── */}
+        <div style={{ position: 'relative', width: '100%' }} ref={accountRef}>
+          <button
+            onClick={() => { setShowAccount(p => !p); setShowMore(false); }}
+            title={!expanded ? 'Account' : ''}
+            style={{
+              ...btnStyle(false, expanded),
+              background: showAccount && expanded ? 'var(--surface-2)' : 'transparent',
+            }}
+            onMouseEnter={e => e.currentTarget.style.background = 'var(--surface-2)'}
+            onMouseLeave={e => e.currentTarget.style.background = showAccount && expanded ? 'var(--surface-2)' : 'transparent'}
+          >
+            {/* Avatar circle */}
+            <div style={{
+              width: '30px', height: '30px', borderRadius: '50%', flexShrink: 0,
+              background: 'linear-gradient(135deg, #0d3b8e, #f0a500)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: '#fff', fontWeight: 800, fontSize: '10px',
+              border: showAccount ? '2px solid var(--primary)' : '2px solid transparent',
+              transition: 'border-color 0.2s',
+            }}>RC</div>
+            {expanded && (
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '130px' }}>
+                  Rutanga Claude
+                </div>
+                <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Accountant</div>
+              </div>
+            )}
+          </button>
 
-        <style>{`
-          @keyframes popupIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to   { opacity: 1; transform: translateY(0); }
-          }
-        `}</style>
+          {/* Account popup — Add Account + Log Out */}
+          {showAccount && expanded && (
+            <Popup bottom="70px">
+              <PopupRow
+                iconBg="var(--primary-pale)"
+                iconColor="var(--primary)"
+                icon={<MdOutlinePersonAddAlt size={16} />}
+                label="Add Account"
+                sublabel="Switch or add another account"
+              />
+              <PopupRow
+                iconBg="#fff0f0"
+                iconColor="#e53935"
+                icon={<RiLogoutBoxLine size={16} />}
+                label="Log Out"
+                sublabel="Sign out of Rutanga Claude"
+                border={false}
+                danger
+                onClick={() => alert('Logging out...')}
+              />
+            </Popup>
+          )}
+        </div>
+
       </div>
+
+      <style>{`
+        @keyframes popupIn {
+          from { opacity: 0; transform: translateY(8px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
     </nav>
   );
 }
