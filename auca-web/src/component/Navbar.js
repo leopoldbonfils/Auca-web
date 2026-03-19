@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 // ── react-icons ───────────────────────────────────────────────────────────────
 import { GoHome, GoHomeFill } from 'react-icons/go';
 import { RiSearchLine } from 'react-icons/ri';
-import { MdOutlineAddBox } from 'react-icons/md';
+import { FiPlusCircle } from "react-icons/fi";
 import { RiUser3Line } from 'react-icons/ri';
 import { CiCircleMore } from "react-icons/ci";
 import { HiOutlineSun } from 'react-icons/hi';
@@ -21,26 +21,26 @@ const NAV_ITEMS = [
   {
     id: 'home',
     label: 'Home',
-    icon:       <GoHome       size={22} />,
-    iconActive: <GoHomeFill   size={22} />,
+    icon:       <GoHome       size={30} />,
+    iconActive: <GoHomeFill   size={30} />,
   },
   {
     id: 'search',
     label: 'Search',
-    icon:       <RiSearchLine size={22} />,
-    iconActive: <RiSearchLine size={22} />,
+    icon:       <RiSearchLine size={30} />,
+    iconActive: <RiSearchLine size={30} />,
   },
   {
     id: 'create',
     label: 'Create Post',
-    icon:       <MdOutlineAddBox size={23} />,
-    iconActive: <MdOutlineAddBox size={23} />,
+    icon:       <FiPlusCircle size={30} />,
+    iconActive: <FiPlusCircle size={30} />,
   },
   {
     id: 'profile',
     label: 'Profile',
-    icon:       <RiUser3Line  size={22} />,
-    iconActive: <RiUser3Line  size={22} />,
+    icon:       <RiUser3Line  size={30} />,
+    iconActive: <RiUser3Line  size={30} />,
   },
 ];
 
@@ -213,7 +213,7 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange })
           onMouseEnter={e => { if (!showMore) e.currentTarget.style.background = 'var(--surface-2)'; }}
           onMouseLeave={e => { if (!showMore) e.currentTarget.style.background = 'transparent'; }}
         >
-          <CiCircleMore size={22} />
+          <CiCircleMore size={30} />
           <span>More</span>
         </button>
 
@@ -276,7 +276,7 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange })
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 color: 'var(--primary)',
               }}>
-                <RiSettings3Line size={18} />
+                <RiSettings3Line size={22} />
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)' }}>Settings</div>
@@ -300,7 +300,7 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange })
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 color: '#e53935',
               }}>
-                <RiLogoutBoxLine size={18} />
+                <RiLogoutBoxLine size={22} />
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: '14px', fontWeight: 700, color: '#e53935' }}>Log Out</div>
