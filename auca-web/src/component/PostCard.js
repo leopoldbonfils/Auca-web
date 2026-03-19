@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
 
+// ── Import your local PNG icons ───────────────────────────────────────────────
+import addReactionIcon from '../assets/addReaction.png';
+import commentIcon     from '../assets/comment.png';
+
 // ── Reactions ─────────────────────────────────────────────────────────────────
 const REACTIONS = [
   { emoji: '❤️', label: 'Love' },
@@ -11,14 +15,7 @@ const REACTIONS = [
   { emoji: '😢', label: 'Sad' },
 ];
 
-// ── Icons ─────────────────────────────────────────────────────────────────────
-const CommentIcon = () => (
-  <svg viewBox="0 0 24 24" width="18" height="18" fill="none"
-    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
-  </svg>
-);
-
+// ── Trash icon (keep as SVG — no PNG for delete) ──────────────────────────────
 const TrashIcon = () => (
   <svg viewBox="0 0 24 24" width="16" height="16" fill="none"
     stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -45,11 +42,55 @@ function avatarColor(name = '') {
   return colors[name.charCodeAt(0) % colors.length];
 }
 
+// ── LinkedIn-style stacked emoji summary ──────────────────────────────────────
+function ReactionSummary({ reactions, myReaction }) {
+  const total = Object.values(reactions).reduce((a, b) => a + b, 0);
+  if (total === 0 && !myReaction) return null;
+
+  const allEmojis = Object.entries(reactions)
+    .sort((a, b) => b[1] - a[1])
+    .map(([e]) => e);
+
+  if (myReaction && !allEmojis.includes(myReaction)) {
+    allEmojis.unshift(myReaction);
+  } else if (myReaction && allEmojis[0] !== myReaction) {
+    const idx = allEmojis.indexOf(myReaction);
+    if (idx > 0) allEmojis.splice(idx, 1);
+    allEmojis.unshift(myReaction);
+  }
+
+  const topEmojis = allEmojis.slice(0, 3);
+
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+      {/* Stacked overlapping emoji circles */}
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        {topEmojis.map((emoji, index) => (
+          <div key={emoji} style={{
+            width: '22px', height: '22px', borderRadius: '50%',
+            background: '#f0f2f5', border: '2px solid var(--surface)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: '12px', marginLeft: index === 0 ? '0' : '-8px',
+            zIndex: topEmojis.length - index, position: 'relative',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
+          }}>
+            {emoji}
+          </div>
+        ))}
+      </div>
+      <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)' }}>
+        {total}
+      </span>
+    </div>
+  );
+}
+
 // ── PostCard ──────────────────────────────────────────────────────────────────
 export default function PostCard({ post, onDelete, onComment }) {
   const [showPicker, setShowPicker] = useState(false);
   const [myReaction, setMyReaction] = useState(null);
   const [reactions,  setReactions]  = useState(post?.reactions || {});
+  const [expanded,   setExpanded]   = useState(false);
 
   const {
     id,
@@ -64,7 +105,6 @@ export default function PostCard({ post, onDelete, onComment }) {
     isOwner      = false,
   } = post || {};
 
-  // ── Reaction toggle ──────────────────────────────────────────────────────
   const handleReaction = (emoji) => {
     setShowPicker(false);
     const next = { ...reactions };
@@ -82,37 +122,32 @@ export default function PostCard({ post, onDelete, onComment }) {
   };
 
   const totalReactions = Object.values(reactions).reduce((a, b) => a + b, 0);
-  const topEmojis = Object.entries(reactions)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 3)
-    .map(([e]) => e);
+
+  const MAX_LENGTH = 200;
+  const isLong = content.length > MAX_LENGTH;
+  const displayedContent = isLong && !expanded
+    ? content.slice(0, MAX_LENGTH) + '...'
+    : content;
 
   return (
     <div
       style={{
-        background: '#fff',
-        borderRadius: '14px',
-        padding: '18px',
-        marginBottom: '16px',
-        boxShadow: '0 2px 12px rgba(13,59,142,0.07)',
-        border: '1px solid #e2e8f0',
-        fontFamily: "'Nunito', sans-serif",
+        background: 'var(--surface)', borderRadius: '14px', marginBottom: '16px',
+        boxShadow: 'var(--shadow)', border: '1px solid var(--border)',
+        fontFamily: "'Nunito', sans-serif", overflow: 'hidden',
         transition: 'box-shadow 0.2s ease',
       }}
-      onMouseEnter={e => e.currentTarget.style.boxShadow = '0 6px 24px rgba(13,59,142,0.13)'}
-      onMouseLeave={e => e.currentTarget.style.boxShadow = '0 2px 12px rgba(13,59,142,0.07)'}
+      onMouseEnter={e => e.currentTarget.style.boxShadow = 'var(--shadow-hover)'}
+      onMouseLeave={e => e.currentTarget.style.boxShadow = 'var(--shadow)'}
     >
 
       {/* ── HEADER ── */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '14px' }}>
-
-        {/* Avatar */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', padding: '16px 18px 12px' }}>
         <div style={{
           width: '44px', height: '44px', borderRadius: '50%',
           background: avatarColor(author),
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          color: '#fff', fontWeight: 800, fontSize: '16px',
-          flexShrink: 0, overflow: 'hidden',
+          color: '#fff', fontWeight: 800, fontSize: '16px', flexShrink: 0, overflow: 'hidden',
         }}>
           {post?.avatarUrl
             ? <img src={post.avatarUrl} alt={author} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -120,80 +155,49 @@ export default function PostCard({ post, onDelete, onComment }) {
           }
         </div>
 
-        {/* Name row */}
         <div style={{ flex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-            <span style={{ fontWeight: 700, fontSize: '14px', color: '#0d3b8e' }}>{author}</span>
+            <span style={{ fontWeight: 700, fontSize: '14px', color: 'var(--primary)' }}>{author}</span>
             {department && (
-              <>
-                <span style={{ color: '#cbd5e1' }}>|</span>
-                <span style={{ fontSize: '12px', color: '#5a6a82' }}>{department}</span>
-              </>
+              <><span style={{ color: 'var(--border)' }}>|</span>
+              <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{department}</span></>
             )}
             {timestamp && (
-              <>
-                <span style={{ color: '#cbd5e1' }}>·</span>
-                <span style={{ fontSize: '12px', color: '#5a6a82' }}>{timestamp}</span>
-              </>
+              <><span style={{ color: 'var(--border)' }}>·</span>
+              <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{timestamp}</span></>
             )}
           </div>
-          {role && <div style={{ fontSize: '12px', color: '#94a3b8', marginTop: '1px' }}>{role}</div>}
+          {role && <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '1px' }}>{role}</div>}
         </div>
 
-        {/* Delete (owner only) */}
         {isOwner && (
-          <button
-            onClick={() => onDelete && onDelete(id)}
-            title="Delete post"
-            style={{
-              padding: '6px', color: '#94a3b8', background: 'none',
-              border: 'none', cursor: 'pointer', borderRadius: '6px', transition: 'all 0.15s',
-            }}
+          <button onClick={() => onDelete && onDelete(id)} title="Delete"
+            style={{ padding: '6px', color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', borderRadius: '6px', transition: 'all 0.15s' }}
             onMouseEnter={e => { e.currentTarget.style.background = '#fee2e2'; e.currentTarget.style.color = '#e53935'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'none';    e.currentTarget.style.color = '#94a3b8'; }}
-          >
-            <TrashIcon />
-          </button>
+            onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = 'var(--text-muted)'; }}
+          ><TrashIcon /></button>
         )}
       </div>
 
       {/* ── BODY ── */}
 
       {type === 'announcement' && (
-        <div style={{ marginBottom: '14px' }}>
-          <div style={{
-            background: 'linear-gradient(135deg, #0d3b8e, #1a4fa8)',
-            color: '#fff', textAlign: 'center', padding: '10px 16px',
-            fontWeight: 800, fontSize: '14px', letterSpacing: '2.5px',
-            borderRadius: '8px 8px 0 0', textTransform: 'uppercase',
-          }}>
+        <div style={{ margin: '0 18px 14px' }}>
+          <div style={{ background: 'linear-gradient(135deg, #0d3b8e, #1a4fa8)', color: '#fff', textAlign: 'center', padding: '10px 16px', fontWeight: 800, fontSize: '14px', letterSpacing: '2.5px', borderRadius: '8px 8px 0 0', textTransform: 'uppercase' }}>
             📢 Announcement
           </div>
-          <div style={{
-            background: '#f8faff', border: '1px solid #e2e8f0', borderTop: 'none',
-            borderRadius: '0 0 8px 8px', padding: '16px',
-            fontSize: '13px', lineHeight: 1.8, color: '#1e293b', whiteSpace: 'pre-wrap',
-          }}>
+          <div style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderTop: 'none', borderRadius: '0 0 8px 8px', padding: '16px', fontSize: '13px', lineHeight: 1.8, color: 'var(--text-primary)', whiteSpace: 'pre-wrap' }}>
             {content}
           </div>
         </div>
       )}
 
       {type === 'memo' && (
-        <div style={{ marginBottom: '14px' }}>
-          <div style={{
-            background: 'linear-gradient(135deg, #1a3a6b, #2d5aa0)',
-            color: '#fff', textAlign: 'center', padding: '10px 16px',
-            fontWeight: 900, fontSize: '16px', letterSpacing: '4px',
-            borderRadius: '8px 8px 0 0', textTransform: 'uppercase',
-          }}>
+        <div style={{ margin: '0 18px 14px' }}>
+          <div style={{ background: 'linear-gradient(135deg, #1a3a6b, #2d5aa0)', color: '#fff', textAlign: 'center', padding: '10px 16px', fontWeight: 900, fontSize: '16px', letterSpacing: '4px', borderRadius: '8px 8px 0 0', textTransform: 'uppercase' }}>
             MEMO
           </div>
-          <div style={{
-            background: '#fff', border: '1px solid #e2e8f0', borderTop: 'none',
-            borderRadius: '0 0 8px 8px', padding: '16px',
-            fontSize: '13px', lineHeight: 1.8, color: '#1e293b', whiteSpace: 'pre-wrap',
-          }}>
+          <div style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderTop: 'none', borderRadius: '0 0 8px 8px', padding: '16px', fontSize: '13px', lineHeight: 1.8, color: 'var(--text-primary)', whiteSpace: 'pre-wrap' }}>
             {content}
           </div>
         </div>
@@ -201,92 +205,97 @@ export default function PostCard({ post, onDelete, onComment }) {
 
       {type === 'post' && (
         <>
+          {/* 1️⃣ Description first */}
           {content && (
-            <p style={{
-              fontSize: '14px', color: '#1e293b', lineHeight: 1.65,
-              marginBottom: '14px', whiteSpace: 'pre-wrap',
-            }}>
-              {content}
-            </p>
+            <div style={{ padding: '0 18px', marginBottom: image ? '12px' : '4px' }}>
+              <p style={{ fontSize: '14px', color: 'var(--text-primary)', lineHeight: 1.7, margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                {displayedContent}
+              </p>
+              {isLong && (
+                <button onClick={() => setExpanded(p => !p)} style={{ marginTop: '6px', background: 'none', border: 'none', color: 'var(--primary)', fontSize: '13px', fontWeight: 700, cursor: 'pointer', padding: 0, fontFamily: "'Nunito', sans-serif" }}>
+                  {expanded ? 'Show less' : 'Show more'}
+                </button>
+              )}
+            </div>
           )}
+
+          {/* 2️⃣ Image below */}
           {image && (
-            <div style={{ borderRadius: '10px', overflow: 'hidden', marginBottom: '14px', maxHeight: '380px' }}>
-              <img src={image} alt="post" style={{ width: '100%', objectFit: 'cover' }} />
+            <div style={{ width: '100%', maxHeight: '480px', overflow: 'hidden', background: 'var(--surface-2)' }}>
+              <img src={image} alt="post" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
             </div>
           )}
         </>
       )}
 
+      {/* ── REACTION SUMMARY — LinkedIn stacked style ── */}
+      {totalReactions > 0 && (
+        <div style={{ padding: '8px 18px 4px' }}>
+          <ReactionSummary reactions={reactions} myReaction={myReaction} />
+        </div>
+      )}
+
       {/* ── FOOTER ── */}
       <div style={{
-        display: 'flex', alignItems: 'center', gap: '6px',
-        paddingTop: '12px', borderTop: '1px solid #f1f5f9',
+        display: 'flex', alignItems: 'center', gap: '4px',
+        padding: '10px 18px 14px', borderTop: '1px solid var(--border)',
       }}>
 
-        {/* Reaction button + dark pill picker */}
+        {/* ── React button using addReaction.png ── */}
         <div style={{ position: 'relative' }}>
-
           <button
             onClick={() => setShowPicker(p => !p)}
             style={{
-              display: 'flex', alignItems: 'center', gap: '6px',
-              padding: '6px 14px', borderRadius: '20px',
-              border: `1px solid ${myReaction ? '#0d3b8e33' : '#e2e8f0'}`,
-              background: myReaction ? '#e8f0fe' : '#f8faff',
+              display: 'flex', alignItems: 'center', gap: '7px',
+              padding: '7px 14px', borderRadius: '20px',
+              border: `1px solid ${myReaction ? 'var(--primary-pale)' : 'var(--border)'}`,
+              background: myReaction ? 'var(--primary-pale)' : 'var(--surface-2)',
               cursor: 'pointer', transition: 'all 0.15s',
               fontFamily: "'Nunito', sans-serif",
             }}
+            onMouseEnter={e => { if (!myReaction) { e.currentTarget.style.background = 'var(--surface-2)'; e.currentTarget.style.borderColor = 'var(--primary)'; }}}
+            onMouseLeave={e => { if (!myReaction) { e.currentTarget.style.borderColor = 'var(--border)'; }}}
           >
-            <span style={{ fontSize: '18px' }}>{myReaction || '😊'}</span>
-            <span style={{ fontSize: '13px', fontWeight: 600, color: myReaction ? '#0d3b8e' : '#5a6a82' }}>
-              {totalReactions > 0 ? totalReactions : 'React'}
+            {/* Show selected emoji OR addReaction icon */}
+            {myReaction ? (
+              <span style={{ fontSize: '18px' }}>{myReaction}</span>
+            ) : (
+              <img
+                src={addReactionIcon}
+                alt="react"
+                style={{ width: '20px', height: '20px', opacity: 0.6 }}
+              />
+            )}
+            <span style={{
+              fontSize: '13px', fontWeight: 600,
+              color: myReaction ? 'var(--primary)' : 'var(--text-secondary)',
+            }}>
+              {myReaction ? myReaction : 'React'}
             </span>
           </button>
 
-          {/* ── Dark pill ── */}
+          {/* Dark pill emoji picker */}
           {showPicker && (
             <div style={{
-              position: 'absolute',
-              bottom: '46px',
-              left: '0',
+              position: 'absolute', bottom: '46px', left: '0',
               background: 'rgba(25, 25, 25, 0.93)',
-              backdropFilter: 'blur(12px)',
-              WebkitBackdropFilter: 'blur(12px)',
-              borderRadius: '50px',
-              padding: '10px 16px',
-              display: 'flex',
-              gap: '2px',
-              alignItems: 'center',
+              backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
+              borderRadius: '50px', padding: '10px 16px',
+              display: 'flex', gap: '2px', alignItems: 'center',
               boxShadow: '0 8px 32px rgba(0,0,0,0.45)',
               border: '1px solid rgba(255,255,255,0.1)',
-              zIndex: 50,
-              whiteSpace: 'nowrap',
+              zIndex: 50, whiteSpace: 'nowrap',
             }}>
               {REACTIONS.map(r => (
-                <button
-                  key={r.emoji}
-                  onClick={() => handleReaction(r.emoji)}
-                  title={r.label}
+                <button key={r.emoji} onClick={() => handleReaction(r.emoji)} title={r.label}
                   style={{
-                    fontSize: '26px',
-                    cursor: 'pointer',
-                    padding: '4px 6px',
-                    borderRadius: '50%',
-                    border: 'none',
-                    background: myReaction === r.emoji
-                      ? 'rgba(255,255,255,0.22)'
-                      : 'none',
-                    transition: 'transform 0.15s ease, background 0.15s ease',
-                    lineHeight: 1,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                    fontSize: '26px', cursor: 'pointer', padding: '4px 6px', borderRadius: '50%',
+                    border: 'none', background: myReaction === r.emoji ? 'rgba(255,255,255,0.2)' : 'none',
+                    transition: 'transform 0.15s ease', lineHeight: 1,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}
                   onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.45)'}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.transform =
-                      myReaction === r.emoji ? 'scale(1.2)' : 'scale(1)';
-                  }}
+                  onMouseLeave={e => e.currentTarget.style.transform = myReaction === r.emoji ? 'scale(1.2)' : 'scale(1)'}
                 >
                   {r.emoji}
                 </button>
@@ -295,42 +304,29 @@ export default function PostCard({ post, onDelete, onComment }) {
           )}
         </div>
 
-        {/* Comment button */}
+        {/* ── Comment button using comment.png ── */}
         <button
           onClick={() => onComment && onComment(id)}
           style={{
-            display: 'flex', alignItems: 'center', gap: '6px',
-            padding: '6px 14px', borderRadius: '20px',
-            border: '1px solid #e2e8f0', background: '#f8faff',
-            cursor: 'pointer', fontSize: '13px', fontWeight: 600,
-            color: '#5a6a82', transition: 'all 0.15s',
+            display: 'flex', alignItems: 'center', gap: '7px',
+            padding: '7px 14px', borderRadius: '20px',
+            border: '1px solid var(--border)', background: 'var(--surface-2)',
+            cursor: 'pointer', transition: 'all 0.15s',
             fontFamily: "'Nunito', sans-serif",
           }}
-          onMouseEnter={e => {
-            e.currentTarget.style.background = '#e8f0fe';
-            e.currentTarget.style.color = '#0d3b8e';
-            e.currentTarget.style.borderColor = '#0d3b8e33';
-          }}
-          onMouseLeave={e => {
-            e.currentTarget.style.background = '#f8faff';
-            e.currentTarget.style.color = '#5a6a82';
-            e.currentTarget.style.borderColor = '#e2e8f0';
-          }}
+          onMouseEnter={e => { e.currentTarget.style.background = 'var(--primary-pale)'; e.currentTarget.style.borderColor = 'var(--primary)'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'var(--surface-2)'; e.currentTarget.style.borderColor = 'var(--border)'; }}
         >
-          <CommentIcon />
-          <span>{commentCount > 0 ? commentCount : 'Comment'}</span>
+          {/* comment.png icon */}
+          <img
+            src={commentIcon}
+            alt="comment"
+            style={{ width: '20px', height: '20px', opacity: 0.6 }}
+          />
+          <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)' }}>
+            {commentCount > 0 ? commentCount : 'Comment'}
+          </span>
         </button>
-
-        {/* Reaction summary */}
-        {totalReactions > 0 && (
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: '4px',
-            fontSize: '12px', color: '#5a6a82', marginLeft: 'auto',
-          }}>
-            <span style={{ fontSize: '14px' }}>{topEmojis.join('')}</span>
-            <span>{totalReactions}</span>
-          </div>
-        )}
 
       </div>
     </div>
