@@ -27,13 +27,7 @@ const InfoIcon = () => (
   </svg>
 );
 
-const ArrowLeftIcon = () => (
-  <svg viewBox="0 0 24 24" width="22" height="22" fill="none"
-    stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="19" y1="12" x2="5" y2="12" />
-    <polyline points="12 19 5 12 12 5" />
-  </svg>
-);
+
 
 // ── Audience options ──────────────────────────────────────────────────────────
 const AUDIENCES = [
@@ -128,20 +122,7 @@ export default function CreatePost({ onNavigate, onPostCreated }) {
         display: 'flex', alignItems: 'center', gap: '14px',
         marginBottom: '24px',
       }}>
-        <button
-          onClick={() => onNavigate && onNavigate('home')}
-          style={{
-            width: '38px', height: '38px', borderRadius: '10px',
-            border: '1px solid #e2e8f0', background: '#fff',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer', color: '#0f1923', transition: 'all 0.15s',
-            flexShrink: 0,
-          }}
-          onMouseEnter={e => e.currentTarget.style.background = '#f4f6fb'}
-          onMouseLeave={e => e.currentTarget.style.background = '#fff'}
-        >
-          <ArrowLeftIcon />
-        </button>
+        
         <div>
           <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f1923' }}>Create Post</div>
           <div style={{ fontSize: '12px', color: '#5a6a82' }}>Share something with AUCA</div>

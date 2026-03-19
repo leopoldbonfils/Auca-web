@@ -158,7 +158,7 @@ export default function PostCard({ post, onDelete, onComment }) {
               <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{department}</span></>
             )}
             {timestamp && (
-              <><span style={{ color: 'var(--border)' }}>·</span>
+              <><span style={{ color: 'var(--border)' }}>•</span>
               <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{timestamp}</span></>
             )}
           </div>

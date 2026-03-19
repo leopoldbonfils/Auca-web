@@ -14,7 +14,7 @@ import { MdOutlinePersonAddAlt }      from 'react-icons/md';
 
 // ── AUCA Logo ─────────────────────────────────────────────────────────────────
 let aucaLogo;
-try { aucaLogo = require('../assets/image.png'); } catch (e) { aucaLogo = null; }
+try { aucaLogo = require('../assets/auca_logoo.png'); } catch (e) { aucaLogo = null; }
 
 // ── Nav items ─────────────────────────────────────────────────────────────────
 const NAV_ITEMS = [
