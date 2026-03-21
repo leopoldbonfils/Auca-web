@@ -1,33 +1,7 @@
 import React, { useState, useRef } from 'react';
-
-// ── Icons ─────────────────────────────────────────────────────────────────────
-const ImageIcon = () => (
-  <svg viewBox="0 0 24 24" width="32" height="32" fill="none"
-    stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="3" y="3" width="18" height="18" rx="3" />
-    <circle cx="8.5" cy="8.5" r="1.5" />
-    <path d="M21 15l-5-5L5 21" />
-  </svg>
-);
-
-const CloseIcon = () => (
-  <svg viewBox="0 0 24 24" width="18" height="18" fill="none"
-    stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-    <line x1="18" y1="6" x2="6" y2="18" />
-    <line x1="6" y1="6" x2="18" y2="18" />
-  </svg>
-);
-
-const InfoIcon = () => (
-  <svg viewBox="0 0 24 24" width="18" height="18" fill="none"
-    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="10" />
-    <line x1="12" y1="8" x2="12" y2="8" strokeWidth="3" />
-    <line x1="12" y1="12" x2="12" y2="16" />
-  </svg>
-);
-
-
+import { BsImage }        from 'react-icons/bs';
+import { IoClose }        from 'react-icons/io5';
+import { BsInfoCircle }   from 'react-icons/bs';
 
 // ── Audience options ──────────────────────────────────────────────────────────
 const AUDIENCES = [
@@ -45,13 +19,13 @@ const POST_TYPES = [
 
 // ── CreatePost component ──────────────────────────────────────────────────────
 export default function CreatePost({ onNavigate, onPostCreated }) {
-  const [postType,   setPostType]   = useState('post');
-  const [content,    setContent]    = useState('');
-  const [audience,   setAudience]   = useState('everyone');
-  const [imageFile,  setImageFile]  = useState(null);
+  const [postType,     setPostType]     = useState('post');
+  const [content,      setContent]      = useState('');
+  const [audience,     setAudience]     = useState('everyone');
+  const [imageFile,    setImageFile]    = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
-  const [isPosting,  setIsPosting]  = useState(false);
-  const [dragOver,   setDragOver]   = useState(false);
+  const [isPosting,    setIsPosting]    = useState(false);
+  const [dragOver,     setDragOver]     = useState(false);
 
   const fileInputRef = useRef(null);
 
@@ -83,7 +57,6 @@ export default function CreatePost({ onNavigate, onPostCreated }) {
     if (!content.trim()) return alert('Please write something before posting.');
     setIsPosting(true);
 
-    // Simulate API call — replace with your actual API later
     await new Promise(r => setTimeout(r, 1200));
 
     const newPost = {
@@ -106,8 +79,8 @@ export default function CreatePost({ onNavigate, onPostCreated }) {
     if (onNavigate)    onNavigate('home');
   };
 
-  const charLimit  = 500;
-  const charLeft   = charLimit - content.length;
+  const charLimit   = 500;
+  const charLeft    = charLimit - content.length;
   const isOverLimit = charLeft < 0;
 
   return (
@@ -118,21 +91,17 @@ export default function CreatePost({ onNavigate, onPostCreated }) {
     }}>
 
       {/* ── Top bar ── */}
-      <div style={{
-        display: 'flex', alignItems: 'center', gap: '14px',
-        marginBottom: '24px',
-      }}>
-        
+      <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '24px' }}>
         <div>
-          <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f1923' }}>Create Post</div>
-          <div style={{ fontSize: '12px', color: '#5a6a82' }}>Share something with AUCA</div>
+          <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-primary)' }}>Create Post</div>
+          <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Share something with AUCA</div>
         </div>
       </div>
 
       {/* ── Post type tabs ── */}
       <div style={{
         display: 'flex', gap: '8px', marginBottom: '20px',
-        background: '#f4f6fb', padding: '4px', borderRadius: '12px',
+        background: 'var(--surface-2)', padding: '4px', borderRadius: '12px',
       }}>
         {POST_TYPES.map(pt => (
           <button
@@ -141,8 +110,8 @@ export default function CreatePost({ onNavigate, onPostCreated }) {
             style={{
               flex: 1, padding: '8px 0', borderRadius: '9px',
               border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 700,
-              background: postType === pt.id ? '#fff' : 'transparent',
-              color: postType === pt.id ? '#0d3b8e' : '#5a6a82',
+              background: postType === pt.id ? 'var(--surface)' : 'transparent',
+              color: postType === pt.id ? 'var(--primary)' : 'var(--text-secondary)',
               boxShadow: postType === pt.id ? '0 1px 6px rgba(13,59,142,0.12)' : 'none',
               transition: 'all 0.15s',
               fontFamily: "'Nunito', sans-serif",
@@ -155,10 +124,10 @@ export default function CreatePost({ onNavigate, onPostCreated }) {
 
       {/* ── Text area ── */}
       <div style={{
-        background: '#fff', borderRadius: '14px',
-        border: `1.5px solid ${isOverLimit ? '#e53935' : content.length > 0 ? '#0d3b8e44' : '#e2e8f0'}`,
+        background: 'var(--surface)', borderRadius: '14px',
+        border: `1.5px solid ${isOverLimit ? '#e53935' : content.length > 0 ? '#0d3b8e44' : 'var(--border)'}`,
         marginBottom: '14px', overflow: 'hidden',
-        boxShadow: '0 2px 8px rgba(13,59,142,0.05)',
+        boxShadow: 'var(--shadow)',
         transition: 'border-color 0.2s',
       }}>
         <textarea
@@ -174,15 +143,15 @@ export default function CreatePost({ onNavigate, onPostCreated }) {
           style={{
             width: '100%', minHeight: '140px', padding: '16px',
             border: 'none', outline: 'none', resize: 'vertical',
-            fontSize: '14px', color: '#1e293b', lineHeight: 1.7,
+            fontSize: '14px', color: 'var(--text-primary)', lineHeight: 1.7,
             fontFamily: "'Nunito', sans-serif", background: 'transparent',
           }}
         />
         {/* Char counter */}
         <div style={{
-          padding: '8px 16px', borderTop: '1px solid #f1f5f9',
+          padding: '8px 16px', borderTop: '1px solid var(--border)',
           textAlign: 'right', fontSize: '12px',
-          color: isOverLimit ? '#e53935' : charLeft < 50 ? '#f0a500' : '#94a3b8',
+          color: isOverLimit ? '#e53935' : charLeft < 50 ? '#f0a500' : 'var(--text-muted)',
           fontWeight: 600,
         }}>
           {charLeft} characters remaining
@@ -193,21 +162,23 @@ export default function CreatePost({ onNavigate, onPostCreated }) {
       {imagePreview ? (
         <div style={{
           position: 'relative', borderRadius: '14px', overflow: 'hidden',
-          marginBottom: '14px', border: '1px solid #e2e8f0',
+          marginBottom: '14px', border: '1px solid var(--border)',
         }}>
-          <img src={imagePreview} alt="preview" style={{ width: '100%', maxHeight: '280px', objectFit: 'cover', display: 'block' }} />
+          <img src={imagePreview} alt="preview"
+            style={{ width: '100%', maxHeight: '280px', objectFit: 'cover', display: 'block' }} />
+          {/* ── Close: IoClose from react-icons/io5 ── */}
           <button
             onClick={removeImage}
             style={{
               position: 'absolute', top: '10px', right: '10px',
               width: '32px', height: '32px', borderRadius: '50%',
               background: 'rgba(0,0,0,0.6)', border: 'none',
-              color: '#fff', cursor: 'pointer', display: 'flex',
-              alignItems: 'center', justifyContent: 'center',
+              color: '#fff', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
               backdropFilter: 'blur(4px)',
             }}
           >
-            <CloseIcon />
+            <IoClose size={18} />
           </button>
         </div>
       ) : (
@@ -217,18 +188,21 @@ export default function CreatePost({ onNavigate, onPostCreated }) {
           onDragLeave={() => setDragOver(false)}
           onDrop={handleDrop}
           style={{
-            border: `2px dashed ${dragOver ? '#0d3b8e' : '#c8d6e8'}`,
+            border: `2px dashed ${dragOver ? 'var(--primary)' : 'var(--border)'}`,
             borderRadius: '14px', padding: '28px 20px',
             marginBottom: '14px', textAlign: 'center',
-            cursor: 'pointer', background: dragOver ? '#e8f0fe' : '#f8faff',
+            cursor: 'pointer', background: dragOver ? 'var(--primary-pale)' : 'var(--surface-2)',
             transition: 'all 0.2s ease',
           }}
-          onMouseEnter={e => { e.currentTarget.style.borderColor = '#0d3b8e'; e.currentTarget.style.background = '#f0f5ff'; }}
-          onMouseLeave={e => { if (!dragOver) { e.currentTarget.style.borderColor = '#c8d6e8'; e.currentTarget.style.background = '#f8faff'; }}}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.background = 'var(--primary-pale)'; }}
+          onMouseLeave={e => { if (!dragOver) { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.background = 'var(--surface-2)'; }}}
         >
-          <div style={{ color: '#94a3b8', marginBottom: '8px' }}><ImageIcon /></div>
-          <div style={{ fontSize: '14px', fontWeight: 700, color: '#5a6a82' }}>Add Image (Optional)</div>
-          <div style={{ fontSize: '12px', color: '#94a3b8', marginTop: '4px' }}>Click to browse or drag & drop</div>
+          {/* ── Image: BsImage from react-icons/bs ── */}
+          <div style={{ color: 'var(--text-muted)', marginBottom: '8px', display: 'flex', justifyContent: 'center' }}>
+            <BsImage size={32} />
+          </div>
+          <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-secondary)' }}>Add Image (Optional)</div>
+          <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}>Click to browse or drag & drop</div>
         </div>
       )}
 
@@ -242,14 +216,11 @@ export default function CreatePost({ onNavigate, onPostCreated }) {
 
       {/* ── Select Audience ── */}
       <div style={{
-        background: '#fff', borderRadius: '14px', padding: '18px',
-        marginBottom: '14px', border: '1px solid #e2e8f0',
-        boxShadow: '0 2px 8px rgba(13,59,142,0.05)',
+        background: 'var(--surface)', borderRadius: '14px', padding: '18px',
+        marginBottom: '14px', border: '1px solid var(--border)',
+        boxShadow: 'var(--shadow)',
       }}>
-        <div style={{
-          fontSize: '15px', fontWeight: 800, color: '#0d3b8e',
-          marginBottom: '14px', letterSpacing: '0.2px',
-        }}>
+        <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--primary)', marginBottom: '14px', letterSpacing: '0.2px' }}>
           Select Audience
         </div>
 
@@ -260,45 +231,37 @@ export default function CreatePost({ onNavigate, onPostCreated }) {
               style={{
                 display: 'flex', alignItems: 'center', gap: '14px',
                 padding: '12px 14px', borderRadius: '10px', cursor: 'pointer',
-                background: audience === a.id ? '#e8f0fe' : 'transparent',
+                background: audience === a.id ? 'var(--primary-pale)' : 'transparent',
                 border: `1px solid ${audience === a.id ? '#0d3b8e22' : 'transparent'}`,
                 transition: 'all 0.15s',
               }}
-              onMouseEnter={e => { if (audience !== a.id) e.currentTarget.style.background = '#f4f6fb'; }}
+              onMouseEnter={e => { if (audience !== a.id) e.currentTarget.style.background = 'var(--surface-2)'; }}
               onMouseLeave={e => { if (audience !== a.id) e.currentTarget.style.background = 'transparent'; }}
             >
               {/* Custom radio */}
               <div style={{
                 width: '20px', height: '20px', borderRadius: '50%', flexShrink: 0,
-                border: `2px solid ${audience === a.id ? '#0d3b8e' : '#c8d6e8'}`,
+                border: `2px solid ${audience === a.id ? 'var(--primary)' : 'var(--border)'}`,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                background: '#fff', transition: 'all 0.15s',
+                background: 'var(--surface)', transition: 'all 0.15s',
               }}>
                 {audience === a.id && (
-                  <div style={{
-                    width: '10px', height: '10px', borderRadius: '50%',
-                    background: '#0d3b8e',
-                  }} />
+                  <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--primary)' }} />
                 )}
               </div>
 
               <input
-                type="radio"
-                name="audience"
-                value={a.id}
+                type="radio" name="audience" value={a.id}
                 checked={audience === a.id}
                 onChange={() => setAudience(a.id)}
                 style={{ display: 'none' }}
               />
 
               <div>
-                <div style={{
-                  fontSize: '14px', fontWeight: 700,
-                  color: audience === a.id ? '#0d3b8e' : '#0f1923',
-                }}>
+                <div style={{ fontSize: '14px', fontWeight: 700, color: audience === a.id ? 'var(--primary)' : 'var(--text-primary)' }}>
                   {a.label}
                 </div>
-                <div style={{ fontSize: '12px', color: '#5a6a82', marginTop: '1px' }}>
+                <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '1px' }}>
                   {a.sub}
                 </div>
               </div>
@@ -307,14 +270,14 @@ export default function CreatePost({ onNavigate, onPostCreated }) {
         </div>
       </div>
 
-      {/* ── Info notice ── */}
+      {/* ── Info notice — BsInfoCircle from react-icons/bs ── */}
       <div style={{
         display: 'flex', alignItems: 'flex-start', gap: '10px',
-        background: '#f4f6fb', borderRadius: '10px', padding: '12px 14px',
-        marginBottom: '20px', border: '1px solid #e2e8f0',
+        background: 'var(--surface-2)', borderRadius: '10px', padding: '12px 14px',
+        marginBottom: '20px', border: '1px solid var(--border)',
       }}>
-        <span style={{ color: '#5a6a82', marginTop: '1px', flexShrink: 0 }}><InfoIcon /></span>
-        <span style={{ fontSize: '13px', color: '#5a6a82', lineHeight: 1.6 }}>
+        <BsInfoCircle size={18} style={{ color: 'var(--text-secondary)', marginTop: '1px', flexShrink: 0 }} />
+        <span style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
           Your post will only be visible to the selected audience.
         </span>
       </div>
@@ -327,26 +290,18 @@ export default function CreatePost({ onNavigate, onPostCreated }) {
           width: '100%', padding: '16px',
           borderRadius: '14px', border: 'none',
           background: isPosting || !content.trim() || isOverLimit
-            ? '#c8d6e8'
+            ? 'var(--border)'
             : 'linear-gradient(135deg, #0d3b8e, #1a4fa8)',
-          color: isPosting || !content.trim() || isOverLimit ? '#94a3b8' : '#fff',
+          color: isPosting || !content.trim() || isOverLimit ? 'var(--text-muted)' : '#fff',
           fontSize: '16px', fontWeight: 800,
           cursor: isPosting || !content.trim() || isOverLimit ? 'not-allowed' : 'pointer',
-          boxShadow: !isPosting && content.trim() && !isOverLimit
-            ? '0 4px 16px rgba(13,59,142,0.3)'
-            : 'none',
+          boxShadow: !isPosting && content.trim() && !isOverLimit ? '0 4px 16px rgba(13,59,142,0.3)' : 'none',
           transition: 'all 0.2s ease',
           letterSpacing: '0.5px',
           fontFamily: "'Nunito', sans-serif",
         }}
-        onMouseEnter={e => {
-          if (!isPosting && content.trim() && !isOverLimit)
-            e.currentTarget.style.boxShadow = '0 6px 24px rgba(13,59,142,0.4)';
-        }}
-        onMouseLeave={e => {
-          if (!isPosting && content.trim() && !isOverLimit)
-            e.currentTarget.style.boxShadow = '0 4px 16px rgba(13,59,142,0.3)';
-        }}
+        onMouseEnter={e => { if (!isPosting && content.trim() && !isOverLimit) e.currentTarget.style.boxShadow = '0 6px 24px rgba(13,59,142,0.4)'; }}
+        onMouseLeave={e => { if (!isPosting && content.trim() && !isOverLimit) e.currentTarget.style.boxShadow = '0 4px 16px rgba(13,59,142,0.3)'; }}
       >
         {isPosting ? (
           <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
@@ -360,7 +315,6 @@ export default function CreatePost({ onNavigate, onPostCreated }) {
         ) : 'Post'}
       </button>
 
-      {/* Spinner keyframe */}
       <style>{`
         @keyframes spin {
           from { transform: rotate(0deg); }
