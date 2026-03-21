@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import { MdOutlineAddReaction } from 'react-icons/md';
+import { FaRegCommentDots }     from 'react-icons/fa';
+import { FiTrash2 }             from 'react-icons/fi';
 
 // ── Reactions ─────────────────────────────────────────────────────────────────
 const REACTIONS = [
@@ -10,17 +13,6 @@ const REACTIONS = [
   { emoji: '😡', label: 'Angry' },
   { emoji: '😢', label: 'Sad' },
 ];
-
-// ── Trash icon SVG ────────────────────────────────────────────────────────────
-const TrashIcon = () => (
-  <svg viewBox="0 0 24 24" width="16" height="16" fill="none"
-    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="3 6 5 6 21 6" />
-    <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
-    <path d="M10 11v6M14 11v6" />
-    <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" />
-  </svg>
-);
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function getInitials(name = '') {
@@ -63,7 +55,7 @@ function ReactionSummary({ reactions, myReaction }) {
         {topEmojis.map((emoji, index) => (
           <div key={emoji} style={{
             width: '22px', height: '22px', borderRadius: '50%',
-            background: '#f0f2f5', border: '2px solid var(--surface)',
+            background: 'var(--surface-2)', border: '2px solid var(--surface)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: '12px', marginLeft: index === 0 ? '0' : '-8px',
             zIndex: topEmojis.length - index, position: 'relative',
@@ -165,12 +157,20 @@ export default function PostCard({ post, onDelete, onComment }) {
           {role && <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '1px' }}>{role}</div>}
         </div>
 
+        {/* ── Delete: FiTrash2 from react-icons/fi ── */}
         {isOwner && (
-          <button onClick={() => onDelete && onDelete(id)}
-            style={{ padding: '6px', color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', borderRadius: '6px', transition: 'all 0.15s' }}
+          <button onClick={() => onDelete && onDelete(id)} title="Delete post"
+            style={{
+              padding: '6px', color: 'var(--text-muted)', background: 'none',
+              border: 'none', cursor: 'pointer', borderRadius: '6px',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              transition: 'all 0.15s',
+            }}
             onMouseEnter={e => { e.currentTarget.style.background = '#fee2e2'; e.currentTarget.style.color = '#e53935'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = 'var(--text-muted)'; }}
-          ><TrashIcon /></button>
+            onMouseLeave={e => { e.currentTarget.style.background = 'none';    e.currentTarget.style.color = 'var(--text-muted)'; }}
+          >
+            <FiTrash2 size={18} />
+          </button>
         )}
       </div>
 
@@ -233,7 +233,7 @@ export default function PostCard({ post, onDelete, onComment }) {
         padding: '10px 18px 14px', borderTop: '1px solid var(--border)',
       }}>
 
-        {/* ── React button — addReaction.png via require ── */}
+        {/* ── React button — MdOutlineAddReaction from react-icons/md ── */}
         <div style={{ position: 'relative' }}>
           <button
             onClick={() => setShowPicker(p => !p)}
@@ -249,20 +249,11 @@ export default function PostCard({ post, onDelete, onComment }) {
             onMouseLeave={e => { e.currentTarget.style.borderColor = myReaction ? 'var(--primary-pale)' : 'var(--border)'; }}
           >
             {myReaction ? (
-              /* Show selected emoji when reacted */
               <span style={{ fontSize: '18px', lineHeight: 1 }}>{myReaction}</span>
             ) : (
-              /* addReaction.png icon — using require so CRA resolves it correctly */
-              <img
-                src={require('../assets/addReaction.png')}
-                alt="react"
-                style={{ width: '22px', height: '22px', objectFit: 'contain' }}
-              />
+              <MdOutlineAddReaction size={20} style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
             )}
-            <span style={{
-              fontSize: '13px', fontWeight: 600,
-              color: myReaction ? 'var(--primary)' : 'var(--text-secondary)',
-            }}>
+            <span style={{ fontSize: '13px', fontWeight: 600, color: myReaction ? 'var(--primary)' : 'var(--text-secondary)' }}>
               {myReaction ? 'Reacted' : 'React'}
             </span>
           </button>
@@ -297,7 +288,7 @@ export default function PostCard({ post, onDelete, onComment }) {
           )}
         </div>
 
-        {/* ── Comment button — comment.png via require ── */}
+        {/* ── Comment button — FaRegCommentDots from react-icons/fa ── */}
         <button
           onClick={() => onComment && onComment(id)}
           style={{
@@ -310,12 +301,7 @@ export default function PostCard({ post, onDelete, onComment }) {
           onMouseEnter={e => { e.currentTarget.style.background = 'var(--primary-pale)'; e.currentTarget.style.borderColor = 'var(--primary)'; }}
           onMouseLeave={e => { e.currentTarget.style.background = 'var(--surface-2)'; e.currentTarget.style.borderColor = 'var(--border)'; }}
         >
-          {/* comment.png — using require */}
-          <img
-            src={require('../assets/comment.png')}
-            alt="comment"
-            style={{ width: '22px', height: '22px', objectFit: 'contain' }}
-          />
+          <FaRegCommentDots size={18} style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
           <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)' }}>
             {commentCount > 0 ? commentCount : 'Comment'}
           </span>
