@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { RiSearchLine } from 'react-icons/ri';
+import { IoClose }      from 'react-icons/io5';
 
 const MOCK_USERS = [
   { id: '1', name: 'Rutanga Claude',   role: 'Accountant', department: 'Finance',    initials: 'RC', color: 'linear-gradient(135deg,#0d3b8e,#1a4fa8)' },
@@ -12,24 +14,13 @@ const MOCK_USERS = [
 ];
 
 const MOCK_POSTS = [
-  { id: 'p1', author: 'Rutanga Claude',  content: 'Morning AUCA 😄',                              type: 'post',         timestamp: 'Mar 9' },
-  { id: 'p2', author: 'Mugisha Leopold', content: 'Invitation for today\'s General Assembly...',  type: 'announcement', timestamp: 'Mar 3' },
-  { id: 'p3', author: 'Uwase Aline',     content: 'Great lecture today on Database Design! 📚',   type: 'post',         timestamp: 'Mar 2' },
-  { id: 'p4', author: 'Habimana Eric',   content: 'Anyone has notes from yesterday\'s class?',    type: 'post',         timestamp: 'Mar 1' },
+  { id: 'p1', author: 'Rutanga Claude',  content: 'Morning AUCA 😄',                             type: 'post',         timestamp: 'Mar 9' },
+  { id: 'p2', author: 'Mugisha Leopold', content: "Invitation for today's General Assembly...",  type: 'announcement', timestamp: 'Mar 3' },
+  { id: 'p3', author: 'Uwase Aline',     content: 'Great lecture today on Database Design! 📚',  type: 'post',         timestamp: 'Mar 2' },
+  { id: 'p4', author: 'Habimana Eric',   content: "Anyone has notes from yesterday's class?",    type: 'post',         timestamp: 'Mar 1' },
 ];
 
 const TABS = ['All', 'People', 'Posts'];
-
-const SearchIcon = () => (
-  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/>
-  </svg>
-);
-const CloseIcon = () => (
-  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-  </svg>
-);
 
 export default function Search() {
   const [query,     setQuery]     = useState('');
@@ -56,46 +47,54 @@ export default function Search() {
 
       {/* Heading */}
       <div style={{ marginBottom: '20px' }}>
-        <div style={{ fontSize: '22px', fontWeight: 800, color: '#0f1923' }}>Search</div>
-        <div style={{ fontSize: '13px', color: '#5a6a82' }}>Find people and posts across AUCA</div>
+        <div style={{ fontSize: '22px', fontWeight: 800, color: 'var(--text-primary)' }}>Search</div>
+        <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Find people and posts across AUCA</div>
       </div>
 
-      {/* Search input */}
+      {/* ── Search input — RiSearchLine + IoClose from react-icons ── */}
       <div style={{
         display: 'flex', alignItems: 'center', gap: '10px',
-        background: '#fff', borderRadius: '12px', padding: '0 16px',
-        border: '1.5px solid', borderColor: q ? '#0d3b8e' : '#e2e8f0',
-        marginBottom: '16px', boxShadow: '0 2px 8px rgba(13,59,142,0.06)',
+        background: 'var(--surface)', borderRadius: '12px', padding: '0 16px',
+        border: `1.5px solid ${q ? 'var(--primary)' : 'var(--border)'}`,
+        marginBottom: '16px', boxShadow: 'var(--shadow)',
         transition: 'border-color 0.2s',
       }}>
-        <span style={{ color: '#94a3b8', flexShrink: 0 }}><SearchIcon /></span>
+        <span style={{ color: 'var(--text-muted)', flexShrink: 0, display: 'flex' }}>
+          <RiSearchLine size={18} />
+        </span>
         <input
           value={query}
           onChange={e => setQuery(e.target.value)}
           placeholder="Search people, posts, departments..."
           style={{
             flex: 1, padding: '14px 0', border: 'none', outline: 'none',
-            fontSize: '14px', color: '#0f1923', background: 'transparent',
+            fontSize: '14px', color: 'var(--text-primary)', background: 'transparent',
             fontFamily: "'Nunito', sans-serif",
           }}
         />
         {q && (
-          <button onClick={() => setQuery('')} style={{ color: '#94a3b8', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
-            <CloseIcon />
+          <button
+            onClick={() => setQuery('')}
+            style={{
+              color: 'var(--text-muted)', background: 'none', border: 'none',
+              cursor: 'pointer', display: 'flex', alignItems: 'center',
+            }}
+          >
+            <IoClose size={18} />
           </button>
         )}
       </div>
 
       {/* Tabs */}
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', borderBottom: '1px solid #e2e8f0' }}>
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', borderBottom: '1px solid var(--border)' }}>
         {TABS.map(t => (
           <button key={t} onClick={() => setActiveTab(t)}
             style={{
               padding: '8px 16px', fontSize: '13px',
               fontWeight: activeTab === t ? 700 : 500,
-              color: activeTab === t ? '#0d3b8e' : '#5a6a82',
+              color: activeTab === t ? 'var(--primary)' : 'var(--text-secondary)',
               background: 'none', border: 'none',
-              borderBottom: activeTab === t ? '2px solid #0d3b8e' : '2px solid transparent',
+              borderBottom: activeTab === t ? '2px solid var(--primary)' : '2px solid transparent',
               marginBottom: '-1px', cursor: 'pointer',
               fontFamily: "'Nunito', sans-serif",
             }}>
@@ -106,9 +105,9 @@ export default function Search() {
 
       {/* Empty state when no query */}
       {!q && (
-        <div style={{ textAlign: 'center', padding: '60px 20px', color: '#94a3b8' }}>
+        <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-muted)' }}>
           <div style={{ fontSize: '48px', marginBottom: '12px' }}></div>
-          <div style={{ fontSize: '16px', fontWeight: 600, color: '#5a6a82' }}>Search AUCA</div>
+          <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-secondary)' }}>Search AUCA</div>
           <div style={{ fontSize: '13px', marginTop: '6px' }}>Type a name, department, or keyword</div>
         </div>
       )}
@@ -120,25 +119,25 @@ export default function Search() {
           {showUsers && (
             <div style={{ marginBottom: '24px' }}>
               {activeTab === 'All' && (
-                <div style={{ fontSize: '13px', fontWeight: 700, color: '#94a3b8', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '1px' }}>
                   People
                 </div>
               )}
               {filteredUsers.length === 0 && activeTab === 'People' ? (
-                <div style={{ textAlign: 'center', padding: '40px 20px', color: '#94a3b8' }}>
-                  <div style={{ fontSize: '32px', marginBottom: '8px' }}>👤</div>
+                <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-muted)' }}>
+                  <div style={{ fontSize: '32px', marginBottom: '8px' }}></div>
                   <div style={{ fontSize: '14px' }}>No people found</div>
                 </div>
               ) : (
                 filteredUsers.map(u => (
                   <div key={u.id} style={{
                     display: 'flex', alignItems: 'center', gap: '12px',
-                    padding: '12px 16px', background: '#fff', borderRadius: '12px',
-                    marginBottom: '8px', border: '1px solid #e2e8f0', cursor: 'pointer',
-                    transition: 'all 0.15s', boxShadow: '0 1px 4px rgba(13,59,142,0.05)',
+                    padding: '12px 16px', background: 'var(--surface)', borderRadius: '12px',
+                    marginBottom: '8px', border: '1px solid var(--border)', cursor: 'pointer',
+                    transition: 'all 0.15s', boxShadow: 'var(--shadow)',
                   }}
-                    onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 16px rgba(13,59,142,0.12)'; e.currentTarget.style.borderColor = '#0d3b8e22'; }}
-                    onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 1px 4px rgba(13,59,142,0.05)'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
+                    onMouseEnter={e => { e.currentTarget.style.boxShadow = 'var(--shadow-hover)'; e.currentTarget.style.borderColor = '#0d3b8e22'; }}
+                    onMouseLeave={e => { e.currentTarget.style.boxShadow = 'var(--shadow)'; e.currentTarget.style.borderColor = 'var(--border)'; }}
                   >
                     <div style={{
                       width: '44px', height: '44px', borderRadius: '50%',
@@ -146,12 +145,13 @@ export default function Search() {
                       justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: '15px', flexShrink: 0,
                     }}>{u.initials}</div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 700, fontSize: '14px', color: '#0f1923' }}>{u.name}</div>
-                      <div style={{ fontSize: '12px', color: '#5a6a82' }}>{u.role} · {u.department}</div>
+                      <div style={{ fontWeight: 700, fontSize: '14px', color: 'var(--text-primary)' }}>{u.name}</div>
+                      <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{u.role} · {u.department}</div>
                     </div>
                     <div style={{
                       padding: '5px 12px', borderRadius: '20px', fontSize: '12px',
-                      fontWeight: 700, color: '#0d3b8e', background: '#e8f0fe', border: '1px solid #0d3b8e22',
+                      fontWeight: 700, color: 'var(--primary)', background: 'var(--primary-pale)',
+                      border: '1px solid #0d3b8e22',
                     }}>View</div>
                   </div>
                 ))
@@ -163,38 +163,40 @@ export default function Search() {
           {showPosts && (
             <div>
               {activeTab === 'All' && (
-                <div style={{ fontSize: '13px', fontWeight: 700, color: '#94a3b8', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '1px' }}>
                   Posts
                 </div>
               )}
               {filteredPosts.length === 0 && activeTab === 'Posts' ? (
-                <div style={{ textAlign: 'center', padding: '40px 20px', color: '#94a3b8' }}>
-                  <div style={{ fontSize: '32px', marginBottom: '8px' }}>📭</div>
+                <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-muted)' }}>
+                  <div style={{ fontSize: '32px', marginBottom: '8px' }}></div>
                   <div style={{ fontSize: '14px' }}>No posts found</div>
                 </div>
               ) : (
                 filteredPosts.map(p => (
                   <div key={p.id} style={{
-                    padding: '14px 16px', background: '#fff', borderRadius: '12px',
-                    marginBottom: '8px', border: '1px solid #e2e8f0', cursor: 'pointer',
-                    transition: 'all 0.15s', boxShadow: '0 1px 4px rgba(13,59,142,0.05)',
+                    padding: '14px 16px', background: 'var(--surface)', borderRadius: '12px',
+                    marginBottom: '8px', border: '1px solid var(--border)', cursor: 'pointer',
+                    transition: 'all 0.15s', boxShadow: 'var(--shadow)',
                   }}
-                    onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 16px rgba(13,59,142,0.12)'; e.currentTarget.style.borderColor = '#0d3b8e22'; }}
-                    onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 1px 4px rgba(13,59,142,0.05)'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
+                    onMouseEnter={e => { e.currentTarget.style.boxShadow = 'var(--shadow-hover)'; e.currentTarget.style.borderColor = '#0d3b8e22'; }}
+                    onMouseLeave={e => { e.currentTarget.style.boxShadow = 'var(--shadow)'; e.currentTarget.style.borderColor = 'var(--border)'; }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                      <span style={{ fontSize: '13px', fontWeight: 700, color: '#0d3b8e' }}>{p.author}</span>
-                      <span style={{ fontSize: '11px', color: '#94a3b8' }}>· {p.timestamp}</span>
+                      <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--primary)' }}>{p.author}</span>
+                      <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>· {p.timestamp}</span>
                       {p.type !== 'post' && (
                         <span style={{
                           fontSize: '10px', fontWeight: 700, padding: '2px 8px',
-                          borderRadius: '20px', background: '#e8f0fe', color: '#0d3b8e',
+                          borderRadius: '20px', background: 'var(--primary-pale)', color: 'var(--primary)',
                           textTransform: 'uppercase', letterSpacing: '0.5px',
                         }}>{p.type}</span>
                       )}
                     </div>
-                    <div style={{ fontSize: '13px', color: '#5a6a82', lineHeight: 1.5,
-                      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <div style={{
+                      fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.5,
+                      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                    }}>
                       {p.content}
                     </div>
                   </div>
@@ -205,9 +207,9 @@ export default function Search() {
 
           {/* No results at all */}
           {filteredUsers.length === 0 && filteredPosts.length === 0 && (
-            <div style={{ textAlign: 'center', padding: '60px 20px', color: '#94a3b8' }}>
-              <div style={{ fontSize: '48px', marginBottom: '12px' }}>😕</div>
-              <div style={{ fontSize: '16px', fontWeight: 600, color: '#5a6a82' }}>No results for "{query}"</div>
+            <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-muted)' }}>
+              <div style={{ fontSize: '48px', marginBottom: '12px' }}></div>
+              <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-secondary)' }}>No results for "{query}"</div>
               <div style={{ fontSize: '13px', marginTop: '6px' }}>Try a different keyword</div>
             </div>
           )}
