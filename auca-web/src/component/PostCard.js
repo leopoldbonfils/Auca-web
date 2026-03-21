@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { MdOutlineAddReaction } from 'react-icons/md';
 import { FaRegCommentDots }     from 'react-icons/fa';
 import { FiTrash2 }             from 'react-icons/fi';
+import { CiLocationArrow1 }     from 'react-icons/ci';
 
 // ── Reactions ─────────────────────────────────────────────────────────────────
 const REACTIONS = [
@@ -169,7 +170,7 @@ export default function PostCard({ post, onDelete, onComment }) {
             onMouseEnter={e => { e.currentTarget.style.background = '#fee2e2'; e.currentTarget.style.color = '#e53935'; }}
             onMouseLeave={e => { e.currentTarget.style.background = 'none';    e.currentTarget.style.color = 'var(--text-muted)'; }}
           >
-            <FiTrash2 size={18} />
+            <FiTrash2 size={16} />
           </button>
         )}
       </div>
@@ -304,6 +305,25 @@ export default function PostCard({ post, onDelete, onComment }) {
           <FaRegCommentDots size={18} style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
           <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)' }}>
             {commentCount > 0 ? commentCount : 'Comment'}
+          </span>
+        </button>
+
+        {/* ── Share button — CiLocationArrow1 from react-icons/ci ── */}
+        <button
+          onClick={() => {}}
+          style={{
+            display: 'flex', alignItems: 'center', gap: '7px',
+            padding: '7px 14px', borderRadius: '20px',
+            border: '1px solid var(--border)', background: 'var(--surface-2)',
+            cursor: 'pointer', transition: 'all 0.15s',
+            fontFamily: "'Nunito', sans-serif",
+          }}
+          onMouseEnter={e => { e.currentTarget.style.background = 'var(--primary-pale)'; e.currentTarget.style.borderColor = 'var(--primary)'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'var(--surface-2)'; e.currentTarget.style.borderColor = 'var(--border)'; }}
+        >
+          <CiLocationArrow1 size={18} style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
+          <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)' }}>
+            Share
           </span>
         </button>
 
