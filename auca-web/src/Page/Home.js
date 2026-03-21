@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import PostCard from '../component/PostCard';
 
-// ── Mock posts — some have both description + image ───────────────────────────
 const MOCK_POSTS = [
   {
     id: '1',
@@ -9,7 +8,6 @@ const MOCK_POSTS = [
     role: 'Accountant',
     department: 'Finance',
     timestamp: 'Mar 9 at 10:52 AM',
-    // Description first — image below
     content: 'Creativity has no language 🙏😂 — Check out this amazing water flow experiment!',
     image: 'https://picsum.photos/seed/science/800/500',
     type: 'post',
@@ -47,7 +45,6 @@ const MOCK_POSTS = [
     role: 'Student',
     department: 'IT',
     timestamp: 'Mar 2 at 9:00 AM',
-    // Description only — no image
     content: 'Great lecture today on Database Design! Anyone who missed it, check the class resources 📚',
     type: 'post',
     commentCount: 4,
@@ -60,7 +57,6 @@ const MOCK_POSTS = [
     role: 'Accountant',
     department: 'Finance',
     timestamp: 'Mar 2 at 5:55 PM',
-    // Description first — image below
     content: 'Beautiful sunrise on campus today 🌅 What a great way to start the week!',
     image: 'https://picsum.photos/seed/campus/800/500',
     type: 'post',
@@ -72,7 +68,6 @@ const MOCK_POSTS = [
 
 const TABS = ['All', 'Announcements', 'Posts'];
 
-// ── Home ──────────────────────────────────────────────────────────────────────
 export default function Home({ onNavigate }) {
   const [activeTab, setActiveTab] = useState('All');
   const [posts,     setPosts]     = useState(MOCK_POSTS);
@@ -92,7 +87,6 @@ export default function Home({ onNavigate }) {
           <div style={{ fontSize: '22px', fontWeight: 800, color: 'var(--text-primary)' }}>Home Feed</div>
           <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>AUCA Social Hub</div>
         </div>
-        
       </div>
 
       {/* ── Quick create ── */}
@@ -153,7 +147,8 @@ export default function Home({ onNavigate }) {
               key={post.id}
               post={post}
               onDelete={id => setPosts(prev => prev.filter(p => p.id !== id))}
-              onComment={id => console.log('comment:', id)}
+              // ← ONLY CHANGE FROM ORIGINAL: navigate to Comment page with post data
+              onComment={id => onNavigate({ page: 'comments', post: posts.find(p => p.id === id) })}
             />
           ))
         )}
