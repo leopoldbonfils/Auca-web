@@ -4,7 +4,7 @@ import { BiLike, BiDislike }        from 'react-icons/bi';
 import { BiSolidLike, BiSolidDislike } from 'react-icons/bi';
 import { BsThreeDotsVertical }      from 'react-icons/bs';
 
-// ── Sample comments ───────────────────────────────────────────────────────────
+//  Sample comments 
 const SAMPLE_COMMENTS = [
   { id: 1, username: 'alex_01',     avatar: 'https://i.pravatar.cc/150?img=12', text: 'This is an awesome photo!',    likes: 2,  time: '1h ago',  liked: false, disliked: false },
   { id: 2, username: 'sophia_22',   avatar: 'https://i.pravatar.cc/150?img=47', text: 'Wow, so beautiful! 😍',         likes: 5,  time: '30m ago', liked: false, disliked: false },
@@ -14,7 +14,7 @@ const SAMPLE_COMMENTS = [
   { id: 6, username: 'dave_k',      avatar: 'https://i.pravatar.cc/150?img=59', text: 'Love the energy here! ❤️',     likes: 194,time: '4 years ago', liked: false, disliked: false },
 ];
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+//  Helpers 
 function initials(name = '') {
   return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
 }
@@ -29,7 +29,7 @@ function avatarBg(name = '') {
   return c[(name.charCodeAt(0) || 0) % c.length];
 }
 
-// ── Three-dot menu ────────────────────────────────────────────────────────────
+//  Three-dot menu 
 function ThreeDotMenu({ onDelete, onReport }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
@@ -99,7 +99,7 @@ function ThreeDotMenu({ onDelete, onReport }) {
   );
 }
 
-// ── Single comment row  (YouTube layout) ─────────────────────────────────────
+//  Single comment row   
 function CommentRow({ c, onLike, onDislike, onDelete }) {
   const [showReply, setShowReply] = useState(false);
   const [reply,     setReply]     = useState('');
@@ -237,7 +237,7 @@ function CommentRow({ c, onLike, onDislike, onDelete }) {
   );
 }
 
-// ── Comment page ──────────────────────────────────────────────────────────────
+//  Comment page 
 export default function Comment({ post, onBack }) {
   const [comments, setComments] = useState(SAMPLE_COMMENTS);
   const [input,    setInput]    = useState('');

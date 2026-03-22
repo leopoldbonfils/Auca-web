@@ -11,7 +11,7 @@ import { FaXTwitter }           from 'react-icons/fa6';
 import { MdContentCopy }        from 'react-icons/md';
 import { BsCheck2 }             from 'react-icons/bs';
 
-// ── Reactions ─────────────────────────────────────────────────────────────────
+//  Reactions 
 const REACTIONS = [
   { emoji: '❤️', label: 'Love' },
   { emoji: '😄', label: 'Haha' },
@@ -22,7 +22,7 @@ const REACTIONS = [
   { emoji: '😢', label: 'Sad' },
 ];
 
-// ── Share platforms ───────────────────────────────────────────────────────────
+//  Share platforms 
 const SHARE_PLATFORMS = [
   {
     label: 'Embed',
@@ -56,7 +56,7 @@ const SHARE_PLATFORMS = [
   },
 ];
 
-// ── Share Modal ───────────────────────────────────────────────────────────────
+//  Share Modal 
 function ShareModal({ postUrl, onClose }) {
   const [copied, setCopied] = useState(false);
   const ref = useRef(null);
@@ -192,7 +192,7 @@ function ShareModal({ postUrl, onClose }) {
   );
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+//  Helpers 
 function getInitials(name = '') {
   return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
 }
@@ -207,7 +207,7 @@ function avatarColor(name = '') {
   return colors[name.charCodeAt(0) % colors.length];
 }
 
-// ── LinkedIn-style stacked emoji summary ──────────────────────────────────────
+//  emoji summary 
 function ReactionSummary({ reactions, myReaction }) {
   const total = Object.values(reactions).reduce((a, b) => a + b, 0);
   if (total === 0 && !myReaction) return null;
@@ -242,7 +242,7 @@ function ReactionSummary({ reactions, myReaction }) {
   );
 }
 
-// ── PostCard ──────────────────────────────────────────────────────────────────
+//  PostCard 
 export default function PostCard({ post, onDelete, onComment }) {
   const [showPicker,  setShowPicker]  = useState(false);
   const [myReaction,  setMyReaction]  = useState(null);

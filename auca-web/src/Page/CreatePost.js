@@ -3,21 +3,21 @@ import { BsImage }        from 'react-icons/bs';
 import { IoClose }        from 'react-icons/io5';
 import { BsInfoCircle }   from 'react-icons/bs';
 
-// ── Audience options ──────────────────────────────────────────────────────────
+//  Audience options 
 const AUDIENCES = [
   { id: 'everyone',      label: 'Everyone',      sub: 'Students, Staff and Faculty' },
   { id: 'students_only', label: 'Students Only', sub: 'From all faculties' },
   { id: 'staff_only',    label: 'Staff Only',    sub: 'Including lecturers' },
 ];
 
-// ── Post types ────────────────────────────────────────────────────────────────
+//  Post types 
 const POST_TYPES = [
   { id: 'post',         label: 'Post' },
   { id: 'announcement', label: 'Announcement' },
   { id: 'memo',         label: 'Memo' },
 ];
 
-// ── CreatePost component ──────────────────────────────────────────────────────
+//  CreatePost component 
 export default function CreatePost({ onNavigate, onPostCreated }) {
   const [postType,     setPostType]     = useState('post');
   const [content,      setContent]      = useState('');
@@ -29,7 +29,7 @@ export default function CreatePost({ onNavigate, onPostCreated }) {
 
   const fileInputRef = useRef(null);
 
-  // ── Handle image select ──
+  //  Handle image select 
   const handleImageChange = (file) => {
     if (!file) return;
     if (!file.type.startsWith('image/')) return alert('Please select an image file.');
@@ -52,7 +52,7 @@ export default function CreatePost({ onNavigate, onPostCreated }) {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  // ── Submit ──
+  //  Submit 
   const handlePost = async () => {
     if (!content.trim()) return alert('Please write something before posting.');
     setIsPosting(true);

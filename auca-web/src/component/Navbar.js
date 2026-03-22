@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-// ── react-icons ───────────────────────────────────────────────────────────────
+//  react-icons 
 import { GoHome, GoHomeFill }         from 'react-icons/go';
 import { RiSearchLine, RiSearchFill } from 'react-icons/ri';
 import { FiPlusCircle }               from 'react-icons/fi';
@@ -12,11 +12,11 @@ import { RiLogoutBoxLine }            from 'react-icons/ri';
 import { RiSettings3Line }            from 'react-icons/ri';
 import { MdOutlinePersonAddAlt }      from 'react-icons/md';
 
-// ── AUCA Logo ─────────────────────────────────────────────────────────────────
+//  AUCA Logo 
 let aucaLogo;
 try { aucaLogo = require('../assets/auca_logoo.png'); } catch (e) { aucaLogo = null; }
 
-// ── Nav items ─────────────────────────────────────────────────────────────────
+//  Nav items 
 const NAV_ITEMS = [
   { id: 'home',    label: 'Home',    icon: <GoHome size={30} />,       iconActive: <GoHomeFill size={30} /> },
   { id: 'search',  label: 'Search',  icon: <RiSearchLine size={30} />, iconActive: <RiSearchFill size={30} /> },
@@ -27,7 +27,7 @@ const NAV_ITEMS = [
 const SLIM_W     = 72;
 const EXPANDED_W = 240;
 
-// ── Toggle ────────────────────────────────────────────────────────────────────
+//  Toggle 
 function Toggle({ checked, onChange }) {
   return (
     <div onClick={e => { e.stopPropagation(); onChange(!checked); }}
@@ -48,7 +48,7 @@ function Toggle({ checked, onChange }) {
   );
 }
 
-// ── Popup wrapper ─────────────────────────────────────────────────────────────
+//  Popup wrapper 
 function Popup({ children, bottom }) {
   return (
     <div style={{
@@ -69,7 +69,7 @@ function Popup({ children, bottom }) {
   );
 }
 
-// ── PopupRow ──────────────────────────────────────────────────────────────────
+//  PopupRow 
 function PopupRow({ iconBg, iconColor, icon, label, sublabel, right, onClick, danger, border = true }) {
   return (
     <div
@@ -102,7 +102,7 @@ function PopupRow({ iconBg, iconColor, icon, label, sublabel, right, onClick, da
   );
 }
 
-// ── Navbar ────────────────────────────────────────────────────────────────────
+//  Navbar 
 // CHANGE 1: added onLogout to props
 export default function Navbar({ activePage, onNavigate, theme, onThemeChange, onLogout }) {
   const [expanded,     setExpanded]     = useState(false);

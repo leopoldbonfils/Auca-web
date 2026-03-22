@@ -8,7 +8,7 @@ import Profile     from './Page/Profile';
 import Comment     from './Page/Comment';
 import LoginPage   from './Page/LoginPage';
 
-// ── Page renderer ─────────────────────────────────────────────────────────────
+//  Page renderer 
 function renderPage(page, onNavigate, onPostCreated, selectedPost) {
   switch (page) {
     case 'home':     return <Home onNavigate={onNavigate} />;
@@ -31,7 +31,7 @@ export default function App() {
     localStorage.setItem('auca-theme', theme);
   }, [theme]);
 
-  // ── Navigate handler (string or { page, post }) ───────────────────────────
+  //  Navigate handler (string or { page, post }) 
   const handleNavigate = (target) => {
     if (target && typeof target === 'object' && target.page === 'comments') {
       setSelectedPost(target.post || null);
@@ -43,14 +43,14 @@ export default function App() {
 
   const handlePostCreated = () => setCurrentPage('home');
 
-  // ── Logout ────────────────────────────────────────────────────────────────
+  //  Logout 
   const handleLogout = () => {
     localStorage.clear();
     setAuth(null);
     setCurrentPage('home');
   };
 
-  // ── NOT LOGGED IN → show Login page ──────────────────────────────────────
+  //  NOT LOGGED IN → show Login page 
   if (!auth) {
     return (
       <LoginPage
@@ -64,7 +64,7 @@ export default function App() {
     );
   }
 
-  // ── LOGGED IN → show main app ─────────────────────────────────────────────
+  //  LOGGED IN → show main app 
   return (
     <div className="app-layout">
       <Navbar
