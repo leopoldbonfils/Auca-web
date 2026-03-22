@@ -103,7 +103,8 @@ function PopupRow({ iconBg, iconColor, icon, label, sublabel, right, onClick, da
 }
 
 // ── Navbar ────────────────────────────────────────────────────────────────────
-export default function Navbar({ activePage, onNavigate, theme, onThemeChange }) {
+// CHANGE 1: added onLogout to props
+export default function Navbar({ activePage, onNavigate, theme, onThemeChange, onLogout }) {
   const [expanded,     setExpanded]     = useState(false);
   const [showMore,     setShowMore]     = useState(false);
   const [showAccount,  setShowAccount]  = useState(false);
@@ -314,6 +315,7 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange })
                 label="Add Account"
                 sublabel="Switch or add another account"
               />
+              {/* CHANGE 2: onClick calls onLogout instead of alert */}
               <PopupRow
                 iconBg="#fff0f0"
                 iconColor="#e53935"
@@ -322,7 +324,7 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange })
                 sublabel="Sign out of Rutanga Claude"
                 border={false}
                 danger
-                onClick={() => alert('Logging out...')}
+                onClick={() => { setShowAccount(false); onLogout && onLogout(); }}
               />
             </Popup>
           )}
