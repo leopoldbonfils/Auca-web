@@ -186,7 +186,7 @@ export default function PostCard({ post, onDelete, onComment }) {
       {showShare && <ShareModal postUrl={postUrl} onClose={() => setShowShare(false)} />}
 
       <div
-        style={{ background: 'var(--surface)', borderRadius: '14px', marginBottom: '16px', boxShadow: 'var(--shadow)', border: '1px solid var(--border)', fontFamily: "'Nunito', sans-serif", overflow: 'hidden', transition: 'box-shadow 0.2s ease' }}
+        style={{ background: 'var(--surface)', borderRadius: '6px', marginBottom: '3px', boxShadow: 'var(--shadow)', border: '1px solid var(--border)', fontFamily: "'Nunito', sans-serif", overflow: 'hidden', transition: 'box-shadow 0.2s ease' }}
         onMouseEnter={e => e.currentTarget.style.boxShadow = 'var(--shadow-hover)'}
         onMouseLeave={e => e.currentTarget.style.boxShadow = 'var(--shadow)'}
       >
@@ -214,7 +214,7 @@ export default function PostCard({ post, onDelete, onComment }) {
         {/* BODY */}
         {type === 'announcement' && (
           <div style={{ margin: '0 18px 14px' }}>
-            <div style={{ background: 'linear-gradient(135deg, #0d3b8e, #1a4fa8)', color: '#fff', textAlign: 'center', padding: '10px 16px', fontWeight: 800, fontSize: '14px', letterSpacing: '2.5px', borderRadius: '8px 8px 0 0', textTransform: 'uppercase' }}>📢 Announcement</div>
+            <div style={{ background: 'linear-gradient(135deg, #0d3b8e, #1a4fa8)', color: '#fff', textAlign: 'center', padding: '10px 16px', fontWeight: 800, fontSize: '14px', letterSpacing: '2.5px', borderRadius: '8px 8px 0 0', textTransform: 'uppercase' }}> Announcement</div>
             <div style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderTop: 'none', borderRadius: '0 0 8px 8px', padding: '16px', fontSize: '13px', lineHeight: 1.8, color: 'var(--text-primary)', whiteSpace: 'pre-wrap' }}>{content}</div>
           </div>
         )}

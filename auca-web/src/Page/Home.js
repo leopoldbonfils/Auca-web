@@ -122,10 +122,7 @@ export default function Home({ onNavigate }) {
 
       {/* ── Top bar ── */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
-        <div>
-          <div style={{ fontSize: '22px', fontWeight: 800, color: 'var(--text-primary)' }}>Home Feed</div>
-          <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>AUCA Social Hub</div>
-        </div>
+        
       </div>
 
       {/* ── Quick create ── */}
@@ -200,7 +197,7 @@ export default function Home({ onNavigate }) {
             background: '#fff5f5', borderRadius: '14px',
             border: '1px solid #fcc', margin: '0 0 16px',
           }}>
-            <div style={{ fontSize: '32px', marginBottom: '8px' }}>⚠️</div>
+            <div style={{ fontSize: '32px', marginBottom: '8px' }}></div>
             <div style={{ fontSize: '14px', color: '#c00', fontWeight: 600 }}>{error}</div>
             <button
               onClick={() => window.location.reload()}
@@ -216,7 +213,7 @@ export default function Home({ onNavigate }) {
 
         {!loading && !error && filtered.length === 0 && (
           <div style={{ textAlign: 'center', padding: '60px 20px' }}>
-            <div style={{ fontSize: '48px', marginBottom: '12px' }}>📭</div>
+            <div style={{ fontSize: '48px', marginBottom: '12px' }}></div>
             <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-secondary)' }}>No posts yet</div>
             <div style={{ fontSize: '13px', marginTop: '6px', color: 'var(--text-muted)' }}>Be the first to share something!</div>
           </div>
