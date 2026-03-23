@@ -68,11 +68,8 @@ export default function LoginPage({ onLoginSuccess }) {
             }
           </div>
 
-          <div className="lp-left-title">AUCA Social Hub</div>
-          <div className="lp-left-sub">
-            Your university community platform — connect, share, and stay informed.
-          </div>
-          <div className="lp-left-badge">🎓 Adventist University of Central Africa</div>
+          <div className="lp-left-title">AUCA Communication</div>
+          
         </div>
 
         {/* ══ RIGHT PANEL ══ */}
