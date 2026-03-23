@@ -3,7 +3,7 @@
 // FIX: mapPost now validates image URLs — only uses https:// Cloudinary URLs
 // Everything else (tabs, PostCard rendering, delete logic) is unchanged.
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import PostCard from '../component/PostCard';
 import api from '../utils/api';
 
@@ -76,7 +76,13 @@ export default function Home({ onNavigate }) {
   const currentUser = useMemo(() => getCurrentUser(), []);
 
   // Fetch posts on mount
+  // useRef guard prevents double-fetch (React StrictMode or Fast Refresh)
+  const hasFetched = useRef(false);
+
   useEffect(() => {
+    if (hasFetched.current) return;
+    hasFetched.current = true;
+
     let cancelled = false;
 
     async function loadPosts() {
@@ -88,7 +94,17 @@ export default function Home({ onNavigate }) {
         const data = await api.get('/home/posts?since=2000-01-01T00:00:00.000Z');
         if (!cancelled) {
           const list = Array.isArray(data) ? data : (data.posts || []);
-          setPosts(list.map(mapPost));
+
+          // FIX: deduplicate by post Id — React StrictMode runs effects twice
+          // in development which can cause double fetches and duplicate entries
+          const seen = new Set();
+          const unique = list.filter(post => {
+            if (seen.has(post.Id)) return false;
+            seen.add(post.Id);
+            return true;
+          });
+
+          setPosts(unique.map(mapPost));
         }
       } catch (err) {
         if (!cancelled) setError(err.message);
@@ -122,7 +138,7 @@ export default function Home({ onNavigate }) {
 
       {/* ── Top bar ── */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
-        
+        <h2 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--text-primary)' }}>Home</h2>
       </div>
 
       {/* ── Quick create ── */}
