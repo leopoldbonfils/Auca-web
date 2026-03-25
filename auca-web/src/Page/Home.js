@@ -136,12 +136,12 @@ export default function Home({ onNavigate }) {
   return (
     <div style={{ maxWidth: '680px', margin: '0 auto', fontFamily: "'Nunito', sans-serif" }}>
 
-      {/* ── Top bar ── */}
+      {/*  Top bar  */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
         <h2 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--text-primary)' }}>Home</h2>
       </div>
 
-      {/* ── Quick create ── */}
+      {/*  Quick create  */}
       <div style={{
         background: 'var(--surface)', borderRadius: '14px', padding: '14px 16px',
         marginBottom: '16px', border: '1px solid var(--border)',
@@ -174,7 +174,7 @@ export default function Home({ onNavigate }) {
         />
       </div>
 
-      {/* ── Tabs ── */}
+      {/*  Tabs  */}
       <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', borderBottom: '1px solid var(--border)' }}>
         {TABS.map(t => (
           <button key={t} onClick={() => setActiveTab(t)}
@@ -192,7 +192,7 @@ export default function Home({ onNavigate }) {
         ))}
       </div>
 
-      {/* ── Feed ── */}
+      {/*  Feed  */}
       <div style={{ paddingBottom: '40px' }}>
 
         {loading && (

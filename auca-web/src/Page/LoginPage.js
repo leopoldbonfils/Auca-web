@@ -136,7 +136,7 @@ export default function LoginPage({ onLoginSuccess }) {
             >
               {loading
                 ? <><span className="lp-spinner" /> Logging in...</>
-                : <>Log-in <MdArrowForward size={20} /></>
+                : <>Log in <MdArrowForward size={20} /></>
               }
             </button>
           </div>

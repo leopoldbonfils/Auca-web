@@ -1,17 +1,13 @@
-// src/Page/Comment.js
-// CHANGE: replaced SAMPLE_COMMENTS with real API calls to:
-//   GET  /home/posts/comment?postId=X  (load comments)
-//   POST /home/posts/comment            (submit a comment)
-// The UI structure (header, post preview, comment rows, input) is unchanged.
-
 import React, { useState, useRef, useEffect } from 'react';
-import { IoArrowBack }                 from 'react-icons/io5';
-import { BiLike, BiDislike }           from 'react-icons/bi';
+import { IoArrowBack } from 'react-icons/io5';
+import { BiLike, BiDislike } from 'react-icons/bi';
 import { BiSolidLike, BiSolidDislike } from 'react-icons/bi';
-import { BsThreeDotsVertical }         from 'react-icons/bs';
+import { BsThreeDotsVertical }from 'react-icons/bs';
+import { MdDeleteOutline } from "react-icons/md";
+import { BsFlag } from "react-icons/bs";
 import api from '../utils/api';
 
-// ── Helpers ──────────────────────────────────────────────────────
+//  Helpers 
 function initials(name = '') {
   return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
 }
@@ -26,7 +22,7 @@ function avatarBg(name = '') {
   return c[(name.charCodeAt(0) || 0) % c.length];
 }
 
-// ── Three-dot menu (unchanged) ───────────────────────────────────
+//  Three-dot menu (unchanged) 
 function ThreeDotMenu({ onDelete, onReport }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
@@ -47,25 +43,25 @@ function ThreeDotMenu({ onDelete, onReport }) {
       {open && (
         <div style={{ position: 'absolute', right: 0, top: '110%', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '10px', boxShadow: '0 4px 20px rgba(0,0,0,0.15)', zIndex: 100, minWidth: '130px', overflow: 'hidden', animation: 'fadeIn 0.12s ease' }}>
           <button onClick={() => { onDelete(); setOpen(false); }}
-            style={{ width: '100%', padding: '10px 16px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 600, color: '#e53935', textAlign: 'left', fontFamily: 'inherit', transition: 'background 0.15s' }}
+            style={{ width: '100%', padding: '10px 16px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: 650, color: '#e53935', textAlign: 'left', fontFamily: 'inherit', transition: 'background 0.15s' }}
             onMouseEnter={e => e.currentTarget.style.background = 'var(--surface-2)'}
             onMouseLeave={e => e.currentTarget.style.background = 'none'}
-          >🗑 Delete</button>
+          ><MdDeleteOutline size={22} /> Delete</button>
           <button onClick={() => { onReport(); setOpen(false); }}
-            style={{ width: '100%', padding: '10px 16px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', textAlign: 'left', fontFamily: 'inherit', transition: 'background 0.15s' }}
+            style={{ width: '100%', padding: '10px 16px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: 650, color: 'var(--text-secondary)', textAlign: 'left', fontFamily: 'inherit', transition: 'background 0.15s' }}
             onMouseEnter={e => e.currentTarget.style.background = 'var(--surface-2)'}
             onMouseLeave={e => e.currentTarget.style.background = 'none'}
-          >🚩Report</button>
+          ><BsFlag size={18} /> Report</button>
         </div>
       )}
     </div>
   );
 }
 
-// ── Single comment row (unchanged UI) ────────────────────────────
+//  Single comment row 
 function CommentRow({ c, onLike, onDislike, onDelete }) {
   const [showReply, setShowReply] = useState(false);
-  const [reply,     setReply]     = useState('');
+  const [reply, setReply] = useState('');
   const handleReport = () => alert(`Reported @${c.username}`);
 
   return (
@@ -122,16 +118,16 @@ function CommentRow({ c, onLike, onDislike, onDelete }) {
   );
 }
 
-// ── Main Comment page ─────────────────────────────────────────────
+//  Main Comment page 
 export default function Comment({ post, onBack }) {
-  const [comments, setComments] = useState([]);
-  const [input,    setInput]    = useState('');
-  const [loading,  setLoading]  = useState(true);
-  const [posting,  setPosting]  = useState(false);
-  const bottomRef = useRef(null);
+  const [comments,setComments] = useState([]);
+  const [input,setInput]    = useState('');
+  const [loading,setLoading]  = useState(true);
+  const [posting,setPosting]  = useState(false);
+  const bottomRef =useRef(null);
 
-  const p          = post || {};
-  const postId     = p.id || p._raw?.Id;
+  const p = post || {};
+  const postId = p.id || p._raw?.Id;
   const totalLikes = Object.values(p.reactions || {}).reduce((a, b) => a + b, 0);
 
   // CHANGE: fetch comments from backend when post changes
@@ -249,7 +245,7 @@ export default function Comment({ post, onBack }) {
           {loading && <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-muted)' }}>Loading comments...</div>}
           {!loading && comments.length === 0 && (
             <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-muted)' }}>
-              <div style={{ fontSize: '32px', marginBottom: 8 }}>💬</div>
+              <div style={{ fontSize: '32px', marginBottom: 8 }}></div>
               <div style={{ fontSize: '14px', fontWeight: 600 }}>No comments yet</div>
               <div style={{ fontSize: '13px', marginTop: 4 }}>Be the first to comment!</div>
             </div>
