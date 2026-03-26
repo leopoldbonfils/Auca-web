@@ -118,6 +118,25 @@ function CommentRow({ c, onLike, onDislike, onDelete }) {
   );
 }
 
+
+function getUserInfo() {
+  try {
+    const raw     = localStorage.getItem('userProfile');
+    const profile = raw ? JSON.parse(raw) : {};
+    const isStaff = localStorage.getItem('isStaff') === 'true';
+    const fname   = profile.Fname || '';
+    const lname   = profile.Lname || '';
+    const fullName = `${fname} ${lname}`.trim() || 'User';
+    const initials = fullName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+    const role     = profile.Role || (isStaff ? 'Staff' : 'Student');
+    const rawUrl   = profile.ProfileUrl || '';
+    const avatarUrl = rawUrl.startsWith('https://') ? rawUrl : null;
+    return { fullName, initials, role, avatarUrl };
+  } catch {
+    return { fullName: 'User', initials: 'U', role: '', avatarUrl: null };
+  }
+}
+
 //  Main Comment page 
 export default function Comment({ post, onBack }) {
   const [comments,setComments] = useState([]);
@@ -125,6 +144,7 @@ export default function Comment({ post, onBack }) {
   const [loading,setLoading]  = useState(true);
   const [posting,setPosting]  = useState(false);
   const bottomRef =useRef(null);
+  const userInfo = getUserInfo();
 
   const p = post || {};
   const postId = p.id || p._raw?.Id;
@@ -186,15 +206,15 @@ export default function Comment({ post, onBack }) {
       await api.post('/home/posts/comment', { postId: Number(postId), comment: input.trim() });
       // Add optimistically to local list
       setComments(prev => [...prev, {
-        id:       Date.now(),
-        username: 'You',
-        avatar:   null,
-        text:     input.trim(),
-        time:     'Just now',
-        likes:    0,
-        liked:    false,
-        disliked: false,
-      }]);
+      id:       Date.now(),
+      username: userInfo.fullName,   
+      avatar:   userInfo.avatarUrl,  
+      text:     input.trim(),
+      time:     'Just now',
+      likes:    0,
+      liked:    false,
+      disliked: false,
+    }]);
       setInput('');
       setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
     } catch (err) {
@@ -257,8 +277,18 @@ export default function Comment({ post, onBack }) {
         </div>
 
         {/* Input */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', borderTop: '1px solid var(--border)', background: 'var(--surface)', position: 'sticky', bottom: 0 }}>
-          <div style={{ width: 32, height: 32, borderRadius: '50%', background: avatarBg('me'), display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: '10px', flexShrink: 0 }}>Me</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', borderTop: '2px solid var(--border)', background: 'var(--surface)', position: 'sticky', bottom: 0 , borderRadius: '16px' }}>
+          <div style={{ width: 32, height: 32, borderRadius: '50%', flexShrink: 0,
+            background: userInfo.avatarUrl ? 'transparent' : avatarBg(userInfo.fullName),
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: '#fff', fontWeight: 800, fontSize: '10px', overflow: 'hidden' }}>
+            {userInfo.avatarUrl
+              ? <img src={userInfo.avatarUrl} alt={userInfo.fullName}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
+                  onError={e => { e.target.style.display = 'none'; }} />
+              : userInfo.initials
+            }
+          </div>
           <input
             value={input}
             onChange={e => setInput(e.target.value)}

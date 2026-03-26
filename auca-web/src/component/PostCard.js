@@ -1,15 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MdOutlineAddReaction } from 'react-icons/md';
-import { FaRegCommentDots }     from 'react-icons/fa';
-import { FiTrash2 }             from 'react-icons/fi';
-import { CiLocationArrow1 }     from 'react-icons/ci';
-import { IoClose }              from 'react-icons/io5';
-import { MdOutlineCode }        from 'react-icons/md';
+import { FaRegCommentDots } from 'react-icons/fa';
+import { FiTrash2 } from 'react-icons/fi';
+import { CiLocationArrow1 } from 'react-icons/ci';
+import { IoClose } from 'react-icons/io5';
+import { MdOutlineCode } from 'react-icons/md';
 import { FaWhatsapp, FaFacebook } from 'react-icons/fa';
-import { MdEmail }              from 'react-icons/md';
-import { FaXTwitter }           from 'react-icons/fa6';
-import { MdContentCopy }        from 'react-icons/md';
-import { BsCheck2 }             from 'react-icons/bs';
+import { MdEmail } from 'react-icons/md';
+import { FaXTwitter } from 'react-icons/fa6';
+import { MdContentCopy } from 'react-icons/md';
+import { BsCheck2 } from 'react-icons/bs';
+import { IoLogoInstagram } from "react-icons/io5";
 
 //  Reactions
 const REACTIONS = [
@@ -24,11 +25,12 @@ const REACTIONS = [
 
 //  Share platforms
 const SHARE_PLATFORMS = [
-  { label: 'Embed',    icon: <MdOutlineCode size={22} color="#fff" />, bg: '#606060', action: (url) => alert('Embed code:\n<iframe src="' + url + '"></iframe>') },
-  { label: 'WhatsApp', icon: <FaWhatsapp size={22} color="#fff" />,    bg: '#25D366', action: (url) => window.open(`https://wa.me/?text=${encodeURIComponent(url)}`, '_blank') },
   { label: 'Email',    icon: <MdEmail size={22} color="#fff" />,       bg: '#757575', action: (url) => window.open(`mailto:?subject=Check this out&body=${encodeURIComponent(url)}`) },
-  { label: 'Facebook', icon: <FaFacebook size={22} color="#fff" />,    bg: '#1877F2', action: (url) => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank') },
+  { label: 'WhatsApp', icon: <FaWhatsapp size={22} color="#fff" />,    bg: '#25D366', action: (url) => window.open(`https://wa.me/?text=${encodeURIComponent(url)}`, '_blank') },
   { label: 'X',        icon: <FaXTwitter size={22} color="#fff" />,    bg: '#000',    action: (url) => window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}`, '_blank') },
+  { label: 'Instagram', icon: <IoLogoInstagram size={22} color="#fff" />, bg: '#E4405F', action: (url) => window.open(`https://www.instagram.com/?url=${encodeURIComponent(url)}`, '_blank') },
+  { label: 'Facebook', icon: <FaFacebook size={22} color="#fff" />,    bg: '#1877F2', action: (url) => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank') },
+  { label: 'Embed',    icon: <MdOutlineCode size={22} color="#fff" />, bg: '#606060', action: (url) => alert('Embed code:\n<iframe src="' + url + '"></iframe>') },
 ];
 
 //  Share Modal (unchanged)
@@ -82,7 +84,7 @@ function avatarColor(name = '') {
   return colors[name.charCodeAt(0) % colors.length];
 }
 
-//  FIX: PostImage component — hides broken images gracefully
+//   PostImage component — hides broken images gracefully
 function PostImage({ src }) {
   const [broken, setBroken] = useState(false);
   useEffect(() => { setBroken(false); }, [src]);
@@ -100,7 +102,7 @@ function PostImage({ src }) {
   );
 }
 
-// FIX: AuthorAvatar — shows real profile photo, falls back to initials if broken/missing
+//  AuthorAvatar — shows real profile photo, falls back to initials if broken/missing
 function AuthorAvatar({ avatarUrl, author }) {
   const [imgBroken, setImgBroken] = useState(false);
   // Reset when avatarUrl changes
@@ -152,9 +154,9 @@ function ReactionSummary({ reactions, myReaction }) {
 export default function PostCard({ post, onDelete, onComment }) {
   const [showPicker, setShowPicker] = useState(false);
   const [myReaction, setMyReaction] = useState(null);
-  const [reactions,  setReactions]  = useState(post?.reactions || {});
-  const [expanded,   setExpanded]   = useState(false);
-  const [showShare,  setShowShare]  = useState(false);
+  const [reactions,  setReactions] = useState(post?.reactions || {});
+  const [expanded,   setExpanded] = useState(false);
+  const [showShare,  setShowShare] = useState(false);
 
   const {
     id, author = 'Unknown', role = '', department = '',
@@ -176,9 +178,9 @@ export default function PostCard({ post, onDelete, onComment }) {
     setReactions(next);
   };
 
-  const totalReactions  = Object.values(reactions).reduce((a, b) => a + b, 0);
-  const MAX_LENGTH      = 200;
-  const isLong          = content.length > MAX_LENGTH;
+  const totalReactions = Object.values(reactions).reduce((a, b) => a + b, 0);
+  const MAX_LENGTH = 200;
+  const isLong = content.length > MAX_LENGTH;
   const displayedContent = isLong && !expanded ? content.slice(0, MAX_LENGTH) + '...' : content;
 
   return (
@@ -192,7 +194,7 @@ export default function PostCard({ post, onDelete, onComment }) {
       >
         {/* HEADER */}
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', padding: '16px 18px 12px' }}>
-          {/* FIX: use AuthorAvatar so real photo shows with initials fallback */}
+          {/*  use AuthorAvatar so real photo shows with initials fallback */}
           <AuthorAvatar avatarUrl={post?.avatarUrl} author={author} />
           <div style={{ flex: 1 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
@@ -236,7 +238,7 @@ export default function PostCard({ post, onDelete, onComment }) {
                 )}
               </div>
             )}
-            {/* FIX: PostImage handles broken URLs gracefully */}
+            {/*  PostImage handles broken URLs gracefully */}
             <PostImage src={image} />
           </>
         )}

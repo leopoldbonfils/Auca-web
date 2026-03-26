@@ -1,16 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
 
 //  react-icons
-import { GoHome, GoHomeFill }         from 'react-icons/go';
+import { GoHome, GoHomeFill } from 'react-icons/go';
 import { RiSearchLine, RiSearchFill } from 'react-icons/ri';
-import { FiPlusCircle }               from 'react-icons/fi';
-import { RiUser3Line, RiUser3Fill }   from 'react-icons/ri';
-import { CiCircleMore }               from 'react-icons/ci';
-import { HiOutlineSun }               from 'react-icons/hi';
-import { BsMoonStars }                from 'react-icons/bs';
-import { RiLogoutBoxLine }            from 'react-icons/ri';
-import { RiSettings3Line }            from 'react-icons/ri';
-import { MdOutlinePersonAddAlt }      from 'react-icons/md';
+import { FiPlusCircle } from 'react-icons/fi';
+import { RiUser3Line, RiUser3Fill } from 'react-icons/ri';
+import { CiCircleMore } from 'react-icons/ci';
+import { HiOutlineSun } from 'react-icons/hi';
+import { BsMoonStars } from 'react-icons/bs';
+import { RiLogoutBoxLine } from 'react-icons/ri';
+import { RiSettings3Line } from 'react-icons/ri';
+import { MdOutlinePersonAddAlt } from 'react-icons/md';
 
 //  AUCA Logo
 let aucaLogo;
@@ -18,19 +18,19 @@ try { aucaLogo = require('../assets/auca_logoo.png'); } catch (e) { aucaLogo = n
 
 //  Nav items
 const NAV_ITEMS = [
-  { id: 'home',    label: 'Home',    icon: <GoHome size={30} />,       iconActive: <GoHomeFill size={30} /> },
-  { id: 'search',  label: 'Search',  icon: <RiSearchLine size={30} />, iconActive: <RiSearchFill size={30} /> },
-  { id: 'create',  label: 'Create',  icon: <FiPlusCircle size={30} />, iconActive: <FiPlusCircle size={30} /> },
+  { id: 'home', label: 'Home', icon: <GoHome size={30} />, iconActive: <GoHomeFill size={30} /> },
+  { id: 'search', label: 'Search', icon: <RiSearchLine size={30} />, iconActive: <RiSearchFill size={30} /> },
+  { id: 'create', label: 'Create',  icon: <FiPlusCircle size={30} />, iconActive: <FiPlusCircle size={30} /> },
   { id: 'profile', label: 'Profile', icon: <RiUser3Line size={30} />,  iconActive: <RiUser3Fill size={30} /> },
 ];
 
-const SLIM_W     = 72;
+const SLIM_W = 72;
 const EXPANDED_W = 240;
 
-// ── FIX: Read real user info from localStorage ──────────────────
+// FIX: Read real user info from localStorage 
 function getUserInfo() {
   try {
-    const raw     = localStorage.getItem('userProfile');
+    const raw = localStorage.getItem('userProfile');
     const profile = raw ? JSON.parse(raw) : {};
     const isStaff = localStorage.getItem('isStaff') === 'true';
 
