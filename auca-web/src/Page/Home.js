@@ -1,15 +1,3 @@
-// src/Page/Home.js
-// Added features (mirrored from React Native app):
-//   3  — Socket.IO real-time feed (newPost, reactionUpdate, postDeleted, commentAdded)
-//   4  — Shimmer skeleton loader replaces plain spinner
-//   5  — Relative timestamp formatter  ("2h ago", "Yesterday", "Mon", …)
-//   6  — Backend reaction-count sync on every mount (PATCH /home/posts/reactions)
-//   7  — In-app toast when a new post arrives via socket
-//  10  — Live comment-count update on post cards via socket
-//  11  — Post-deletion broadcast: removes deleted posts from every connected user's feed
-//
-// NOTE: requires socket.io-client → run: npm install socket.io-client
-
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import PostCard from '../component/PostCard';
 import api from '../utils/api';
@@ -244,9 +232,6 @@ export default function Home({ onNavigate }) {
     });
   }, []);
 
-  // ── Feature 6: Initial data load — always fetch ALL posts ────────────────
-  // FIX: removed the ?since= filter that was causing posts to disappear
-  // when navigating away and returning to the home page.
   useEffect(() => {
     if (hasFetched.current) return;
     hasFetched.current = true;
@@ -306,9 +291,6 @@ export default function Home({ onNavigate }) {
     return () => { cancelled = true; };
   }, []);
 
-  // ── Reset hasFetched when navigating back so posts reload correctly ───────
-  // This ensures that if the component unmounts and remounts (page navigation),
-  // it always fetches fresh data instead of skipping the load.
   useEffect(() => {
     return () => {
       hasFetched.current = false;
@@ -465,7 +447,7 @@ export default function Home({ onNavigate }) {
             textAlign: 'center', padding: '40px 20px',
             background: '#fff5f5', borderRadius: '14px', border: '1px solid #fcc',
           }}>
-            <div style={{ fontSize: '32px', marginBottom: '8px' }}>⚠️</div>
+            <div style={{ fontSize: '32px', marginBottom: '8px' }}></div>
             <div style={{ fontSize: '14px', color: '#c00', fontWeight: 600 }}>{error}</div>
             <button onClick={() => window.location.reload()} style={{
               marginTop: '12px', padding: '8px 20px', borderRadius: '8px',

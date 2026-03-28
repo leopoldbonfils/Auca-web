@@ -142,14 +142,14 @@ export default function Profile() {
       {/* ── Tab content ── */}
       {activeTab === 'Posts' && (
         <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-muted)' }}>
-          <div style={{ fontSize: '32px', marginBottom: 8 }}>📝</div>
+          <div style={{ fontSize: '32px', marginBottom: 8 }}></div>
           <div style={{ fontSize: '14px' }}>Your posts will appear here</div>
         </div>
       )}
 
       {activeTab === 'Announcements' && (
         <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-muted)' }}>
-          <div style={{ fontSize: '40px', marginBottom: '12px' }}>📢</div>
+          <div style={{ fontSize: '40px', marginBottom: '12px' }}></div>
           <div style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-secondary)' }}>No announcements yet</div>
         </div>
       )}

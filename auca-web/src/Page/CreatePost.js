@@ -1,19 +1,17 @@
 // src/Page/CreatePost.js
 // CHANGE: replaced fake post creation with real POST /home/posts call using FormData.
-// All UI (type tabs, text area, image upload, audience selector) is unchanged.
+// CHANGE: audience selector now mirrors the React Native app fully:
+//   — Alumni option added
+//   — Students Only expands with levels → faculties → departments (hierarchical)
+//   — filterAudienceList logic ported from the RN app
 
 import React, { useState, useRef } from 'react';
 import { BsImage }       from 'react-icons/bs';
 import { IoClose }       from 'react-icons/io5';
 import { BsInfoCircle }  from 'react-icons/bs';
+import { BsFileEarmark } from 'react-icons/bs';
 
 const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000';
-
-const AUDIENCES = [
-  { id: 'all',      label: 'Everyone',      sub: 'Students, Staff and Faculty' },
-  { id: 'students', label: 'Students Only', sub: 'From all faculties' },
-  { id: 'staff',    label: 'Staff Only',    sub: 'Including lecturers' },
-];
 
 const POST_TYPES = [
   { id: 'post',         label: 'Post' },
@@ -21,10 +19,192 @@ const POST_TYPES = [
   { id: 'memo',         label: 'Memo' },
 ];
 
+// ─── Audience data (mirrors the RN app) ──────────────────────────────────────
+const FACULTY_DEPARTMENTS = {
+  'IT': ['Software Engineering', 'Information Management', 'Network and Communication Systems'],
+  'Business Administration': ['Marketing', 'Management', 'Finance', 'Accounting'],
+  'Education': ['Accounting and IT', 'Economics and Mathematics', 'English and Literature', 'Educational Psychology and Religion'],
+  'Theology': [],
+  'Health Science': [],
+  'MSc-IT': ['Big Data Analytics'],
+  'MSc-Business Administration': ['MSc-Project Management', 'MSc-Accounting', 'MSc-Management', 'MSc-Human Resource Management', 'MSc-Finance'],
+  'MSc-Education': [],
+};
+
+const LEVEL_FACULTIES = {
+  'Undergraduate': ['IT', 'Business Administration', 'Education', 'Theology', 'Health Science'],
+  'Masters': ['MSc-IT', 'MSc-Business Administration', 'MSc-Education'],
+};
+
+const UNDERGRAD_FACULTIES = LEVEL_FACULTIES['Undergraduate'];
+const MASTERS_FACULTIES   = LEVEL_FACULTIES['Masters'];
+
+function filterAudienceList(audienceList) {
+  const result = [];
+  for (const item of audienceList) {
+    const levelFaculties = LEVEL_FACULTIES[item];
+    if (levelFaculties !== undefined) {
+      const hasSelected = levelFaculties.some(f => audienceList.includes(f));
+      if (!hasSelected) result.push(item);
+      continue;
+    }
+    const departments = FACULTY_DEPARTMENTS[item];
+    if (departments !== undefined) {
+      const hasSelected = departments.some(d => audienceList.includes(d));
+      if (!hasSelected) result.push(item);
+      continue;
+    }
+    result.push(item);
+  }
+  return result;
+}
+
+// ─── Small reusable checkbox row ─────────────────────────────────────────────
+function CheckRow({ label, checked, onChange, indent = 0 }) {
+  return (
+    <div
+      onClick={onChange}
+      style={{
+        display: 'flex', alignItems: 'center', gap: '10px',
+        padding: '7px 0', paddingLeft: indent,
+        cursor: 'pointer', userSelect: 'none',
+      }}
+    >
+      <div style={{
+        width: 20, height: 20, borderRadius: '50%', flexShrink: 0,
+        border: `2px solid ${checked ? 'var(--primary)' : 'var(--border)'}`,
+        background: checked ? 'var(--primary)' : 'var(--surface)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        transition: 'all 0.15s',
+      }}>
+        {checked && (
+          <svg width="11" height="9" viewBox="0 0 11 9" fill="none">
+            <path d="M1 4L4 7.5L10 1" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        )}
+      </div>
+      <span style={{ fontSize: '13px', color: 'var(--text-primary)', fontWeight: checked ? 600 : 400 }}>{label}</span>
+    </div>
+  );
+}
+
+function SectionLabel({ label }) {
+  return (
+    <div style={{ fontSize: '12px', fontWeight: 800, color: 'var(--primary)', marginTop: '10px', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+      {label}
+    </div>
+  );
+}
+
+// ─── Students sub-panel (levels → faculties → departments) ───────────────────
+function StudentsPanel({ audienceList, setAudienceList }) {
+  const toggle = (item) =>
+    setAudienceList(prev => prev.includes(item) ? prev.filter(x => x !== item) : [...prev, item]);
+
+  const has = (item) => audienceList.includes(item);
+
+  const bothLevels = has('Undergraduate') && has('Masters');
+  const onlyUndergrad = has('Undergraduate') && !has('Masters');
+  const onlyMasters   = has('Masters') && !has('Undergraduate');
+
+  const showUndergradFaculties = !bothLevels && !onlyMasters;
+  const showMastersFaculties   = !bothLevels && !onlyUndergrad;
+
+  return (
+    <div style={{
+      marginTop: '8px', marginLeft: '28px',
+      background: 'var(--surface-2)', borderRadius: '10px',
+      padding: '12px 14px', border: '1px solid var(--border)',
+    }}>
+      {/* Levels */}
+      <SectionLabel label="Student Levels" />
+      <CheckRow label="All Undergraduates" checked={has('Undergraduate')} onChange={() => toggle('Undergraduate')} />
+      <CheckRow label="All Masters"        checked={has('Masters')}       onChange={() => toggle('Masters')} />
+
+      {/* Faculties */}
+      {!bothLevels && (
+        <>
+          <SectionLabel label="Student Faculties" />
+
+          {showUndergradFaculties && UNDERGRAD_FACULTIES.map(f => (
+            <CheckRow key={f} label={f} checked={has(f)} onChange={() => toggle(f)} indent={8} />
+          ))}
+
+          {showMastersFaculties && MASTERS_FACULTIES.map(f => (
+            <CheckRow key={f} label={f} checked={has(f)} onChange={() => toggle(f)} indent={8} />
+          ))}
+        </>
+      )}
+
+      {/* Departments */}
+      {(() => {
+        const allFaculties = [...UNDERGRAD_FACULTIES, ...MASTERS_FACULTIES];
+        const selectedFacultiesWithDepts = allFaculties.filter(
+          f => has(f) && FACULTY_DEPARTMENTS[f]?.length > 0
+        );
+        if (selectedFacultiesWithDepts.length === 0) return null;
+        return (
+          <>
+            <SectionLabel label="Student Departments" />
+            {selectedFacultiesWithDepts.map(f =>
+              FACULTY_DEPARTMENTS[f].map(dept => (
+                <CheckRow key={dept} label={dept} checked={has(dept)} onChange={() => toggle(dept)} indent={16} />
+              ))
+            )}
+          </>
+        );
+      })()}
+    </div>
+  );
+}
+
+// ─── Radio option row ─────────────────────────────────────────────────────────
+function RadioOption({ value, selected, onChange, label, sub, children }) {
+  const isSelected = selected === value;
+  return (
+    <div style={{ marginBottom: '4px' }}>
+      <label
+        style={{
+          display: 'flex', alignItems: 'center', gap: '14px',
+          padding: '11px 14px', borderRadius: '10px', cursor: 'pointer',
+          background: isSelected ? 'var(--primary-pale)' : 'transparent',
+          border: `1px solid ${isSelected ? '#0d3b8e22' : 'transparent'}`,
+          transition: 'all 0.15s',
+        }}
+        onMouseEnter={e => { if (!isSelected) e.currentTarget.style.background = 'var(--surface-2)'; }}
+        onMouseLeave={e => { if (!isSelected) e.currentTarget.style.background = 'transparent'; }}
+      >
+        {/* Radio circle */}
+        <div
+          onClick={() => onChange(value)}
+          style={{
+            width: '20px', height: '20px', borderRadius: '50%', flexShrink: 0,
+            border: `2px solid ${isSelected ? 'var(--primary)' : 'var(--border)'}`,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: 'var(--surface)', transition: 'all 0.15s', cursor: 'pointer',
+          }}
+        >
+          {isSelected && <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--primary)' }} />}
+        </div>
+
+        <div onClick={() => onChange(value)} style={{ flex: 1 }}>
+          <div style={{ fontSize: '14px', fontWeight: 700, color: isSelected ? 'var(--primary)' : 'var(--text-primary)' }}>{label}</div>
+          <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '1px' }}>{sub}</div>
+        </div>
+      </label>
+
+      {/* Sub-panel (only for Students) */}
+      {isSelected && children}
+    </div>
+  );
+}
+
+// ─── Main component ───────────────────────────────────────────────────────────
 export default function CreatePost({ onNavigate, onPostCreated }) {
   const [postType,     setPostType]     = useState('post');
   const [content,      setContent]      = useState('');
   const [audience,     setAudience]     = useState('all');
+  const [audienceList, setAudienceList] = useState([]);
   const [imageFile,    setImageFile]    = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [isPosting,    setIsPosting]    = useState(false);
@@ -32,6 +212,11 @@ export default function CreatePost({ onNavigate, onPostCreated }) {
   const [errorMsg,     setErrorMsg]     = useState('');
 
   const fileInputRef = useRef(null);
+
+  const handleAudienceChange = (val) => {
+    setAudience(val);
+    setAudienceList([]); // reset sub-selection on top-level change
+  };
 
   const handleImageChange = (file) => {
     if (!file) return;
@@ -55,7 +240,6 @@ export default function CreatePost({ onNavigate, onPostCreated }) {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  // CHANGE: real POST to /home/posts using FormData (matches backend multer setup)
   const handlePost = async () => {
     if (!content.trim()) { setErrorMsg('Please write something before posting.'); return; }
     setErrorMsg('');
@@ -67,30 +251,26 @@ export default function CreatePost({ onNavigate, onPostCreated }) {
       formData.append('description', content.trim());
       formData.append('audience', audience);
 
-      // Backend expects field name 'PostFile' (from upload.single('PostFile') in posts.js)
-      if (imageFile) {
-        formData.append('PostFile', imageFile);
+      if (audience === 'students' && audienceList.length > 0) {
+        const finalAudience = filterAudienceList(audienceList);
+        formData.append('audienceList', JSON.stringify(finalAudience));
       }
+
+      if (imageFile) formData.append('PostFile', imageFile);
 
       const res = await fetch(`${BASE_URL}/home/posts`, {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          // Do NOT set Content-Type manually — browser sets it with boundary for FormData
-        },
+        headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
 
       const data = await res.json().catch(() => null);
+      if (!res.ok) throw new Error(data?.message || 'Failed to create post');
 
-      if (!res.ok) {
-        throw new Error(data?.message || 'Failed to create post');
-      }
-
-      // Reset form
       setContent('');
       setImageFile(null);
       setImagePreview(null);
+      setAudienceList([]);
 
       if (onPostCreated) onPostCreated(data.post || null);
       if (onNavigate)    onNavigate('home');
@@ -131,7 +311,11 @@ export default function CreatePost({ onNavigate, onPostCreated }) {
         <textarea
           value={content}
           onChange={e => setContent(e.target.value)}
-          placeholder={postType === 'announcement' ? 'Write your announcement here...' : postType === 'memo' ? 'Write your memo here...' : 'Write your post description here...'}
+          placeholder={
+            postType === 'announcement' ? 'Write your announcement here...' :
+            postType === 'memo'         ? 'Write your memo here...' :
+                                          'Write your post description here...'
+          }
           style={{ width: '100%', minHeight: '140px', padding: '16px', border: 'none', outline: 'none', resize: 'vertical', fontSize: '14px', color: 'var(--text-primary)', lineHeight: 1.7, fontFamily: "'Nunito', sans-serif", background: 'transparent' }}
         />
         <div style={{ padding: '8px 16px', borderTop: '1px solid var(--border)', textAlign: 'right', fontSize: '12px', color: isOverLimit ? '#e53935' : charLeft < 50 ? '#f0a500' : 'var(--text-muted)', fontWeight: 600 }}>
@@ -164,26 +348,30 @@ export default function CreatePost({ onNavigate, onPostCreated }) {
       )}
       <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileInput} style={{ display: 'none' }} />
 
-      {/* Audience selector */}
+      {/* ── Audience selector ── */}
       <div style={{ background: 'var(--surface)', borderRadius: '14px', padding: '18px', marginBottom: '14px', border: '1px solid var(--border)', boxShadow: 'var(--shadow)' }}>
         <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--primary)', marginBottom: '14px' }}>Select Audience</div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          {AUDIENCES.map(a => (
-            <label key={a.id}
-              style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '12px 14px', borderRadius: '10px', cursor: 'pointer', background: audience === a.id ? 'var(--primary-pale)' : 'transparent', border: `1px solid ${audience === a.id ? '#0d3b8e22' : 'transparent'}`, transition: 'all 0.15s' }}
-              onMouseEnter={e => { if (audience !== a.id) e.currentTarget.style.background = 'var(--surface-2)'; }}
-              onMouseLeave={e => { if (audience !== a.id) e.currentTarget.style.background = 'transparent'; }}
-            >
-              <div style={{ width: '20px', height: '20px', borderRadius: '50%', flexShrink: 0, border: `2px solid ${audience === a.id ? 'var(--primary)' : 'var(--border)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--surface)', transition: 'all 0.15s' }}>
-                {audience === a.id && <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--primary)' }} />}
-              </div>
-              <input type="radio" name="audience" value={a.id} checked={audience === a.id} onChange={() => setAudience(a.id)} style={{ display: 'none' }} />
-              <div>
-                <div style={{ fontSize: '14px', fontWeight: 700, color: audience === a.id ? 'var(--primary)' : 'var(--text-primary)' }}>{a.label}</div>
-                <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '1px' }}>{a.sub}</div>
-              </div>
-            </label>
-          ))}
+
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+
+          {/* Everyone */}
+          <RadioOption value="all" selected={audience} onChange={handleAudienceChange}
+            label="Everyone" sub="Students, Staff and Faculty" />
+
+          {/* Students Only — expands with hierarchical selector */}
+          <RadioOption value="students" selected={audience} onChange={handleAudienceChange}
+            label="Students Only" sub="From all faculties">
+            <StudentsPanel audienceList={audienceList} setAudienceList={setAudienceList} />
+          </RadioOption>
+
+          {/* Staff Only */}
+          <RadioOption value="staff" selected={audience} onChange={handleAudienceChange}
+            label="Staff Only" sub="Including lecturers" />
+
+          {/* Alumni */}
+          <RadioOption value="alumni" selected={audience} onChange={handleAudienceChange}
+            label="Alumni" sub="This will be sent to their Emails" />
+
         </div>
       </div>
 
@@ -195,7 +383,7 @@ export default function CreatePost({ onNavigate, onPostCreated }) {
         </span>
       </div>
 
-      {/* Error message */}
+      {/* Error */}
       {errorMsg && (
         <div style={{ background: '#fff5f5', border: '1px solid #fcc', borderRadius: '10px', padding: '10px 14px', fontSize: '13px', color: '#c00', textAlign: 'center', marginBottom: '12px' }}>
           {errorMsg}
