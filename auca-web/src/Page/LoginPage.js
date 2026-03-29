@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { HiOutlineUser, HiOutlineLockClosed } from 'react-icons/hi';
 import { HiOutlineEye, HiOutlineEyeOff }      from 'react-icons/hi';
-import { HiOutlineUserGroup }                  from 'react-icons/hi';
-import { MdArrowForward }                      from 'react-icons/md';
+import { HiOutlineUserGroup } from 'react-icons/hi';
+import { MdArrowForward } from 'react-icons/md';
 import '../Styles/login.css';
 
 //  AUCA logo from assets 
@@ -12,12 +12,12 @@ try { aucaLogo = require('../assets/auca_logoo.png'); } catch (e) { aucaLogo = n
 const API = process.env.REACT_APP_API_URL || 'http://localhost:3000';
 
 export default function LoginPage({ onLoginSuccess }) {
-  const [isStaff,  setIsStaff]  = useState(false);
-  const [id,       setId]       = useState('');
+  const [isStaff, setIsStaff]  = useState(false);
+  const [id, setId] = useState('');
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
-  const [error,    setError]    = useState('');
-  const [loading,  setLoading]  = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
     if (!id || !password) { setError('Please enter your ID / Email and Password.'); return; }

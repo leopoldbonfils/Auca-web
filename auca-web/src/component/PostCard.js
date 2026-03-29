@@ -1,21 +1,27 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MdOutlineAddReaction } from 'react-icons/md';
-import { FaRegCommentDots }     from 'react-icons/fa';
-import { FiTrash2 }             from 'react-icons/fi';
-import { CiLocationArrow1 }     from 'react-icons/ci';
-import { IoClose }              from 'react-icons/io5';
-import { MdOutlineCode }        from 'react-icons/md';
+import { FaRegCommentDots } from 'react-icons/fa';
+import { FiTrash2 } from 'react-icons/fi';
+import { CiLocationArrow1 } from 'react-icons/ci';
+import { IoClose } from 'react-icons/io5';
+import { MdOutlineCode } from 'react-icons/md';
 import { FaWhatsapp, FaFacebook } from 'react-icons/fa';
-import { MdEmail }              from 'react-icons/md';
-import { FaXTwitter }           from 'react-icons/fa6';
-import { MdContentCopy }        from 'react-icons/md';
-import { BsCheck2 }             from 'react-icons/bs';
-import { IoLogoInstagram }      from 'react-icons/io5';
-import {
-  BsFilePdf, BsFileWord, BsFileExcel,
-  BsFilePpt, BsFileZip, BsFileEarmark,
-} from 'react-icons/bs';
+import { MdEmail } from 'react-icons/md';
+import { FaXTwitter } from 'react-icons/fa6';
+import { MdContentCopy } from 'react-icons/md';
+import { BsCheck2 } from 'react-icons/bs';
+import { IoLogoInstagram } from 'react-icons/io5';
 import { MdDownload, MdOpenInNew } from 'react-icons/md';
+import docIcon from '../assets/doc.png';
+import excelIcon from '../assets/excel.png';
+import pdfIcon from '../assets/pdf.png';
+import pptIcon from '../assets/ppt.png';
+import pptxIcon from '../assets/pptx.png';
+import rarIcon from '../assets/rar.png';
+import zipIcon from '../assets/zip.png';
+import fileIcon from '../assets/file.png';
+import txtIcon from '../assets/txt.png';
+import wordIcon from '../assets/word.png';
 
 //  Reactions 
 const REACTIONS = [
@@ -30,42 +36,53 @@ const REACTIONS = [
 
 //  Share platforms 
 const SHARE_PLATFORMS = [
-  { label: 'Email',     icon: <MdEmail size={22} color="#fff" />,         bg: '#757575', action: (url) => window.open(`mailto:?subject=Check this out&body=${encodeURIComponent(url)}`) },
-  { label: 'WhatsApp',  icon: <FaWhatsapp size={22} color="#fff" />,      bg: '#25D366', action: (url) => window.open(`https://wa.me/?text=${encodeURIComponent(url)}`, '_blank') },
-  { label: 'X',         icon: <FaXTwitter size={22} color="#fff" />,      bg: '#000',    action: (url) => window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}`, '_blank') },
+  { label: 'Email', icon: <MdEmail size={22} color="#fff" />, bg: '#757575', action: (url) => window.open(`mailto:?subject=Check this out&body=${encodeURIComponent(url)}`) },
+  { label: 'WhatsApp', icon: <FaWhatsapp size={22} color="#fff" />, bg: '#25D366', action: (url) => window.open(`https://wa.me/?text=${encodeURIComponent(url)}`, '_blank') },
+  { label: 'X', icon: <FaXTwitter size={22} color="#fff" />, bg: '#000',    action: (url) => window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}`, '_blank') },
   { label: 'Instagram', icon: <IoLogoInstagram size={22} color="#fff" />, bg: '#E4405F', action: (url) => window.open(`https://www.instagram.com/?url=${encodeURIComponent(url)}`, '_blank') },
-  { label: 'Facebook',  icon: <FaFacebook size={22} color="#fff" />,      bg: '#1877F2', action: (url) => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank') },
-  { label: 'Embed',     icon: <MdOutlineCode size={22} color="#fff" />,   bg: '#606060', action: (url) => alert(`Embed code:\n<iframe src="${url}"></iframe>`) },
+  { label: 'Facebook', icon: <FaFacebook size={22} color="#fff" />, bg: '#1877F2', action: (url) => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank') },
+  { label: 'Embed', icon: <MdOutlineCode size={22} color="#fff" />, bg: '#606060', action: (url) => alert(`Embed code:\n<iframe src="${url}"></iframe>`) },
 ];
 
 //  File-type helpers 
 function getFileCategory(fileType, mimeType = '') {
-  const ext = (fileType || '').toLowerCase().replace('.', '');
-  const mime = (mimeType || '').toLowerCase();
+  const ext  = (fileType  || '').toLowerCase().replace('.', '');
+  const mime = (mimeType  || '').toLowerCase();
 
-  if (ext === 'pdf' || mime.includes('pdf'))                                   return 'pdf';
-  if (['doc','docx'].includes(ext) || mime.includes('word'))                   return 'word';
-  if (['xls','xlsx'].includes(ext) || mime.includes('excel') || mime.includes('spreadsheet')) return 'excel';
-  if (['ppt','pptx'].includes(ext) || mime.includes('powerpoint') || mime.includes('presentation')) return 'ppt';
-  if (['zip','rar','7z'].includes(ext) || mime.includes('zip'))               return 'zip';
+  if (ext === 'pdf'  || mime.includes('pdf')) return 'pdf';
+  if (ext === 'docx' || mime.includes('wordprocessingml')) return 'docx';
+  if (ext === 'doc'  || mime.includes('msword')) return 'doc';
+  if (ext === 'xlsx' || mime.includes('spreadsheetml')) return 'xlsx';
+  if (ext === 'xls'  || mime.includes('excel')) return 'xls';
+  if (ext === 'pptx' || mime.includes('presentationml')) return 'pptx';
+  if (ext === 'ppt'  || mime.includes('powerpoint')) return 'ppt';
+  if (ext === 'txt'  || mime.includes('text/plain')) return 'txt';
+  if (ext === 'rar'  || mime.includes('rar'))  return 'rar';
+  if (ext === 'zip'  || mime.includes('zip')) return 'zip';
   if (['png','jpg','jpeg','gif','webp'].includes(ext) || mime.startsWith('image/')) return 'image';
   return 'file';
 }
 
-const FILE_STYLE = {
-  pdf:   { icon: <BsFilePdf   size={36} />, color: '#e53935', bg: '#ffeaea', label: 'PDF'  },
-  word:  { icon: <BsFileWord  size={36} />, color: '#1565c0', bg: '#e3f2fd', label: 'DOC'  },
-  excel: { icon: <BsFileExcel size={36} />, color: '#2e7d32', bg: '#e8f5e9', label: 'XLS'  },
-  ppt:   { icon: <BsFilePpt   size={36} />, color: '#e65100', bg: '#fff3e0', label: 'PPT'  },
-  zip:   { icon: <BsFileZip   size={36} />, color: '#6a1b9a', bg: '#f3e5f5', label: 'ZIP'  },
-  file:  { icon: <BsFileEarmark size={36} />, color: '#546e7a', bg: '#eceff1', label: 'FILE' },
+// Map category → { icon (PNG asset), label, bg }
+const FILE_META = {
+  pdf:{ icon: pdfIcon, label: 'PDF', bg: '#ffeaea' },
+  doc:{ icon: docIcon, label: 'DOC', bg: '#e3f2fd' },
+  docx:{ icon: wordIcon, label: 'DOCX',bg: '#e3f2fd' },
+  xls:{ icon: excelIcon, label: 'XLS', bg: '#e8f5e9' },
+  xlsx:{ icon: excelIcon, label: 'XLSX', bg: '#e8f5e9' },
+  ppt:{ icon: pptIcon, label: 'PPT',  bg: '#fff3e0' },
+  pptx:{ icon: pptxIcon, label: 'PPTX', bg: '#fff3e0' },
+  txt:{ icon: txtIcon, label: 'TXT', bg: '#f5f5f5' },
+  rar:{ icon: rarIcon, label: 'RAR', bg: '#f3e5f5' },
+  zip:{ icon: zipIcon, label: 'ZIP', bg: '#f3e5f5' },
+  file:{ icon: fileIcon, label: 'FILE', bg: '#eceff1' },
 };
 
 function formatFileSize(bytes) {
   if (!bytes) return '';
   const n = Number(bytes);
-  if (isNaN(n)) return bytes; // already a formatted string from server
-  if (n === 0) return '0 B';
+  if (isNaN(n)) return bytes;  // already a pre-formatted string from server
+  if (n === 0)  return '0 B';
   const sizes = ['B', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(n) / Math.log(1024));
   return `${(n / Math.pow(1024, i)).toFixed(1)} ${sizes[i]}`;
@@ -75,20 +92,19 @@ function getFileName(url, fileType) {
   if (!url) return `file${fileType || ''}`;
   try {
     const parts = url.split('/');
-    const raw = parts[parts.length - 1].split('?')[0];
+    const raw  = parts[parts.length - 1].split('?')[0];
     return raw || `file${fileType || ''}`;
   } catch {
     return `file${fileType || ''}`;
   }
 }
 
-//  File Card (non-PDF) 
+//  Generic File Card 
 function FileCard({ fileUrl, fileType, fileSize, mimeType, fileName }) {
   const category = getFileCategory(fileType, mimeType);
-  const style    = FILE_STYLE[category] || FILE_STYLE.file;
-  const name     = fileName || getFileName(fileUrl, fileType);
-  const size     = formatFileSize(fileSize);
-  const extLabel = style.label;
+  const meta = FILE_META[category] || FILE_META.file;
+  const name = fileName || getFileName(fileUrl, fileType);
+  const size = formatFileSize(fileSize);
 
   const openFile = () => { if (fileUrl) window.open(fileUrl, '_blank'); };
 
@@ -101,38 +117,43 @@ function FileCard({ fileUrl, fileType, fileSize, mimeType, fileName }) {
         padding: '14px 16px', margin: '10px 18px',
         background: 'var(--surface-2)',
         border: '1px solid var(--border)',
-        borderRadius: '12px', cursor: fileUrl ? 'pointer' : 'default',
-        transition: 'all 0.15s',
+        borderRadius: '12px',
+        cursor: fileUrl ? 'pointer' : 'default',
+        transition: 'background 0.15s, border-color 0.15s',
       }}
-      onMouseEnter={e => { if (fileUrl) { e.currentTarget.style.background = style.bg; e.currentTarget.style.borderColor = style.color + '55'; } }}
-      onMouseLeave={e => { e.currentTarget.style.background = 'var(--surface-2)'; e.currentTarget.style.borderColor = 'var(--border)'; }}
+      onMouseEnter={e => {
+        if (fileUrl) {
+          e.currentTarget.style.background = meta.bg;
+          e.currentTarget.style.borderColor = 'rgba(0,0,0,0.15)';
+        }
+      }}
+      onMouseLeave={e => {
+        e.currentTarget.style.background = 'var(--surface-2)';
+        e.currentTarget.style.borderColor = 'var(--border)';
+      }}
     >
-      {/* Icon */}
+      {/* PNG icon box */}
       <div style={{
         width: '52px', height: '52px', borderRadius: '10px',
-        background: style.bg, color: style.color,
+        background: meta.bg, padding: '6px', flexShrink: 0,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        flexShrink: 0,
       }}>
-        {style.icon}
+        <img src={meta.icon} alt={meta.label} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
       </div>
 
       {/* Info */}
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{
-          fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)',
-          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-        }}>
+        <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {name}
         </div>
         <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '3px' }}>
-          {[size, extLabel, 'Open'].filter(Boolean).join(' · ')}
+          {[size, meta.label, 'Open'].filter(Boolean).join(' · ')}
         </div>
       </div>
 
-      {/* Open icon */}
+      {/* Open arrow */}
       {fileUrl && (
-        <div style={{ color: style.color, flexShrink: 0 }}>
+        <div style={{ color: 'var(--text-muted)', flexShrink: 0 }}>
           <MdOpenInNew size={20} />
         </div>
       )}
@@ -140,28 +161,27 @@ function FileCard({ fileUrl, fileType, fileSize, mimeType, fileName }) {
   );
 }
 
-//  PDF Card with thumbnail preview 
+//  PDF Card 
 function PdfCard({ fileUrl, thumbnailUrl, fileSize, fileName }) {
   const [thumbBroken, setThumbBroken] = useState(false);
   const name = fileName || getFileName(fileUrl, '.pdf');
   const size = formatFileSize(fileSize);
+  const hasThumbnail = thumbnailUrl && !thumbBroken;
 
-  const openFile     = () => { if (fileUrl) window.open(fileUrl, '_blank'); };
+  const openFile = () => { if (fileUrl) window.open(fileUrl, '_blank'); };
   const downloadFile = () => {
     if (!fileUrl) return;
     const a = document.createElement('a');
-    a.href     = fileUrl;
+    a.href = fileUrl;
     a.download = name;
-    a.target   = '_blank';
+    a.target = '_blank';
     a.click();
   };
-
-  const hasThumbnail = thumbnailUrl && !thumbBroken;
 
   return (
     <div style={{ margin: '10px 18px', borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border)', background: 'var(--surface-2)' }}>
 
-      {/* Thumbnail (if available) */}
+      {/* Blurred thumbnail preview */}
       {hasThumbnail && (
         <div style={{ position: 'relative', background: '#111', maxHeight: '200px', overflow: 'hidden' }}>
           <img
@@ -170,54 +190,25 @@ function PdfCard({ fileUrl, thumbnailUrl, fileSize, fileName }) {
             onError={() => setThumbBroken(true)}
             style={{ width: '100%', objectFit: 'cover', display: 'block', opacity: 0.85 }}
           />
-          {/* Overlay PDF badge */}
-          <div style={{
-            position: 'absolute', top: '10px', left: '10px',
-            background: '#e53935', color: '#fff', fontWeight: 800,
-            fontSize: '11px', padding: '3px 8px', borderRadius: '6px',
-            letterSpacing: '0.5px',
-          }}>PDF</div>
+          <div style={{ position: 'absolute', top: '10px', left: '10px', background: '#e53935', color: '#fff', fontWeight: 800, fontSize: '11px', padding: '3px 8px', borderRadius: '6px', letterSpacing: '0.5px' }}>PDF</div>
         </div>
       )}
 
-      {/* Row with icon + info + buttons */}
+      {/* Bottom row: pdf.png icon + name + buttons */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px' }}>
-        {/* PDF icon (shown when no thumbnail) */}
-        {!hasThumbnail && (
-          <div style={{
-            width: '48px', height: '48px', borderRadius: '10px',
-            background: '#ffeaea', color: '#e53935', flexShrink: 0,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <BsFilePdf size={32} />
-          </div>
-        )}
-
-        {/* File info */}
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{
-            fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)',
-            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-          }}>
-            {name}
-          </div>
-          <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>
-            {[size, 'PDF'].filter(Boolean).join(' · ')}
-          </div>
+        <div style={{ width: '48px', height: '48px', borderRadius: '10px', background: '#ffeaea', padding: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <img src={pdfIcon} alt="PDF" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
         </div>
 
-        {/* Action buttons */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</div>
+          <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>{[size, 'PDF'].filter(Boolean).join(' · ')}</div>
+        </div>
+
         <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
           {fileUrl && (
-            <button
-              onClick={downloadFile}
-              style={{
-                display: 'flex', alignItems: 'center', gap: '5px',
-                padding: '7px 12px', borderRadius: '8px', border: 'none',
-                background: '#1565c0', color: '#fff', cursor: 'pointer',
-                fontSize: '12px', fontWeight: 700, fontFamily: 'inherit',
-                transition: 'background 0.15s',
-              }}
+            <button onClick={downloadFile}
+              style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '7px 12px', borderRadius: '8px', border: 'none', background: '#1565c0', color: '#fff', cursor: 'pointer', fontSize: '12px', fontWeight: 700, fontFamily: 'inherit', transition: 'background 0.15s' }}
               onMouseEnter={e => e.currentTarget.style.background = '#0d47a1'}
               onMouseLeave={e => e.currentTarget.style.background = '#1565c0'}
             >
@@ -225,16 +216,8 @@ function PdfCard({ fileUrl, thumbnailUrl, fileSize, fileName }) {
             </button>
           )}
           {fileUrl && (
-            <button
-              onClick={openFile}
-              style={{
-                display: 'flex', alignItems: 'center', gap: '5px',
-                padding: '7px 12px', borderRadius: '8px',
-                border: '1px solid var(--border)', background: 'var(--surface)',
-                color: 'var(--text-secondary)', cursor: 'pointer',
-                fontSize: '12px', fontWeight: 700, fontFamily: 'inherit',
-                transition: 'all 0.15s',
-              }}
+            <button onClick={openFile}
+              style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '7px 12px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '12px', fontWeight: 700, fontFamily: 'inherit', transition: 'all 0.15s' }}
               onMouseEnter={e => { e.currentTarget.style.background = 'var(--surface-2)'; e.currentTarget.style.borderColor = 'var(--primary)'; }}
               onMouseLeave={e => { e.currentTarget.style.background = 'var(--surface)'; e.currentTarget.style.borderColor = 'var(--border)'; }}
             >
@@ -287,7 +270,7 @@ function ShareModal({ postUrl, onClose }) {
         </div>
       </div>
       <style>{`
-        @keyframes fadeIn  { from { opacity:0 } to { opacity:1 } }
+        @keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
         @keyframes slideUp { from { transform:translateX(-50%) translateY(100%) } to { transform:translateX(-50%) translateY(0) } }
       `}</style>
     </>
@@ -309,36 +292,23 @@ function avatarColor(name = '') {
   return colors[(name.charCodeAt(0) || 0) % colors.length];
 }
 
-//  Post image (graceful broken-image handling) 
 function PostImage({ src }) {
   const [broken, setBroken] = useState(false);
   useEffect(() => { setBroken(false); }, [src]);
   if (!src || broken) return null;
   return (
     <div style={{ width: '100%', maxHeight: '480px', overflow: 'hidden', background: 'var(--surface-2)', borderRadius: '4px' }}>
-      <img
-        src={src}
-        alt="post"
-        onError={() => setBroken(true)}
-        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-        crossOrigin="anonymous"
-      />
+      <img src={src} alt="post" onError={() => setBroken(true)} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} crossOrigin="anonymous" />
     </div>
   );
 }
 
-//  Author avatar 
 function AuthorAvatar({ avatarUrl, author }) {
   const [imgBroken, setImgBroken] = useState(false);
   useEffect(() => { setImgBroken(false); }, [avatarUrl]);
   const showImage = avatarUrl && !imgBroken;
   return (
-    <div style={{
-      width: '44px', height: '44px', borderRadius: '50%',
-      background: showImage ? 'transparent' : avatarColor(author),
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      color: '#fff', fontWeight: 800, fontSize: '16px', flexShrink: 0, overflow: 'hidden',
-    }}>
+    <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: showImage ? 'transparent' : avatarColor(author), display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: '16px', flexShrink: 0, overflow: 'hidden' }}>
       {showImage
         ? <img src={avatarUrl} alt={author} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} onError={() => setImgBroken(true)} />
         : getInitials(author)
@@ -347,7 +317,6 @@ function AuthorAvatar({ avatarUrl, author }) {
   );
 }
 
-//  Emoji reaction summary 
 function ReactionSummary({ reactions, myReaction }) {
   const total = Object.values(reactions).reduce((a, b) => a + b, 0);
   if (total === 0 && !myReaction) return null;
@@ -370,9 +339,9 @@ function ReactionSummary({ reactions, myReaction }) {
 export default function PostCard({ post, onDelete, onComment }) {
   const [showPicker, setShowPicker] = useState(false);
   const [myReaction, setMyReaction] = useState(null);
-  const [reactions,  setReactions]  = useState(post?.reactions || {});
-  const [expanded,   setExpanded]   = useState(false);
-  const [showShare,  setShowShare]  = useState(false);
+  const [reactions, setReactions]  = useState(post?.reactions || {});
+  const [expanded, setExpanded]   = useState(false);
+  const [showShare, setShowShare]  = useState(false);
 
   const {
     id, author = 'Unknown', role = '', department = '',
@@ -380,19 +349,18 @@ export default function PostCard({ post, onDelete, onComment }) {
     type = 'post', commentCount = 0, isOwner = false,
   } = post || {};
 
-  //  File fields from the raw backend post 
-  const raw       = post?._raw || {};
-  const fileType  = raw.FileType  || null;   // '.pdf', '.docx', '.xlsx', …
-  const mimeType  = raw.MimeType  || '';
-  const fullUrl   = raw.FullUrl   || null;
-  const thumbUrl  = raw.ThumbnailUrl || null;
-  const fileSize  = raw.FileSize  || null;
+  // File attachment fields from raw backend response
+  const raw = post?._raw || {};
+  const fileType = raw.FileType || null;
+  const mimeType = raw.MimeType || '';
+  const fullUrl  = raw.FullUrl  || null;
+  const thumbUrl = raw.ThumbnailUrl || null;
+  const fileSize = raw.FileSize || null;
 
-  // Determine what kind of attachment we have
   const fileCategory = fileType ? getFileCategory(fileType, mimeType) : null;
-  const isImage      = fileCategory === 'image';
-  const isPdf        = fileCategory === 'pdf';
-  const isOtherFile  = fileCategory && fileCategory !== 'image';
+  const isImage = fileCategory === 'image';
+  const isPdf = fileCategory === 'pdf';
+  const isOtherFile = fileCategory && fileCategory !== 'image';
 
   const postUrl = `https://auca-hub.ac.rw/posts/${id}`;
 
@@ -430,7 +398,7 @@ export default function PostCard({ post, onDelete, onComment }) {
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
               <span style={{ fontWeight: 700, fontSize: '14px', color: 'var(--primary)' }}>{author}</span>
               {department && (<><span style={{ color: 'var(--border)' }}>|</span><span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{department}</span></>)}
-              {timestamp && (<><span style={{ color: 'var(--border)' }}>•</span><span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{timestamp}</span></>)}
+              {timestamp  && (<><span style={{ color: 'var(--border)' }}>•</span><span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{timestamp}</span></>)}
             </div>
             {role && <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '1px' }}>{role}</div>}
           </div>
@@ -460,9 +428,8 @@ export default function PostCard({ post, onDelete, onComment }) {
 
         {type === 'post' && (
           <>
-            {/* Description */}
             {content && (
-              <div style={{ padding: '0 18px', marginBottom: (image || fullUrl) ? '4px' : '4px' }}>
+              <div style={{ padding: '0 18px', marginBottom: '4px' }}>
                 <p style={{ fontSize: '14px', color: 'var(--text-primary)', lineHeight: 1.7, margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
                   {displayedContent}
                 </p>
@@ -474,30 +441,17 @@ export default function PostCard({ post, onDelete, onComment }) {
               </div>
             )}
 
-            {/*  Attachment rendering */}
-
-            {/* Image (uses resolved `image` prop from mapPost) */}
+            {/* Image */}
             {isImage && image && <PostImage src={image} />}
 
-            {/* PDF with thumbnail + Download/Open buttons */}
+            {/* PDF */}
             {isPdf && fullUrl && (
-              <PdfCard
-                fileUrl={fullUrl}
-                thumbnailUrl={thumbUrl}
-                fileSize={fileSize}
-                fileName={getFileName(fullUrl, fileType)}
-              />
+              <PdfCard fileUrl={fullUrl} thumbnailUrl={thumbUrl} fileSize={fileSize} fileName={getFileName(fullUrl, fileType)} />
             )}
 
-            {/* DOC / DOCX / XLS / XLSX / PPT / ZIP / other */}
+            {/* DOC / DOCX / XLS / XLSX / PPT / PPTX / TXT / ZIP / RAR / … */}
             {isOtherFile && !isPdf && fullUrl && (
-              <FileCard
-                fileUrl={fullUrl}
-                fileType={fileType}
-                fileSize={fileSize}
-                mimeType={mimeType}
-                fileName={getFileName(fullUrl, fileType)}
-              />
+              <FileCard fileUrl={fullUrl} fileType={fileType} fileSize={fileSize} mimeType={mimeType} fileName={getFileName(fullUrl, fileType)} />
             )}
           </>
         )}

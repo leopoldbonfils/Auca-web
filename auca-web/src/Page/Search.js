@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { RiSearchLine } from 'react-icons/ri';
-import { IoClose }      from 'react-icons/io5';
+import { IoClose } from 'react-icons/io5';
 
 const MOCK_USERS = [
   { id: '1', name: 'Rutanga Claude',   role: 'Accountant', department: 'Finance',    initials: 'RC', color: 'linear-gradient(135deg,#0d3b8e,#1a4fa8)' },

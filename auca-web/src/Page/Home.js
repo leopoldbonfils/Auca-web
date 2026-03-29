@@ -48,8 +48,8 @@ function formatUserName(fullName) {
   const parts = fullName.trim().split(' ');
   if (parts.length <= 2) return fullName;
   const first = parts[0];
-  const last  = parts[parts.length - 1];
-  const mids  = parts.slice(1, -1).map(w => w.charAt(0).toUpperCase() + '.').join(' ');
+  const last = parts[parts.length - 1];
+  const mids = parts.slice(1, -1).map(w => w.charAt(0).toUpperCase() + '.').join(' ');
   return `${first} ${mids} ${last}`;
 }
 
@@ -58,8 +58,8 @@ function getCurrentUser() {
   try {
     const p = JSON.parse(localStorage.getItem('userProfile') || '{}');
     const name = `${p.Fname || ''} ${p.Lname || ''}`.trim() || 'User';
-    const initials  = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-    const rawUrl    = p.ProfileUrl || '';
+    const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+    const rawUrl = p.ProfileUrl || '';
     const avatarUrl = rawUrl.startsWith('https://') ? rawUrl : null;
     return { name, initials, avatarUrl };
   } catch {
@@ -94,22 +94,22 @@ function mapPost(post) {
   const myId = p?.Id || p?.StudentId;
   const imageUrl = resolveImageUrl(post.FullUrl) || resolveImageUrl(post.ThumbnailUrl);
   return {
-    id:           String(post.Id),
-    rawId:        post.Id,
-    author:       formatUserName(`${post.Fname || ''} ${post.Lname || ''}`.trim()),
-    role:         post.Role       || '',
+    id: String(post.Id),
+    rawId: post.Id,
+    author: formatUserName(`${post.Fname || ''} ${post.Lname || ''}`.trim()),
+    role: post.Role || '',
     department:   post.Department || '',
-    timestamp:    formatTimeFromUTC(post.Timestamp),
-    content:      post.Description || '',
-    image:        imageUrl,
+    timestamp: formatTimeFromUTC(post.Timestamp),
+    content: post.Description || '',
+    image: imageUrl,
     thumbnailUrl: resolveImageUrl(post.ThumbnailUrl),
-    avatarUrl:    resolveImageUrl(post.ProfileUrl),
-    type:         'post',
+    avatarUrl: resolveImageUrl(post.ProfileUrl),
+    type: 'post',
     commentCount: post.PostComments  || 0,
-    reactions:    parseReactions(post.ReactionTypes),
+    reactions: parseReactions(post.ReactionTypes),
     reactionCount: post.PostReactions || 0,
-    isOwner:      !!(myId && String(post.CreatorId) === String(myId)),
-    _raw:         post,
+    isOwner:!!(myId && String(post.CreatorId) === String(myId)),
+    _raw: post,
   };
 }
 

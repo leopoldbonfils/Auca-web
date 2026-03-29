@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { RiEditLine }    from 'react-icons/ri';
-import { BsCalendar3 }   from 'react-icons/bs';
-import { GoLocation }    from 'react-icons/go';
+import { RiEditLine } from 'react-icons/ri';
+import { BsCalendar3 } from 'react-icons/bs';
+import { GoLocation } from 'react-icons/go';
 import { MdWorkOutline } from 'react-icons/md';
 import api from '../utils/api';
 
@@ -10,9 +10,9 @@ const TABS = ['Posts', 'Announcements', 'About'];
 export default function Profile() {
   const [activeTab, setActiveTab] = useState('Posts');
   const [isEditing, setIsEditing] = useState(false);
-  const [profile,   setProfile]   = useState(null);
-  const [loading,   setLoading]   = useState(true);
-  const [error,     setError]     = useState('');
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   const isStaff = localStorage.getItem('isStaff') === 'true';
 
@@ -34,22 +34,22 @@ export default function Profile() {
   }, [isStaff]);
 
   // Derived display values — fall back to placeholders while loading
-  const fullName   = profile ? `${profile.Fname || ''} ${profile.Lname || ''}`.trim() : '—';
-  const role       = profile?.Role       || (isStaff ? 'Staff' : 'Student');
+  const fullName = profile ? `${profile.Fname || ''} ${profile.Lname || ''}`.trim() : '—';
+  const role = profile?.Role || (isStaff ? 'Staff' : 'Student');
   const department = profile?.Department || profile?.StudDepartment || '—';
-  const email      = profile?.Email      || '—';
-  const initials   = fullName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+  const email = profile?.Email || '—';
+  const initials = fullName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
 
   const metaItems = [
     { icon: <MdWorkOutline size={14} />, text: department },
-    { icon: <GoLocation    size={14} />, text: 'Kigali, Rwanda' },
-    { icon: <BsCalendar3   size={14} />, text: 'AUCA Member' },
+    { icon: <GoLocation size={14} />, text: 'Kigali, Rwanda' },
+    { icon: <BsCalendar3 size={14} />, text: 'AUCA Member' },
   ];
 
   const stats = [
-    { label: 'Posts',     value: '—' },
+    { label: 'Posts', value: '—' },
     { label: 'Reactions', value: '—' },
-    { label: 'Comments',  value: '—' },
+    { label: 'Comments', value: '—' },
   ];
 
   if (loading) {
@@ -152,12 +152,12 @@ export default function Profile() {
       {activeTab === 'About' && (
         <div style={{ background: 'var(--surface)', borderRadius: '14px', padding: '20px', border: '1px solid var(--border)', boxShadow: 'var(--shadow)' }}>
           {[
-            { label: 'Full Name',   value: fullName },
-            { label: 'Role',        value: role },
+            { label: 'Full Name', value: fullName },
+            { label: 'Role', value: role },
             { label: 'Department',  value: department },
-            { label: 'Email',       value: email },
-            { label: 'Phone',       value: profile?.Phone ? `+250 ${profile.Phone}` : '—' },
-            { label: 'Faculty',     value: profile?.StudFaculty || profile?.Faculty || '—' },
+            { label: 'Email', value: email },
+            { label: 'Phone', value: profile?.Phone ? `+250 ${profile.Phone}` : '—' },
+            { label: 'Faculty', value: profile?.StudFaculty || profile?.Faculty || '—' },
           ].map((item, i) => (
             <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: i < 5 ? '1px solid var(--border)' : 'none' }}>
               <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: 600 }}>{item.label}</span>

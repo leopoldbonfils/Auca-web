@@ -121,15 +121,15 @@ function CommentRow({ c, onLike, onDislike, onDelete }) {
 
 function getUserInfo() {
   try {
-    const raw     = localStorage.getItem('userProfile');
+    const raw = localStorage.getItem('userProfile');
     const profile = raw ? JSON.parse(raw) : {};
     const isStaff = localStorage.getItem('isStaff') === 'true';
-    const fname   = profile.Fname || '';
-    const lname   = profile.Lname || '';
+    const fname = profile.Fname || '';
+    const lname = profile.Lname || '';
     const fullName = `${fname} ${lname}`.trim() || 'User';
     const initials = fullName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-    const role     = profile.Role || (isStaff ? 'Staff' : 'Student');
-    const rawUrl   = profile.ProfileUrl || '';
+    const role = profile.Role || (isStaff ? 'Staff' : 'Student');
+    const rawUrl = profile.ProfileUrl || '';
     const avatarUrl = rawUrl.startsWith('https://') ? rawUrl : null;
     return { fullName, initials, role, avatarUrl };
   } catch {
@@ -140,9 +140,9 @@ function getUserInfo() {
 //  Main Comment page 
 export default function Comment({ post, onBack }) {
   const [comments,setComments] = useState([]);
-  const [input,setInput]    = useState('');
-  const [loading,setLoading]  = useState(true);
-  const [posting,setPosting]  = useState(false);
+  const [input,setInput] = useState('');
+  const [loading,setLoading] = useState(true);
+  const [posting,setPosting] = useState(false);
   const bottomRef =useRef(null);
   const userInfo = getUserInfo();
 
@@ -163,14 +163,14 @@ export default function Comment({ post, onBack }) {
           // Map backend fields → local shape
           const list = Array.isArray(data) ? data : [];
           setComments(list.map(c => ({
-            id:       c.Id,
+            id: c.Id,
             username: c.commentorNames || 'Unknown',
-            avatar:   c.commentorProfile || null,
-            text:     c.Text || '',
-            time:     c.Timestamp ? new Date(c.Timestamp).toLocaleString() : '',
-            likes:    0,
-            liked:    false,
-            disliked: false,
+            avatar: c.commentorProfile || null,
+            text: c.Text || '',
+            time: c.Timestamp ? new Date(c.Timestamp).toLocaleString() : '',
+            likes: 0,
+            liked:false,
+            disliked:false,
           })));
         }
       } catch {
@@ -206,13 +206,13 @@ export default function Comment({ post, onBack }) {
       await api.post('/home/posts/comment', { postId: Number(postId), comment: input.trim() });
       // Add optimistically to local list
       setComments(prev => [...prev, {
-      id:       Date.now(),
+      id: Date.now(),
       username: userInfo.fullName,   
-      avatar:   userInfo.avatarUrl,  
-      text:     input.trim(),
-      time:     'Just now',
-      likes:    0,
-      liked:    false,
+      avatar: userInfo.avatarUrl,  
+      text: input.trim(),
+      time: 'Just now',
+      likes: 0,
+      liked: false,
       disliked: false,
     }]);
       setInput('');

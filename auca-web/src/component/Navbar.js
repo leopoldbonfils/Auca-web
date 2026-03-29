@@ -1,6 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-
-//  react-icons
 import { GoHome, GoHomeFill } from 'react-icons/go';
 import { RiSearchLine, RiSearchFill } from 'react-icons/ri';
 import { FiPlusCircle } from 'react-icons/fi';
@@ -100,9 +98,9 @@ function PopupRow({ iconBg, iconColor, icon, label, sublabel, right, onClick, da
 
 //  Navbar
 export default function Navbar({ activePage, onNavigate, theme, onThemeChange, onLogout }) {
-  const [expanded,     setExpanded]     = useState(false);
-  const [showMore,     setShowMore]     = useState(false);
-  const [showAccount,  setShowAccount]  = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const [showMore, setShowMore] = useState(false);
+  const [showAccount, setShowAccount] = useState(false);
 
   // FIX: load real user info on mount
   const [userInfo, setUserInfo] = useState(getUserInfo());
@@ -112,15 +110,15 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange, o
     setUserInfo(getUserInfo());
   }, []);
 
-  const navRef     = useRef(null);
-  const moreRef    = useRef(null);
+  const navRef = useRef(null);
+  const moreRef = useRef(null);
   const accountRef = useRef(null);
-  const isDark     = theme === 'dark';
+  const isDark = theme === 'dark';
 
   // Close popups on outside click
   useEffect(() => {
     const handler = e => {
-      if (moreRef.current    && !moreRef.current.contains(e.target))    setShowMore(false);
+      if (moreRef.current && !moreRef.current.contains(e.target)) setShowMore(false);
       if (accountRef.current && !accountRef.current.contains(e.target)) setShowAccount(false);
     };
     document.addEventListener('mousedown', handler);

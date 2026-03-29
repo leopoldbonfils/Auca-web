@@ -1,15 +1,15 @@
 import React, { useState, useRef } from 'react';
-import { BsImage }       from 'react-icons/bs';
-import { IoClose }       from 'react-icons/io5';
-import { BsInfoCircle }  from 'react-icons/bs';
+import { BsImage } from 'react-icons/bs';
+import { IoClose } from 'react-icons/io5';
+import { BsInfoCircle } from 'react-icons/bs';
 import { BsFileEarmark } from 'react-icons/bs';
 
 const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000';
 
 const POST_TYPES = [
-  { id: 'post',         label: 'Post' },
+  { id: 'post', label: 'Post' },
   { id: 'announcement', label: 'Announcement' },
-  { id: 'memo',         label: 'Memo' },
+  { id: 'memo', label: 'Memo' },
 ];
 
 //  Audience data (mirrors the RN app) 
@@ -30,7 +30,7 @@ const LEVEL_FACULTIES = {
 };
 
 const UNDERGRAD_FACULTIES = LEVEL_FACULTIES['Undergraduate'];
-const MASTERS_FACULTIES   = LEVEL_FACULTIES['Masters'];
+const MASTERS_FACULTIES = LEVEL_FACULTIES['Masters'];
 
 function filterAudienceList(audienceList) {
   const result = [];
@@ -98,10 +98,10 @@ function StudentsPanel({ audienceList, setAudienceList }) {
 
   const bothLevels = has('Undergraduate') && has('Masters');
   const onlyUndergrad = has('Undergraduate') && !has('Masters');
-  const onlyMasters   = has('Masters') && !has('Undergraduate');
+  const onlyMasters = has('Masters') && !has('Undergraduate');
 
   const showUndergradFaculties = !bothLevels && !onlyMasters;
-  const showMastersFaculties   = !bothLevels && !onlyUndergrad;
+  const showMastersFaculties = !bothLevels && !onlyUndergrad;
 
   return (
     <div style={{
@@ -112,7 +112,7 @@ function StudentsPanel({ audienceList, setAudienceList }) {
       {/* Levels */}
       <SectionLabel label="Student Levels" />
       <CheckRow label="All Undergraduates" checked={has('Undergraduate')} onChange={() => toggle('Undergraduate')} />
-      <CheckRow label="All Masters"        checked={has('Masters')}       onChange={() => toggle('Masters')} />
+      <CheckRow label="All Masters" checked={has('Masters')} onChange={() => toggle('Masters')} />
 
       {/* Faculties */}
       {!bothLevels && (
@@ -194,15 +194,15 @@ function RadioOption({ value, selected, onChange, label, sub, children }) {
 
 //  Main component 
 export default function CreatePost({ onNavigate, onPostCreated }) {
-  const [postType,     setPostType]     = useState('post');
-  const [content,      setContent]      = useState('');
-  const [audience,     setAudience]     = useState('all');
+  const [postType, setPostType] = useState('post');
+  const [content, setContent] = useState('');
+  const [audience, setAudience] = useState('all');
   const [audienceList, setAudienceList] = useState([]);
-  const [imageFile,    setImageFile]    = useState(null);
+  const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
-  const [isPosting,    setIsPosting]    = useState(false);
-  const [dragOver,     setDragOver]     = useState(false);
-  const [errorMsg,     setErrorMsg]     = useState('');
+  const [isPosting, setIsPosting] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
   const fileInputRef = useRef(null);
 
