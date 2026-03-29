@@ -6,13 +6,13 @@ import { io } from 'socket.io-client';
 const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000';
 const TABS = ['All', 'Announcements', 'Posts'];
 
-// ─── Emoji name → character map (mirrors the app's emojiData) ────────────────
+//  Emoji name → character map (mirrors the app's emojiData) 
 const EMOJI_NAME_MAP = {
   love: '❤️', happy: '😄', laugh: '😂', thumbs_up: '👍',
   skull: '💀', angry: '😡', sad: '😢',
 };
 
-// ─── Feature 5: relative timestamp (mirrors app's formatTimeFromUTC) ─────────
+//  Feature 5: relative timestamp (mirrors app's formatTimeFromUTC) 
 function formatTimeFromUTC(utcTimestamp) {
   if (!utcTimestamp) return '';
   const messageDate = new Date(utcTimestamp);
@@ -42,7 +42,7 @@ function formatTimeFromUTC(utcTimestamp) {
   return messageDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
-// ─── Author name abbreviator (mirrors app's formatUserName) ──────────────────
+//  Author name abbreviator (mirrors app's formatUserName) 
 function formatUserName(fullName) {
   if (!fullName) return '';
   const parts = fullName.trim().split(' ');
@@ -53,7 +53,7 @@ function formatUserName(fullName) {
   return `${first} ${mids} ${last}`;
 }
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
+//  Helpers 
 function getCurrentUser() {
   try {
     const p = JSON.parse(localStorage.getItem('userProfile') || '{}');
@@ -113,7 +113,7 @@ function mapPost(post) {
   };
 }
 
-// ─── Feature 7: Toast component ──────────────────────────────────────────────
+//  Feature 7: Toast component 
 function Toast({ toasts }) {
   if (!toasts.length) return null;
   return (
@@ -143,7 +143,7 @@ function Toast({ toasts }) {
   );
 }
 
-// ─── Feature 4: Shimmer skeleton loader ──────────────────────────────────────
+//  Feature 4: Shimmer skeleton loader 
 function SkeletonCard() {
   return (
     <div style={{
@@ -199,7 +199,7 @@ function SkeletonFeed() {
   return <>{[1, 2, 3].map(i => <SkeletonCard key={i} />)}</>;
 }
 
-// ─── Main component ───────────────────────────────────────────────────────────
+//  Main component 
 export default function Home({ onNavigate }) {
   const [activeTab, setActiveTab] = useState('All');
   const [posts,     setPosts]     = useState([]);
@@ -210,14 +210,14 @@ export default function Home({ onNavigate }) {
   const currentUser = useMemo(() => getCurrentUser(), []);
   const hasFetched  = useRef(false);
 
-  // ── Toast helper ──────────────────────────────────────────────────────────
+  //  Toast helper 
   const showToast = useCallback((type, message) => {
     const id = Date.now() + Math.random();
     setToasts(prev => [...prev, { id, type, message }]);
     setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 3500);
   }, []);
 
-  // ── Merge incoming posts (deduplicated, newest-first) ────────────────────
+  //  Merge incoming posts (deduplicated, newest-first) ─
   const mergePosts = useCallback((incoming) => {
     if (!Array.isArray(incoming) || incoming.length === 0) return;
     setPosts(prev => {
@@ -297,7 +297,7 @@ export default function Home({ onNavigate }) {
     };
   }, []);
 
-  // ── Features 3, 7, 10, 11: Socket.IO ────────────────────────────────────
+  //  Features 3, 7, 10, 11: Socket.IO 
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
     if (!token) return;
@@ -363,7 +363,7 @@ export default function Home({ onNavigate }) {
     };
   }, [mergePosts, showToast]);
 
-  // ── Delete post ───────────────────────────────────────────────────────────
+  //  Delete post 
   const handleDelete = async (id) => {
     try {
       await api.delete('/home/posts', { Id: Number(id) });
@@ -380,7 +380,7 @@ export default function Home({ onNavigate }) {
     return true;
   });
 
-  // ─────────────────────────────────────────────────────────────────────────
+  
   return (
     <div style={{ maxWidth: '680px', margin: '0 auto', fontFamily: "'Nunito', sans-serif" }}>
 

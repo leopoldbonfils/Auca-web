@@ -1,8 +1,3 @@
-// src/Page/Profile.js
-// CHANGE: replaced hardcoded mock profile with real API fetch from
-//   GET /student/profile  or  GET /staff/profile  (based on isStaff in localStorage)
-// All UI (avatar, tabs, stats, about section) is unchanged.
-
 import React, { useState, useEffect } from 'react';
 import { RiEditLine }    from 'react-icons/ri';
 import { BsCalendar3 }   from 'react-icons/bs';

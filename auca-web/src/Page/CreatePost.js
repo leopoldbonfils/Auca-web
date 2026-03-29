@@ -1,10 +1,3 @@
-// src/Page/CreatePost.js
-// CHANGE: replaced fake post creation with real POST /home/posts call using FormData.
-// CHANGE: audience selector now mirrors the React Native app fully:
-//   — Alumni option added
-//   — Students Only expands with levels → faculties → departments (hierarchical)
-//   — filterAudienceList logic ported from the RN app
-
 import React, { useState, useRef } from 'react';
 import { BsImage }       from 'react-icons/bs';
 import { IoClose }       from 'react-icons/io5';
@@ -19,7 +12,7 @@ const POST_TYPES = [
   { id: 'memo',         label: 'Memo' },
 ];
 
-// ─── Audience data (mirrors the RN app) ──────────────────────────────────────
+//  Audience data (mirrors the RN app) 
 const FACULTY_DEPARTMENTS = {
   'IT': ['Software Engineering', 'Information Management', 'Network and Communication Systems'],
   'Business Administration': ['Marketing', 'Management', 'Finance', 'Accounting'],
@@ -59,7 +52,7 @@ function filterAudienceList(audienceList) {
   return result;
 }
 
-// ─── Small reusable checkbox row ─────────────────────────────────────────────
+//  Small reusable checkbox row 
 function CheckRow({ label, checked, onChange, indent = 0 }) {
   return (
     <div
@@ -96,7 +89,7 @@ function SectionLabel({ label }) {
   );
 }
 
-// ─── Students sub-panel (levels → faculties → departments) ───────────────────
+//  Students sub-panel (levels → faculties → departments) 
 function StudentsPanel({ audienceList, setAudienceList }) {
   const toggle = (item) =>
     setAudienceList(prev => prev.includes(item) ? prev.filter(x => x !== item) : [...prev, item]);
@@ -158,7 +151,7 @@ function StudentsPanel({ audienceList, setAudienceList }) {
   );
 }
 
-// ─── Radio option row ─────────────────────────────────────────────────────────
+//  Radio option row
 function RadioOption({ value, selected, onChange, label, sub, children }) {
   const isSelected = selected === value;
   return (
@@ -199,7 +192,7 @@ function RadioOption({ value, selected, onChange, label, sub, children }) {
   );
 }
 
-// ─── Main component ───────────────────────────────────────────────────────────
+//  Main component 
 export default function CreatePost({ onNavigate, onPostCreated }) {
   const [postType,     setPostType]     = useState('post');
   const [content,      setContent]      = useState('');

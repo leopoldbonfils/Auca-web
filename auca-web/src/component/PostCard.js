@@ -17,7 +17,7 @@ import {
 } from 'react-icons/bs';
 import { MdDownload, MdOpenInNew } from 'react-icons/md';
 
-// ─── Reactions ────────────────────────────────────────────────────────────────
+//  Reactions 
 const REACTIONS = [
   { emoji: '❤️', label: 'Love' },
   { emoji: '😄', label: 'Haha' },
@@ -28,7 +28,7 @@ const REACTIONS = [
   { emoji: '😢', label: 'Sad' },
 ];
 
-// ─── Share platforms ─────────────────────────────────────────────────────────
+//  Share platforms 
 const SHARE_PLATFORMS = [
   { label: 'Email',     icon: <MdEmail size={22} color="#fff" />,         bg: '#757575', action: (url) => window.open(`mailto:?subject=Check this out&body=${encodeURIComponent(url)}`) },
   { label: 'WhatsApp',  icon: <FaWhatsapp size={22} color="#fff" />,      bg: '#25D366', action: (url) => window.open(`https://wa.me/?text=${encodeURIComponent(url)}`, '_blank') },
@@ -38,7 +38,7 @@ const SHARE_PLATFORMS = [
   { label: 'Embed',     icon: <MdOutlineCode size={22} color="#fff" />,   bg: '#606060', action: (url) => alert(`Embed code:\n<iframe src="${url}"></iframe>`) },
 ];
 
-// ─── File-type helpers ────────────────────────────────────────────────────────
+//  File-type helpers 
 function getFileCategory(fileType, mimeType = '') {
   const ext = (fileType || '').toLowerCase().replace('.', '');
   const mime = (mimeType || '').toLowerCase();
@@ -82,7 +82,7 @@ function getFileName(url, fileType) {
   }
 }
 
-// ─── File Card (non-PDF) ─────────────────────────────────────────────────────
+//  File Card (non-PDF) 
 function FileCard({ fileUrl, fileType, fileSize, mimeType, fileName }) {
   const category = getFileCategory(fileType, mimeType);
   const style    = FILE_STYLE[category] || FILE_STYLE.file;
@@ -140,7 +140,7 @@ function FileCard({ fileUrl, fileType, fileSize, mimeType, fileName }) {
   );
 }
 
-// ─── PDF Card with thumbnail preview ─────────────────────────────────────────
+//  PDF Card with thumbnail preview 
 function PdfCard({ fileUrl, thumbnailUrl, fileSize, fileName }) {
   const [thumbBroken, setThumbBroken] = useState(false);
   const name = fileName || getFileName(fileUrl, '.pdf');
@@ -247,7 +247,7 @@ function PdfCard({ fileUrl, thumbnailUrl, fileSize, fileName }) {
   );
 }
 
-// ─── Share modal ──────────────────────────────────────────────────────────────
+//  Share modal 
 function ShareModal({ postUrl, onClose }) {
   const [copied, setCopied] = useState(false);
   const ref = useRef(null);
@@ -294,7 +294,7 @@ function ShareModal({ postUrl, onClose }) {
   );
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+//  Helpers 
 function getInitials(name = '') {
   return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
 }
@@ -309,7 +309,7 @@ function avatarColor(name = '') {
   return colors[(name.charCodeAt(0) || 0) % colors.length];
 }
 
-// ─── Post image (graceful broken-image handling) ──────────────────────────────
+//  Post image (graceful broken-image handling) 
 function PostImage({ src }) {
   const [broken, setBroken] = useState(false);
   useEffect(() => { setBroken(false); }, [src]);
@@ -327,7 +327,7 @@ function PostImage({ src }) {
   );
 }
 
-// ─── Author avatar ────────────────────────────────────────────────────────────
+//  Author avatar 
 function AuthorAvatar({ avatarUrl, author }) {
   const [imgBroken, setImgBroken] = useState(false);
   useEffect(() => { setImgBroken(false); }, [avatarUrl]);
@@ -347,7 +347,7 @@ function AuthorAvatar({ avatarUrl, author }) {
   );
 }
 
-// ─── Emoji reaction summary ───────────────────────────────────────────────────
+//  Emoji reaction summary 
 function ReactionSummary({ reactions, myReaction }) {
   const total = Object.values(reactions).reduce((a, b) => a + b, 0);
   if (total === 0 && !myReaction) return null;
@@ -366,7 +366,7 @@ function ReactionSummary({ reactions, myReaction }) {
   );
 }
 
-// ─── PostCard ─────────────────────────────────────────────────────────────────
+//  PostCard 
 export default function PostCard({ post, onDelete, onComment }) {
   const [showPicker, setShowPicker] = useState(false);
   const [myReaction, setMyReaction] = useState(null);
@@ -380,7 +380,7 @@ export default function PostCard({ post, onDelete, onComment }) {
     type = 'post', commentCount = 0, isOwner = false,
   } = post || {};
 
-  // ── File fields from the raw backend post ─────────────────────────────────
+  //  File fields from the raw backend post 
   const raw       = post?._raw || {};
   const fileType  = raw.FileType  || null;   // '.pdf', '.docx', '.xlsx', …
   const mimeType  = raw.MimeType  || '';
@@ -474,7 +474,7 @@ export default function PostCard({ post, onDelete, onComment }) {
               </div>
             )}
 
-            {/* ── Attachment rendering ───────────────────────────────────── */}
+            {/*  Attachment rendering */}
 
             {/* Image (uses resolved `image` prop from mapPost) */}
             {isImage && image && <PostImage src={image} />}
