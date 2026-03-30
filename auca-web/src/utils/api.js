@@ -1,7 +1,3 @@
-// src/utils/api.js
-// Shared API helper — automatically attaches the auth token to every request.
-// Import this wherever you need to call the backend.
-
 const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000';
 
 // Returns the stored access token from localStorage
@@ -57,7 +53,7 @@ async function apiFetch(endpoint, options = {}) {
   return data;
 }
 
-// ── Convenience methods ──────────────────────────────────────────
+//  Convenience methods 
 
 export const api = {
   get: (endpoint) =>

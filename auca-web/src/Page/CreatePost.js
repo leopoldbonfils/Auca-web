@@ -2,7 +2,6 @@ import React, { useState, useRef } from 'react';
 import { BsImage } from 'react-icons/bs';
 import { IoClose } from 'react-icons/io5';
 import { BsInfoCircle } from 'react-icons/bs';
-import { BsFileEarmark } from 'react-icons/bs';
 
 const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000';
 

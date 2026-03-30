@@ -22,6 +22,18 @@ import zipIcon from '../assets/zip.png';
 import fileIcon from '../assets/file.png';
 import txtIcon from '../assets/txt.png';
 import wordIcon from '../assets/word.png';
+import api from '../utils/api';
+
+// Maps emoji character → backend reaction name (mirrors mobile's emojiData)
+const EMOJI_TO_NAME = {
+  '❤️': 'love',
+  '😄': 'happy',
+  '😂': 'laugh',
+  '👍': 'thumbs_up',
+  '💀': 'skull',
+  '😡': 'angry',
+  '😢': 'sad',
+};
 
 //  Reactions 
 const REACTIONS = [
@@ -342,6 +354,28 @@ export default function PostCard({ post, onDelete, onComment }) {
   const [reactions, setReactions]  = useState(post?.reactions || {});
   const [expanded, setExpanded]   = useState(false);
   const [showShare, setShowShare]  = useState(false);
+  const [reactionLoading, setReactionLoading] = useState(false);
+
+  // Ref for the emoji picker — used to detect outside-clicks
+  const pickerRef = useRef(null);
+
+  // Sync reactions from parent whenever a socket reactionUpdate arrives
+  // and Home.js passes new props down
+  useEffect(() => {
+    setReactions(post?.reactions || {});
+  }, [post?.reactions]);
+
+  // Close emoji picker on outside click
+  useEffect(() => {
+    if (!showPicker) return;
+    const handler = (e) => {
+      if (pickerRef.current && !pickerRef.current.contains(e.target)) {
+        setShowPicker(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [showPicker]);
 
   const {
     id, author = 'Unknown', role = '', department = '',
@@ -349,7 +383,7 @@ export default function PostCard({ post, onDelete, onComment }) {
     type = 'post', commentCount = 0, isOwner = false,
   } = post || {};
 
-  // File attachment fields from raw backend response
+ 
   const raw = post?._raw || {};
   const fileType = raw.FileType || null;
   const mimeType = raw.MimeType || '';
@@ -362,18 +396,50 @@ export default function PostCard({ post, onDelete, onComment }) {
   const isPdf = fileCategory === 'pdf';
   const isOtherFile = fileCategory && fileCategory !== 'image';
 
-  const postUrl = `https://auca-hub.ac.rw/posts/${id}`;
+ 
+  const postUrl = `${window.location.origin}/posts/${id}`;
 
-  const handleReaction = (emoji) => {
+  
+  const handleReaction = async (emoji) => {
+    if (reactionLoading) return;
+
+    // Capture previous reaction BEFORE touching state
+    const prevReaction = myReaction;
+    const isToggleOff = prevReaction === emoji;   // same emoji again = un-react
+
     setShowPicker(false);
+    setReactionLoading(true);
+
+    // --- Optimistic UI update ---
     const next = { ...reactions };
-    if (myReaction) {
-      next[myReaction] = Math.max(0, (next[myReaction] || 1) - 1);
-      if (next[myReaction] === 0) delete next[myReaction];
+    if (prevReaction) {
+      next[prevReaction] = Math.max(0, (next[prevReaction] || 1) - 1);
+      if (next[prevReaction] === 0) delete next[prevReaction];
     }
-    if (myReaction !== emoji) { next[emoji] = (next[emoji] || 0) + 1; setMyReaction(emoji); }
-    else setMyReaction(null);
+    if (!isToggleOff) {
+      next[emoji] = (next[emoji] || 0) + 1;
+    }
     setReactions(next);
+    setMyReaction(isToggleOff ? null : emoji);
+
+   
+    try {
+      if (isToggleOff) {
+        await api.delete('/home/posts/reactions', { postId: Number(id) });
+      } else {
+        await api.post('/home/posts/reactions', {
+          postId: Number(id),
+          reactionType: EMOJI_TO_NAME[emoji] || emoji,
+        });
+      }
+    } catch (e) {
+      console.warn('[Reaction] API call failed, reverting:', e.message);
+      // Revert optimistic update so the UI stays consistent with server
+      setReactions(post?.reactions || {});
+      setMyReaction(prevReaction);
+    } finally {
+      setReactionLoading(false);
+    }
   };
 
   const totalReactions = Object.values(reactions).reduce((a, b) => a + b, 0);
@@ -467,10 +533,10 @@ export default function PostCard({ post, onDelete, onComment }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '10px 18px 14px', borderTop: '1px solid var(--border)' }}>
 
           {/* React */}
-          <div style={{ position: 'relative' }}>
+          <div style={{ position: 'relative' }} ref={pickerRef}>
             <button
-              onClick={() => setShowPicker(p => !p)}
-              style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '7px 14px', borderRadius: '20px', border: `1px solid ${myReaction ? 'var(--primary-pale)' : 'var(--border)'}`, background: myReaction ? 'var(--primary-pale)' : 'var(--surface-2)', cursor: 'pointer', transition: 'all 0.15s', fontFamily: "'Nunito', sans-serif" }}
+              onClick={() => !reactionLoading && setShowPicker(p => !p)}
+              style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '7px 14px', borderRadius: '20px', border: `1px solid ${myReaction ? 'var(--primary-pale)' : 'var(--border)'}`, background: myReaction ? 'var(--primary-pale)' : 'var(--surface-2)', cursor: reactionLoading ? 'wait' : 'pointer', transition: 'all 0.15s', fontFamily: "'Nunito', sans-serif", opacity: reactionLoading ? 0.7 : 1 }}
               onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--primary)'}
               onMouseLeave={e => e.currentTarget.style.borderColor = myReaction ? 'var(--primary-pale)' : 'var(--border)'}
             >
@@ -479,7 +545,7 @@ export default function PostCard({ post, onDelete, onComment }) {
                 : <MdOutlineAddReaction size={20} style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
               }
               <span style={{ fontSize: '13px', fontWeight: 600, color: myReaction ? 'var(--primary)' : 'var(--text-secondary)' }}>
-                {myReaction ? 'Reacted' : 'React'}
+                {reactionLoading ? '...' : myReaction ? 'Reacted' : 'React'}
               </span>
             </button>
 

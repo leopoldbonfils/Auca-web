@@ -10,7 +10,7 @@ import api from '../utils/api';
 
 const TABS = ['Posts', 'Announcements', 'About'];
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+//  Helpers 
 function resolveImageUrl(url) {
   if (!url) return null;
   if (url.startsWith('https://')) return url;
@@ -89,7 +89,7 @@ function mapPost(post, myId) {
   };
 }
 
-// ─── Edit Profile Modal — Twitter/X style ────────────────────────────────────
+//  Edit Profile Modal — Twitter/X style 
 function EditProfileModal({ profile, isStaff, onClose, onSaved }) {
   const [form, setForm] = useState({
     Fname: profile?.Fname || '',
@@ -361,7 +361,7 @@ function EditProfileModal({ profile, isStaff, onClose, onSaved }) {
   );
 }
 
-// ─── Skeleton loader ──────────────────────────────────────────────────────────
+//  Skeleton loader 
 function SkeletonPostCard() {
   return (
     <div style={{ background: 'var(--surface)', borderRadius: '6px', marginBottom: '3px', border: '1px solid var(--border)', padding: '16px 18px', overflow: 'hidden' }}>
@@ -379,7 +379,7 @@ function SkeletonPostCard() {
   );
 }
 
-// ─── Main Profile component ───────────────────────────────────────────────────
+//  Main Profile component 
 export default function Profile({ onNavigate }) {
   const [activeTab,    setActiveTab]    = useState('Posts');
   const [showEdit,     setShowEdit]     = useState(false);
@@ -393,7 +393,7 @@ export default function Profile({ onNavigate }) {
 
   const isStaff = localStorage.getItem('isStaff') === 'true';
 
-  // ── Load profile ────────────────────────────────────────────────────────────
+  //  Load profile 
   useEffect(() => {
     async function loadProfile() {
       try {
@@ -412,7 +412,7 @@ export default function Profile({ onNavigate }) {
     loadProfile();
   }, [isStaff]);
 
-  // ── Load posts + stats ──────────────────────────────────────────────────────
+  //  Load posts + stats 
   const loadMyPosts = useCallback(async () => {
     if (postsFetched) return;
     setPostsLoading(true);
@@ -441,14 +441,14 @@ export default function Profile({ onNavigate }) {
     if (activeTab === 'Posts' || activeTab === 'Announcements') loadMyPosts();
   }, [activeTab, loadMyPosts]);
 
-  // ── Saved callback ──────────────────────────────────────────────────────────
+  //  Saved callback 
   const handleProfileSaved = (updatedFields) => {
     setProfile(prev => ({ ...prev, ...updatedFields }));
     const existing = JSON.parse(localStorage.getItem('userProfile') || '{}');
     localStorage.setItem('userProfile', JSON.stringify({ ...existing, ...updatedFields }));
   };
 
-  // ── Delete post ─────────────────────────────────────────────────────────────
+  //  Delete post 
   const handleDelete = async (id) => {
     try {
       await api.delete('/home/posts', { Id: Number(id) });
@@ -459,7 +459,7 @@ export default function Profile({ onNavigate }) {
     }
   };
 
-  // ── Derived values ──────────────────────────────────────────────────────────
+  //  Derived values 
   const fullName   = profile ? `${profile.Fname || ''} ${profile.Lname || ''}`.trim() : '—';
   const role       = profile?.Role || (isStaff ? 'Staff' : 'Student');
   const department = profile?.Department || profile?.StudDepartment || '—';
