@@ -14,7 +14,7 @@ function renderPage(page, onNavigate, onPostCreated, selectedPost) {
     case 'home':     return <Home onNavigate={onNavigate} />;
     case 'search':   return <Search />;
     case 'create':   return <CreatePost onNavigate={onNavigate} onPostCreated={onPostCreated} />;
-    case 'profile':  return <Profile />;
+    case 'profile':  return <Profile onNavigate={onNavigate} />;
     case 'comments': return <Comment post={selectedPost} onBack={() => onNavigate('home')} />;
     default:         return <Home onNavigate={onNavigate} />;
   }

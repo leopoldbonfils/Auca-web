@@ -22,6 +22,27 @@ function avatarBg(name = '') {
   return c[(name.charCodeAt(0) || 0) % c.length];
 }
 
+
+function formatTimeFromUTC(utcTimestamp) {
+  if (!utcTimestamp) return '';
+  const messageDate = new Date(utcTimestamp);
+  const now = new Date();
+  const diffMs = now - messageDate;
+  const diffMin = Math.floor(diffMs / 60000);
+  const diffHrs = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+  const isSameDay = (d1, d2) => d1.toDateString() === d2.toDateString();
+  const isYesterday = (d) => { const y = new Date(now); y.setDate(y.getDate() - 1); return isSameDay(d, y); };
+  const fmtTime = (d) => d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+  if (diffMin < 1)  return 'now';
+  if (diffMin < 60) return `${diffMin}m ago`;
+  if (isSameDay(messageDate, now)) return diffHrs < 2 ? `${diffHrs}h ago` : fmtTime(messageDate);
+  if (isYesterday(messageDate)) return 'Yesterday';
+  if (diffDays < 7) return messageDate.toLocaleDateString('en-US', { weekday: 'short' });
+  if (messageDate.getFullYear() === now.getFullYear()) return messageDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  return messageDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
 //  Three-dot menu (unchanged) 
 function ThreeDotMenu({ onDelete, onReport }) {
   const [open, setOpen] = useState(false);
@@ -144,13 +165,15 @@ export default function Comment({ post, onBack }) {
   const [loading,setLoading] = useState(true);
   const [posting,setPosting] = useState(false);
   const bottomRef =useRef(null);
+
+  
   const userInfo = getUserInfo();
 
   const p = post || {};
   const postId = p.id || p._raw?.Id;
   const totalLikes = Object.values(p.reactions || {}).reduce((a, b) => a + b, 0);
 
-  // CHANGE: fetch comments from backend when post changes
+  // Fetch comments from backend when post changes
   useEffect(() => {
     if (!postId) { setLoading(false); return; }
     let cancelled = false;
@@ -167,7 +190,8 @@ export default function Comment({ post, onBack }) {
             username: c.commentorNames || 'Unknown',
             avatar: c.commentorProfile || null,
             text: c.Text || '',
-            time: c.Timestamp ? new Date(c.Timestamp).toLocaleString() : '',
+            // FIX #7: use relative timestamp instead of toLocaleString()
+            time: c.Timestamp ? formatTimeFromUTC(c.Timestamp) : '',
             likes: 0,
             liked:false,
             disliked:false,
@@ -195,10 +219,18 @@ export default function Comment({ post, onBack }) {
       c.id === id ? { ...c, disliked: !c.disliked, liked: false, likes: c.liked ? c.likes - 1 : c.likes } : c
     ));
 
-  // Local delete only (no delete endpoint for comments in backend yet)
-  const handleDelete = (id) => setComments(prev => prev.filter(c => c.id !== id));
+  
+  const handleDelete = async (id) => {
+    try {
+      await api.delete(`/home/posts/comment/${id}`);
+    } catch (err) {
+      // Log the error but still remove locally so the UI stays responsive
+      console.warn('[Comment] Backend delete failed:', err.message);
+    }
+    setComments(prev => prev.filter(c => c.id !== id));
+  };
 
-  // CHANGE: post comment to backend
+  // Post comment to backend
   const handlePost = async () => {
     if (!input.trim() || !postId) return;
     setPosting(true);
@@ -210,7 +242,7 @@ export default function Comment({ post, onBack }) {
       username: userInfo.fullName,   
       avatar: userInfo.avatarUrl,  
       text: input.trim(),
-      time: 'Just now',
+      time: 'now',
       likes: 0,
       liked: false,
       disliked: false,

@@ -291,13 +291,7 @@ export default function Home({ onNavigate }) {
     return () => { cancelled = true; };
   }, []);
 
-  useEffect(() => {
-    return () => {
-      hasFetched.current = false;
-    };
-  }, []);
-
-  //  Features 3, 7, 10, 11: Socket.IO 
+  
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
     if (!token) return;
@@ -349,11 +343,11 @@ export default function Home({ onNavigate }) {
       );
     });
 
-    // Feature 10: live comment count update
-    socket.on('commentAdded', ({ PostId, commentCount }) => {
+   
+    socket.on('comment_added', ({ postId, newCommentCount }) => {
       setPosts(prev =>
         prev.map(post =>
-          post.rawId !== PostId ? post : { ...post, commentCount },
+          post.rawId !== postId ? post : { ...post, commentCount: newCommentCount },
         ),
       );
     });
