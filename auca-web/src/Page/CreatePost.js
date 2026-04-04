@@ -1,7 +1,8 @@
-import React, { useState, useRef } from 'react';
-import { BsImage } from 'react-icons/bs';
+import React, { useState, useRef, useCallback } from 'react';
+import { BsImage, BsFilePdf, BsFileWord, BsFileEarmark } from 'react-icons/bs';
 import { IoClose } from 'react-icons/io5';
 import { BsInfoCircle } from 'react-icons/bs';
+import { MdOutlineAttachFile, MdOutlineImage } from 'react-icons/md';
 
 const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000';
 
@@ -10,6 +11,15 @@ const POST_TYPES = [
   { id: 'announcement', label: 'Announcement' },
   { id: 'memo', label: 'Memo' },
 ];
+
+// ── Accepted MIME types and extensions ──
+const ACCEPTED_TYPES = [
+  'image/jpeg', 'image/png', 'image/gif', 'image/webp',
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+];
+const ACCEPT_ATTR = 'image/*,.pdf,.doc,.docx';
 
 //  Audience data (mirrors the RN app) 
 const FACULTY_DEPARTMENTS = {
@@ -29,7 +39,7 @@ const LEVEL_FACULTIES = {
 };
 
 const UNDERGRAD_FACULTIES = LEVEL_FACULTIES['Undergraduate'];
-const MASTERS_FACULTIES = LEVEL_FACULTIES['Masters'];
+const MASTERS_FACULTIES   = LEVEL_FACULTIES['Masters'];
 
 function filterAudienceList(audienceList) {
   const result = [];
@@ -49,6 +59,86 @@ function filterAudienceList(audienceList) {
     result.push(item);
   }
   return result;
+}
+
+//  Determine file category from MIME type 
+function getFileCategory(mime = '', name = '') {
+  if (mime.startsWith('image/')) return 'image';
+  if (mime === 'application/pdf' || name.toLowerCase().endsWith('.pdf')) return 'pdf';
+  if (
+    mime === 'application/msword' ||
+    mime === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+    name.toLowerCase().endsWith('.doc') ||
+    name.toLowerCase().endsWith('.docx')
+  ) return 'doc';
+  return 'other';
+}
+
+//  Format bytes to human-readable 
+function fmtSize(bytes) {
+  if (!bytes) return '';
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+//  File category metadata 
+const FILE_META = {
+  pdf: { label: 'PDF',  bg: '#ffeaea', color: '#e53935', Icon: BsFilePdf },
+  doc: { label: 'DOCX', bg: '#e3f2fd', color: '#1565c0', Icon: BsFileWord },
+  other: { label: 'FILE', bg: '#f5f5f5', color: '#616161', Icon: BsFileEarmark },
+};
+
+//  Styled file card preview (non-image) 
+function FilePreviewCard({ file, onRemove }) {
+  const category = getFileCategory(file.type, file.name);
+  const meta = FILE_META[category] || FILE_META.other;
+  const { Icon } = meta;
+
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', gap: '14px',
+      padding: '14px 16px', marginBottom: '14px',
+      background: 'var(--surface)', border: '1.5px solid var(--border)',
+      borderRadius: '12px', boxShadow: 'var(--shadow)',
+      position: 'relative',
+    }}>
+      {/* Icon box */}
+      <div style={{
+        width: '52px', height: '52px', borderRadius: '10px',
+        background: meta.bg, display: 'flex', alignItems: 'center',
+        justifyContent: 'center', flexShrink: 0,
+      }}>
+        <Icon size={28} color={meta.color} />
+      </div>
+
+      {/* Info */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{
+          fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)',
+          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+        }}>
+          {file.name}
+        </div>
+        <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '3px' }}>
+          {[fmtSize(file.size), meta.label].filter(Boolean).join(' · ')}
+        </div>
+      </div>
+
+      {/* Remove */}
+      <button
+        onClick={onRemove}
+        style={{
+          width: '28px', height: '28px', borderRadius: '50%',
+          background: 'rgba(0,0,0,0.08)', border: 'none', cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          color: 'var(--text-secondary)', flexShrink: 0,
+        }}
+      >
+        <IoClose size={16} />
+      </button>
+    </div>
+  );
 }
 
 //  Small reusable checkbox row 
@@ -88,19 +178,19 @@ function SectionLabel({ label }) {
   );
 }
 
-//  Students sub-panel (levels → faculties → departments) 
+//  Students sub-panel (levels -> faculties -> departments) 
 function StudentsPanel({ audienceList, setAudienceList }) {
   const toggle = (item) =>
     setAudienceList(prev => prev.includes(item) ? prev.filter(x => x !== item) : [...prev, item]);
 
   const has = (item) => audienceList.includes(item);
 
-  const bothLevels = has('Undergraduate') && has('Masters');
-  const onlyUndergrad = has('Undergraduate') && !has('Masters');
-  const onlyMasters = has('Masters') && !has('Undergraduate');
+  const bothLevels     = has('Undergraduate') && has('Masters');
+  const onlyUndergrad  = has('Undergraduate') && !has('Masters');
+  const onlyMasters    = has('Masters') && !has('Undergraduate');
 
   const showUndergradFaculties = !bothLevels && !onlyMasters;
-  const showMastersFaculties = !bothLevels && !onlyUndergrad;
+  const showMastersFaculties   = !bothLevels && !onlyUndergrad;
 
   return (
     <div style={{
@@ -108,27 +198,22 @@ function StudentsPanel({ audienceList, setAudienceList }) {
       background: 'var(--surface-2)', borderRadius: '10px',
       padding: '12px 14px', border: '1px solid var(--border)',
     }}>
-      {/* Levels */}
       <SectionLabel label="Student Levels" />
       <CheckRow label="All Undergraduates" checked={has('Undergraduate')} onChange={() => toggle('Undergraduate')} />
-      <CheckRow label="All Masters" checked={has('Masters')} onChange={() => toggle('Masters')} />
+      <CheckRow label="All Masters"        checked={has('Masters')}       onChange={() => toggle('Masters')} />
 
-      {/* Faculties */}
       {!bothLevels && (
         <>
           <SectionLabel label="Student Faculties" />
-
           {showUndergradFaculties && UNDERGRAD_FACULTIES.map(f => (
             <CheckRow key={f} label={f} checked={has(f)} onChange={() => toggle(f)} indent={8} />
           ))}
-
           {showMastersFaculties && MASTERS_FACULTIES.map(f => (
             <CheckRow key={f} label={f} checked={has(f)} onChange={() => toggle(f)} indent={8} />
           ))}
         </>
       )}
 
-      {/* Departments */}
       {(() => {
         const allFaculties = [...UNDERGRAD_FACULTIES, ...MASTERS_FACULTIES];
         const selectedFacultiesWithDepts = allFaculties.filter(
@@ -166,7 +251,6 @@ function RadioOption({ value, selected, onChange, label, sub, children }) {
         onMouseEnter={e => { if (!isSelected) e.currentTarget.style.background = 'var(--surface-2)'; }}
         onMouseLeave={e => { if (!isSelected) e.currentTarget.style.background = 'transparent'; }}
       >
-        {/* Radio circle */}
         <div
           onClick={() => onChange(value)}
           style={{
@@ -185,50 +269,60 @@ function RadioOption({ value, selected, onChange, label, sub, children }) {
         </div>
       </label>
 
-      {/* Sub-panel (only for Students) */}
       {isSelected && children}
     </div>
   );
 }
 
-//  Main component 
 export default function CreatePost({ onNavigate, onPostCreated }) {
   const [postType, setPostType] = useState('post');
   const [content, setContent] = useState('');
   const [audience, setAudience] = useState('all');
   const [audienceList, setAudienceList] = useState([]);
-  const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
   const [isPosting, setIsPosting] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
-
+  const [attachedFile, setAttachedFile] = useState(null);
   const fileInputRef = useRef(null);
-
   const handleAudienceChange = (val) => {
     setAudience(val);
-    setAudienceList([]); // reset sub-selection on top-level change
+    setAudienceList([]);
   };
 
-  const handleImageChange = (file) => {
+  //  CHANGED: handle any supported file type 
+  const handleFileSelect = useCallback((file) => {
     if (!file) return;
-    if (!file.type.startsWith('image/')) return alert('Please select an image file.');
-    setImageFile(file);
-    const reader = new FileReader();
-    reader.onloadend = () => setImagePreview(reader.result);
-    reader.readAsDataURL(file);
-  };
 
-  const handleFileInput = (e) => handleImageChange(e.target.files[0]);
+    // Validate MIME type
+    const category = getFileCategory(file.type, file.name);
+    if (category === 'other') {
+      setErrorMsg('Unsupported file type. Please select an image (JPG, PNG), PDF, or Word document (DOC, DOCX).');
+      return;
+    }
+
+    setErrorMsg('');
+
+    if (category === 'image') {
+      // Generate a preview URL for images
+      const reader = new FileReader();
+      reader.onloadend = () => setAttachedFile({ file, preview: reader.result, category });
+      reader.readAsDataURL(file);
+    } else {
+      // For PDF / doc, no visual preview -- just store the file reference
+      setAttachedFile({ file, preview: null, category });
+    }
+  }, []);
+
+  const handleFileInput = (e) => handleFileSelect(e.target.files[0]);
+
   const handleDrop = (e) => {
     e.preventDefault();
     setDragOver(false);
-    handleImageChange(e.dataTransfer.files[0]);
+    handleFileSelect(e.dataTransfer.files[0]);
   };
 
-  const removeImage = () => {
-    setImageFile(null);
-    setImagePreview(null);
+  const removeAttachment = () => {
+    setAttachedFile(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -248,7 +342,8 @@ export default function CreatePost({ onNavigate, onPostCreated }) {
         formData.append('audienceList', JSON.stringify(finalAudience));
       }
 
-      if (imageFile) formData.append('PostFile', imageFile);
+      //  use attachedFile.file instead of imageFile 
+      if (attachedFile) formData.append('PostFile', attachedFile.file);
 
       const res = await fetch(`${BASE_URL}/home/posts`, {
         method: 'POST',
@@ -260,8 +355,7 @@ export default function CreatePost({ onNavigate, onPostCreated }) {
       if (!res.ok) throw new Error(data?.message || 'Failed to create post');
 
       setContent('');
-      setImageFile(null);
-      setImagePreview(null);
+      setAttachedFile(null);
       setAudienceList([]);
 
       if (onPostCreated) onPostCreated(data.post || null);
@@ -274,8 +368,8 @@ export default function CreatePost({ onNavigate, onPostCreated }) {
     }
   };
 
-  const charLimit   = 500;
-  const charLeft    = charLimit - content.length;
+  const charLimit = 500;
+  const charLeft = charLimit - content.length;
   const isOverLimit = charLeft < 0;
 
   return (
@@ -315,55 +409,112 @@ export default function CreatePost({ onNavigate, onPostCreated }) {
         </div>
       </div>
 
-      {/* Image upload / preview */}
-      {imagePreview ? (
-        <div style={{ position: 'relative', borderRadius: '14px', overflow: 'hidden', marginBottom: '14px', border: '1px solid var(--border)' }}>
-          <img src={imagePreview} alt="preview" style={{ width: '100%', maxHeight: '280px', objectFit: 'cover', display: 'block' }} />
-          <button onClick={removeImage} style={{ position: 'absolute', top: '10px', right: '10px', width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(0,0,0,0.6)', border: 'none', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <IoClose size={18} />
-          </button>
-        </div>
+      {/* CHANGED: unified attachment section */}
+      {attachedFile ? (
+        /* Show preview when a file is selected */
+        attachedFile.category === 'image' ? (
+          /* Image preview */
+          <div style={{ position: 'relative', borderRadius: '14px', overflow: 'hidden', marginBottom: '14px', border: '1px solid var(--border)' }}>
+            <img src={attachedFile.preview} alt="preview" style={{ width: '100%', maxHeight: '280px', objectFit: 'cover', display: 'block' }} />
+            <button onClick={removeAttachment} style={{ position: 'absolute', top: '10px', right: '10px', width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(0,0,0,0.6)', border: 'none', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <IoClose size={18} />
+            </button>
+          </div>
+        ) : (
+          /* PDF / Word document card preview */
+          <FilePreviewCard file={attachedFile.file} onRemove={removeAttachment} />
+        )
       ) : (
-        <div
-          onClick={() => fileInputRef.current?.click()}
-          onDragOver={e => { e.preventDefault(); setDragOver(true); }}
-          onDragLeave={() => setDragOver(false)}
-          onDrop={handleDrop}
-          style={{ border: `2px dashed ${dragOver ? 'var(--primary)' : 'var(--border)'}`, borderRadius: '14px', padding: '28px 20px', marginBottom: '14px', textAlign: 'center', cursor: 'pointer', background: dragOver ? 'var(--primary-pale)' : 'var(--surface-2)', transition: 'all 0.2s ease' }}
-          onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.background = 'var(--primary-pale)'; }}
-          onMouseLeave={e => { if (!dragOver) { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.background = 'var(--surface-2)'; }}}
-        >
-          <div style={{ color: 'var(--text-muted)', marginBottom: '8px', display: 'flex', justifyContent: 'center' }}><BsImage size={32} /></div>
-          <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-secondary)' }}>Add Image (Optional)</div>
-          <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}>Click to browse or drag & drop</div>
-        </div>
+        /* Drop zone with two picker buttons */
+        <>
+          <div
+            onDragOver={e => { e.preventDefault(); setDragOver(true); }}
+            onDragLeave={() => setDragOver(false)}
+            onDrop={handleDrop}
+            style={{
+              border: `2px dashed ${dragOver ? 'var(--primary)' : 'var(--border)'}`,
+              borderRadius: '14px', padding: '22px 20px', marginBottom: '14px',
+              textAlign: 'center',
+              background: dragOver ? 'var(--primary-pale)' : 'var(--surface-2)',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '14px', fontWeight: 600 }}>
+              Drag & drop a file here, or choose below
+            </div>
+
+            {/* Two picker buttons side by side */}
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
+              {/* Image picker */}
+              <button
+                onClick={() => {
+                  if (fileInputRef.current) {
+                    fileInputRef.current.accept = 'image/*';
+                    fileInputRef.current.click();
+                  }
+                }}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '8px',
+                  padding: '10px 18px', borderRadius: '10px', border: '1.5px solid var(--border)',
+                  background: 'var(--surface)', cursor: 'pointer', fontSize: '13px',
+                  fontWeight: 700, color: 'var(--text-primary)', fontFamily: "'Nunito', sans-serif",
+                  transition: 'all 0.15s',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.background = 'var(--primary-pale)'; e.currentTarget.style.color = 'var(--primary)'; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.background = 'var(--surface)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
+              >
+                <MdOutlineImage size={20} /> Image
+              </button>
+
+              {/* PDF / Doc picker */}
+              <button
+                onClick={() => {
+                  if (fileInputRef.current) {
+                    fileInputRef.current.accept = '.pdf,.doc,.docx';
+                    fileInputRef.current.click();
+                  }
+                }}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '8px',
+                  padding: '10px 18px', borderRadius: '10px', border: '1.5px solid var(--border)',
+                  background: 'var(--surface)', cursor: 'pointer', fontSize: '13px',
+                  fontWeight: 700, color: 'var(--text-primary)', fontFamily: "'Nunito', sans-serif",
+                  transition: 'all 0.15s',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.background = 'var(--primary-pale)'; e.currentTarget.style.color = 'var(--primary)'; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.background = 'var(--surface)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
+              >
+                <MdOutlineAttachFile size={20} /> PDF / Word
+              </button>
+            </div>
+
+            <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '10px' }}>
+              JPG, PNG, PDF, DOC, DOCX
+            </div>
+          </div>
+
+          {/* Hidden file input -- accept attribute is set dynamically before click */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept={ACCEPT_ATTR}
+            onChange={handleFileInput}
+            style={{ display: 'none' }}
+          />
+        </>
       )}
-      <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileInput} style={{ display: 'none' }} />
 
       {/* ── Audience selector ── */}
       <div style={{ background: 'var(--surface)', borderRadius: '14px', padding: '18px', marginBottom: '14px', border: '1px solid var(--border)', boxShadow: 'var(--shadow)' }}>
         <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--primary)', marginBottom: '14px' }}>Select Audience</div>
 
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-
-          {/* Everyone */}
-          <RadioOption value="all" selected={audience} onChange={handleAudienceChange}
-            label="Everyone" sub="Students, Staff and Faculty" />
-
-          {/* Students Only — expands with hierarchical selector */}
-          <RadioOption value="students" selected={audience} onChange={handleAudienceChange}
-            label="Students Only" sub="From all faculties">
+          <RadioOption value="all"      selected={audience} onChange={handleAudienceChange} label="Everyone"      sub="Students, Staff and Faculty" />
+          <RadioOption value="students" selected={audience} onChange={handleAudienceChange} label="Students Only"  sub="From all faculties">
             <StudentsPanel audienceList={audienceList} setAudienceList={setAudienceList} />
           </RadioOption>
-
-          {/* Staff Only */}
-          <RadioOption value="staff" selected={audience} onChange={handleAudienceChange}
-            label="Staff Only" sub="Including lecturers" />
-
-          {/* Alumni */}
-          <RadioOption value="alumni" selected={audience} onChange={handleAudienceChange}
-            label="Alumni" sub="This will be sent to their Emails" />
-
+          <RadioOption value="staff"   selected={audience} onChange={handleAudienceChange} label="Staff Only"    sub="Including lecturers" />
+          <RadioOption value="alumni"  selected={audience} onChange={handleAudienceChange} label="Alumni"        sub="This will be sent to their Emails" />
         </div>
       </div>
 

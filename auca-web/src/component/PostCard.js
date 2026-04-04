@@ -93,7 +93,7 @@ const FILE_META = {
 function formatFileSize(bytes) {
   if (!bytes) return '';
   const n = Number(bytes);
-  if (isNaN(n)) return bytes;  // already a pre-formatted string from server
+  if (isNaN(n)) return bytes;
   if (n === 0)  return '0 B';
   const sizes = ['B', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(n) / Math.log(1024));
@@ -109,6 +109,73 @@ function getFileName(url, fileType) {
   } catch {
     return `file${fileType || ''}`;
   }
+}
+
+// ── Image lightbox overlay ──
+function ImageLightbox({ src, onClose }) {
+  // Close on Escape key
+  useEffect(() => {
+    const handler = (e) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [onClose]);
+
+  return (
+    <>
+      {/* Backdrop */}
+      <div
+        onClick={onClose}
+        style={{
+          position: 'fixed', inset: 0,
+          background: 'rgba(0,0,0,0.92)',
+          zIndex: 1000,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          animation: 'lbFadeIn 0.18s ease',
+          cursor: 'pointer',
+        }}
+      >
+        {/* Image — stop propagation so clicking the image itself doesn't close */}
+        <img
+          src={src}
+          alt="full size"
+          onClick={(e) => e.stopPropagation()}
+          style={{
+            maxWidth: '95vw',
+            maxHeight: '92vh',
+            objectFit: 'contain',
+            borderRadius: '8px',
+            boxShadow: '0 24px 80px rgba(0,0,0,0.7)',
+            animation: 'lbZoomIn 0.2s ease',
+            cursor: 'default',
+          }}
+        />
+
+        {/* Close button */}
+        <button
+          onClick={onClose}
+          style={{
+            position: 'fixed', top: '16px', right: '16px',
+            width: '40px', height: '40px', borderRadius: '50%',
+            background: 'rgba(255,255,255,0.15)', border: 'none',
+            color: '#fff', cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            backdropFilter: 'blur(6px)',
+            transition: 'background 0.15s',
+            zIndex: 1001,
+          }}
+          onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.28)'}
+          onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
+        >
+          <IoClose size={22} />
+        </button>
+      </div>
+
+      <style>{`
+        @keyframes lbFadeIn { from { opacity: 0 } to { opacity: 1 } }
+        @keyframes lbZoomIn { from { transform: scale(0.88); opacity: 0 } to { transform: scale(1); opacity: 1 } }
+      `}</style>
+    </>
+  );
 }
 
 //  Generic File Card 
@@ -144,7 +211,6 @@ function FileCard({ fileUrl, fileType, fileSize, mimeType, fileName }) {
         e.currentTarget.style.borderColor = 'var(--border)';
       }}
     >
-      {/* PNG icon box */}
       <div style={{
         width: '52px', height: '52px', borderRadius: '10px',
         background: meta.bg, padding: '6px', flexShrink: 0,
@@ -153,7 +219,6 @@ function FileCard({ fileUrl, fileType, fileSize, mimeType, fileName }) {
         <img src={meta.icon} alt={meta.label} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
       </div>
 
-      {/* Info */}
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {name}
@@ -163,7 +228,6 @@ function FileCard({ fileUrl, fileType, fileSize, mimeType, fileName }) {
         </div>
       </div>
 
-      {/* Open arrow */}
       {fileUrl && (
         <div style={{ color: 'var(--text-muted)', flexShrink: 0 }}>
           <MdOpenInNew size={20} />
@@ -192,8 +256,6 @@ function PdfCard({ fileUrl, thumbnailUrl, fileSize, fileName }) {
 
   return (
     <div style={{ margin: '10px 18px', borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border)', background: 'var(--surface-2)' }}>
-
-      {/* Blurred thumbnail preview */}
       {hasThumbnail && (
         <div style={{ position: 'relative', background: '#111', maxHeight: '200px', overflow: 'hidden' }}>
           <img
@@ -206,7 +268,6 @@ function PdfCard({ fileUrl, thumbnailUrl, fileSize, fileName }) {
         </div>
       )}
 
-      {/* Bottom row: pdf.png icon + name + buttons */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px' }}>
         <div style={{ width: '48px', height: '48px', borderRadius: '10px', background: '#ffeaea', padding: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
           <img src={pdfIcon} alt="PDF" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
@@ -304,14 +365,33 @@ function avatarColor(name = '') {
   return colors[(name.charCodeAt(0) || 0) % colors.length];
 }
 
+// ── PostImage: clickable thumbnail → opens lightbox ──
 function PostImage({ src }) {
   const [broken, setBroken] = useState(false);
+  const [lightbox, setLightbox] = useState(false);
   useEffect(() => { setBroken(false); }, [src]);
   if (!src || broken) return null;
   return (
-    <div style={{ width: '100%', maxHeight: '480px', overflow: 'hidden', background: 'var(--surface-2)', borderRadius: '4px' }}>
-      <img src={src} alt="post" onError={() => setBroken(true)} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} crossOrigin="anonymous" />
-    </div>
+    <>
+      <div
+        onClick={() => setLightbox(true)}
+        title="Click to zoom"
+        style={{
+          width: '100%', maxHeight: '480px', overflow: 'hidden',
+          background: 'var(--surface-2)', borderRadius: '4px',
+          cursor: 'pointer',
+        }}
+      >
+        <img
+          src={src}
+          alt="post"
+          onError={() => setBroken(true)}
+          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+          crossOrigin="anonymous"
+        />
+      </div>
+      {lightbox && <ImageLightbox src={src} onClose={() => setLightbox(false)} />}
+    </>
   );
 }
 
@@ -356,16 +436,12 @@ export default function PostCard({ post, onDelete, onComment }) {
   const [showShare, setShowShare]  = useState(false);
   const [reactionLoading, setReactionLoading] = useState(false);
 
-  // Ref for the emoji picker — used to detect outside-clicks
   const pickerRef = useRef(null);
 
-  // Sync reactions from parent whenever a socket reactionUpdate arrives
-  // and Home.js passes new props down
   useEffect(() => {
     setReactions(post?.reactions || {});
   }, [post?.reactions]);
 
-  // Close emoji picker on outside click
   useEffect(() => {
     if (!showPicker) return;
     const handler = (e) => {
@@ -383,7 +459,6 @@ export default function PostCard({ post, onDelete, onComment }) {
     type = 'post', commentCount = 0, isOwner = false,
   } = post || {};
 
- 
   const raw = post?._raw || {};
   const fileType = raw.FileType || null;
   const mimeType = raw.MimeType || '';
@@ -396,21 +471,16 @@ export default function PostCard({ post, onDelete, onComment }) {
   const isPdf = fileCategory === 'pdf';
   const isOtherFile = fileCategory && fileCategory !== 'image';
 
- 
   const postUrl = `${window.location.origin}/posts/${id}`;
 
-  
   const handleReaction = async (emoji) => {
     if (reactionLoading) return;
-
-    // Capture previous reaction BEFORE touching state
     const prevReaction = myReaction;
-    const isToggleOff = prevReaction === emoji;   // same emoji again = un-react
+    const isToggleOff = prevReaction === emoji;
 
     setShowPicker(false);
     setReactionLoading(true);
 
-    // --- Optimistic UI update ---
     const next = { ...reactions };
     if (prevReaction) {
       next[prevReaction] = Math.max(0, (next[prevReaction] || 1) - 1);
@@ -422,7 +492,6 @@ export default function PostCard({ post, onDelete, onComment }) {
     setReactions(next);
     setMyReaction(isToggleOff ? null : emoji);
 
-   
     try {
       if (isToggleOff) {
         await api.delete('/home/posts/reactions', { postId: Number(id) });
@@ -434,7 +503,6 @@ export default function PostCard({ post, onDelete, onComment }) {
       }
     } catch (e) {
       console.warn('[Reaction] API call failed, reverting:', e.message);
-      // Revert optimistic update so the UI stays consistent with server
       setReactions(post?.reactions || {});
       setMyReaction(prevReaction);
     } finally {
@@ -507,7 +575,7 @@ export default function PostCard({ post, onDelete, onComment }) {
               </div>
             )}
 
-            {/* Image */}
+            {/* Image — now clickable */}
             {isImage && image && <PostImage src={image} />}
 
             {/* PDF */}
@@ -515,7 +583,7 @@ export default function PostCard({ post, onDelete, onComment }) {
               <PdfCard fileUrl={fullUrl} thumbnailUrl={thumbUrl} fileSize={fileSize} fileName={getFileName(fullUrl, fileType)} />
             )}
 
-            {/* DOC / DOCX / XLS / XLSX / PPT / PPTX / TXT / ZIP / RAR / … */}
+            {/* Other files */}
             {isOtherFile && !isPdf && fullUrl && (
               <FileCard fileUrl={fullUrl} fileType={fileType} fileSize={fileSize} mimeType={mimeType} fileName={getFileName(fullUrl, fileType)} />
             )}
