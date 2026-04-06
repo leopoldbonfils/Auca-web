@@ -9,7 +9,7 @@
           font-family: 'Nunito', sans-serif;
         }
 
-        /* ── Left panel ── */
+        /*  Left panel  */
         .lp-left {
           background: linear-gradient(155deg, #0d3b8e 0%, #1a4fa8 50%, #0a2472 100%);
           display: flex; flex-direction: column;
@@ -33,7 +33,7 @@
           box-shadow: 0 0 0 80px rgba(255,255,255,0.02), 0 0 0 160px rgba(255,255,255,0.015);
         }
 
-        /* ── FIX 1: logo circle shows the image ── */
+        /* logo circle shows the image  */
         .lp-logo-wrap {
           position: relative; z-index: 1;
           width: 140px; height: 140px; border-radius: 50%;
@@ -68,7 +68,7 @@
           letter-spacing: 0.5px; backdrop-filter: blur(8px);
         }
 
-        /* ── Right panel ── */
+        /*  Right panel */
         .lp-right {
           background: #f8f9fc;
           display: flex; flex-direction: column;
@@ -96,7 +96,7 @@
           font-size: 14px; color: #8090a0; margin-bottom: 36px; font-weight: 500;
         }
 
-        /* ── Input ── */
+        /*  Input  */
         .lp-field { position: relative; margin-bottom: 14px; }
         .lp-field-icon-left {
           position: absolute; left: 16px; top: 50%; transform: translateY(-50%);

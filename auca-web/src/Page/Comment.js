@@ -21,8 +21,6 @@ function avatarBg(name = '') {
   ];
   return c[(name.charCodeAt(0) || 0) % c.length];
 }
-
-
 function formatTimeFromUTC(utcTimestamp) {
   if (!utcTimestamp) return '';
   const messageDate = new Date(utcTimestamp);
@@ -43,7 +41,7 @@ function formatTimeFromUTC(utcTimestamp) {
   return messageDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
-//  Three-dot menu (unchanged) 
+// Three-dot menu (unchanged) 
 function ThreeDotMenu({ onDelete, onReport }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
@@ -165,7 +163,6 @@ export default function Comment({ post, onBack }) {
   const [loading,setLoading] = useState(true);
   const [posting,setPosting] = useState(false);
   const bottomRef =useRef(null);
-
   
   const userInfo = getUserInfo();
 

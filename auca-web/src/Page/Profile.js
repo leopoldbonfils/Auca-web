@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { RiEditLine, RiSaveLine } from 'react-icons/ri';
+import { RiEditLine} from 'react-icons/ri';
 import { BsCalendar3 } from 'react-icons/bs';
 import { GoLocation } from 'react-icons/go';
 import { MdWorkOutline } from 'react-icons/md';
@@ -70,22 +70,22 @@ function parseReactions(raw) {
 function mapPost(post, myId) {
   const imageUrl = resolveImageUrl(post.FullUrl) || resolveImageUrl(post.ThumbnailUrl);
   return {
-    id:           String(post.Id),
-    rawId:        post.Id,
-    author:       formatUserName(`${post.Fname || ''} ${post.Lname || ''}`.trim()),
-    role:         post.Role       || '',
-    department:   post.Department || '',
-    timestamp:    formatTimeFromUTC(post.Timestamp),
-    content:      post.Description || '',
-    image:        imageUrl,
+    id: String(post.Id),
+    rawId: post.Id,
+    author: formatUserName(`${post.Fname || ''} ${post.Lname || ''}`.trim()),
+    role: post.Role       || '',
+    department: post.Department || '',
+    timestamp: formatTimeFromUTC(post.Timestamp),
+    content: post.Description || '',
+    image: imageUrl,
     thumbnailUrl: resolveImageUrl(post.ThumbnailUrl),
-    avatarUrl:    resolveImageUrl(post.ProfileUrl),
-    type:         'post',
+    avatarUrl: resolveImageUrl(post.ProfileUrl),
+    type: 'post',
     commentCount: post.PostComments  || 0,
-    reactions:    parseReactions(post.ReactionTypes),
+    reactions: parseReactions(post.ReactionTypes),
     reactionCount: post.PostReactions || 0,
-    isOwner:      !!(myId && String(post.CreatorId) === String(myId)),
-    _raw:         post,
+    isOwner: !!(myId && String(post.CreatorId) === String(myId)),
+    _raw: post,
   };
 }
 
@@ -99,16 +99,16 @@ function EditProfileModal({ profile, isStaff, onClose, onSaved }) {
   });
 
   // Photo previews
-  const [coverPreview,  setCoverPreview]  = useState(resolveImageUrl(profile?.CoverUrl)  || null);
+  const [coverPreview, setCoverPreview] = useState(resolveImageUrl(profile?.CoverUrl)  || null);
   const [avatarPreview, setAvatarPreview] = useState(resolveImageUrl(profile?.ProfileUrl) || null);
-  const [coverFile,     setCoverFile]     = useState(null);
-  const [avatarFile,    setAvatarFile]    = useState(null);
+  const [coverFile, setCoverFile] = useState(null);
+  const [avatarFile,setAvatarFile] = useState(null);
 
-  const coverInputRef  = useRef(null);
+  const coverInputRef = useRef(null);
   const avatarInputRef = useRef(null);
 
-  const [saving,  setSaving]  = useState(false);
-  const [error,   setError]   = useState('');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
   const handleChange = (field, value) =>
@@ -172,17 +172,17 @@ function EditProfileModal({ profile, isStaff, onClose, onSaved }) {
 
   const fields = [
     { key: 'Fname', label: 'First Name', placeholder: 'First name' },
-    { key: 'Lname', label: 'Last Name',  placeholder: 'Last name' },
-    { key: 'Phone', label: 'Phone',      placeholder: 'Phone number' },
-    { key: 'Email', label: 'Email',      placeholder: 'Email address', type: 'email' },
+    { key: 'Lname', label: 'Last Name', placeholder: 'Last name' },
+    { key: 'Phone', label: 'Phone', placeholder: 'Phone number' },
+    { key: 'Email', label: 'Email', placeholder: 'Email address', type: 'email' },
   ];
 
   return (
     <>
       <style>{`
-        @keyframes fadeIn   { from { opacity:0 } to { opacity:1 } }
-        @keyframes slideUp  { from { opacity:0; transform:translateY(30px) } to { opacity:1; transform:translateY(0) } }
-        @keyframes spin     { from { transform:rotate(0deg) } to { transform:rotate(360deg) } }
+        @keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
+        @keyframes slideUp { from { opacity:0; transform:translateY(30px) } to { opacity:1; transform:translateY(0) } }
+        @keyframes spin { from { transform:rotate(0deg) } to { transform:rotate(360deg) } }
         .ep-cam-btn { transition: background 0.15s, transform 0.15s; }
         .ep-cam-btn:hover { background: rgba(0,0,0,0.75) !important; transform: scale(1.08); }
         .ep-input:focus { border-color: var(--primary) !important; }
@@ -204,7 +204,7 @@ function EditProfileModal({ profile, isStaff, onClose, onSaved }) {
         fontFamily: "'Nunito', sans-serif",
       }}>
 
-        {/* ── Top bar: × title Save ── */}
+        {/*  Top bar: × title Save  */}
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           padding: '14px 16px',
@@ -236,7 +236,7 @@ function EditProfileModal({ profile, isStaff, onClose, onSaved }) {
           </button>
         </div>
 
-        {/* ── Cover photo area ── */}
+        {/* Cover photo area  */}
         <div style={{ position: 'relative', height: '160px', background: coverPreview ? 'transparent' : 'linear-gradient(135deg, #0d3b8e, #1a4fa8, #f0a500)', overflow: 'hidden', flexShrink: 0 }}>
           {coverPreview && (
             <img src={coverPreview} alt="cover" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
@@ -277,7 +277,7 @@ function EditProfileModal({ profile, isStaff, onClose, onSaved }) {
             onChange={e => handleImagePick(e.target.files[0], 'cover')} />
         </div>
 
-        {/* ── Avatar overlapping cover ── */}
+        {/*  Avatar overlapping cover */}
         <div style={{ padding: '0 20px', position: 'relative' }}>
           <div style={{ position: 'relative', display: 'inline-block', marginTop: '-46px', marginBottom: '12px' }}>
             <div style={{
@@ -312,7 +312,7 @@ function EditProfileModal({ profile, isStaff, onClose, onSaved }) {
               onChange={e => handleImagePick(e.target.files[0], 'avatar')} />
           </div>
 
-          {/* ── Form fields ── */}
+          {/* Form fields */}
           <div style={{ paddingBottom: '24px' }}>
             {fields.map(f => (
               <div key={f.key} style={{ marginBottom: '16px' }}>
@@ -351,7 +351,7 @@ function EditProfileModal({ profile, isStaff, onClose, onSaved }) {
 
             {success && (
               <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', padding: '10px 14px', fontSize: '13px', color: '#166534', marginBottom: '12px' }}>
-                ✅ Profile saved successfully!
+                 Profile saved successfully!
               </div>
             )}
           </div>
@@ -381,15 +381,15 @@ function SkeletonPostCard() {
 
 //  Main Profile component 
 export default function Profile({ onNavigate }) {
-  const [activeTab,    setActiveTab]    = useState('Posts');
-  const [showEdit,     setShowEdit]     = useState(false);
-  const [profile,      setProfile]      = useState(null);
-  const [loading,      setLoading]      = useState(true);
-  const [error,        setError]        = useState('');
-  const [posts,        setPosts]        = useState([]);
+  const [activeTab, setActiveTab] = useState('Posts');
+  const [showEdit, setShowEdit] = useState(false);
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [posts, setPosts] = useState([]);
   const [postsLoading, setPostsLoading] = useState(false);
   const [postsFetched, setPostsFetched] = useState(false);
-  const [stats,        setStats]        = useState({ posts: '—', reactions: '—', comments: '—' });
+  const [stats, setStats] = useState({ posts: '—', reactions: '—', comments: '—' });
 
   const isStaff = localStorage.getItem('isStaff') === 'true';
 
@@ -426,9 +426,9 @@ export default function Profile({ onNavigate }) {
       setPosts(mapped);
       setPostsFetched(true);
       setStats({
-        posts:     mine.length,
+        posts: mine.length,
         reactions: mine.reduce((s, p) => s + (p.PostReactions || 0), 0),
-        comments:  mine.reduce((s, p) => s + (p.PostComments  || 0), 0),
+        comments: mine.reduce((s, p) => s + (p.PostComments  || 0), 0),
       });
     } catch (err) {
       console.warn('[Profile] posts load failed:', err.message);
@@ -460,23 +460,23 @@ export default function Profile({ onNavigate }) {
   };
 
   //  Derived values 
-  const fullName   = profile ? `${profile.Fname || ''} ${profile.Lname || ''}`.trim() : '—';
-  const role       = profile?.Role || (isStaff ? 'Staff' : 'Student');
+  const fullName = profile ? `${profile.Fname || ''} ${profile.Lname || ''}`.trim() : '—';
+  const role = profile?.Role || (isStaff ? 'Staff' : 'Student');
   const department = profile?.Department || profile?.StudDepartment || '—';
-  const email      = profile?.Email || '—';
-  const avatarUrl  = resolveImageUrl(profile?.ProfileUrl);
-  const initials   = fullName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+  const email = profile?.Email || '—';
+  const avatarUrl = resolveImageUrl(profile?.ProfileUrl);
+  const initials = fullName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
 
   const metaItems = [
     { icon: <MdWorkOutline size={14} />, text: department },
-    { icon: <GoLocation    size={14} />, text: 'Kigali, Rwanda' },
-    { icon: <BsCalendar3   size={14} />, text: 'AUCA Member' },
+    { icon: <GoLocation size={14} />, text: 'Kigali, Rwanda' },
+    { icon: <BsCalendar3 size={14} />, text: 'AUCA Member' },
   ];
 
   const statItems = [
-    { label: 'Posts',     value: stats.posts },
+    { label: 'Posts', value: stats.posts },
     { label: 'Reactions', value: stats.reactions },
-    { label: 'Comments',  value: stats.comments },
+    { label: 'Comments', value: stats.comments },
   ];
 
   const filteredPosts = posts.filter(p => {
@@ -508,7 +508,7 @@ export default function Profile({ onNavigate }) {
         />
       )}
 
-      {/* ── Profile card ── */}
+      {/*  Profile card  */}
       <div style={{ background: 'var(--surface)', borderRadius: '16px', overflow: 'hidden', border: '1px solid var(--border)', marginBottom: '16px', boxShadow: 'var(--shadow)' }}>
         {/* Cover */}
         <div style={{ height: '110px', background: 'linear-gradient(135deg, #0d3b8e 0%, #1a4fa8 50%, #f0a500 100%)', position: 'relative' }}>
@@ -562,7 +562,7 @@ export default function Profile({ onNavigate }) {
         </div>
       </div>
 
-      {/* ── Tabs ── */}
+      {/*  Tabs  */}
       <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', borderBottom: '1px solid var(--border)' }}>
         {TABS.map(t => (
           <button key={t} onClick={() => setActiveTab(t)}
@@ -615,12 +615,12 @@ export default function Profile({ onNavigate }) {
       {activeTab === 'About' && (
         <div style={{ background: 'var(--surface)', borderRadius: '14px', padding: '20px', border: '1px solid var(--border)', boxShadow: 'var(--shadow)', marginBottom: '40px' }}>
           {[
-            { label: 'Full Name',  value: fullName },
-            { label: 'Role',       value: role },
+            { label: 'Full Name', value: fullName },
+            { label: 'Role', value: role },
             { label: 'Department', value: department },
-            { label: 'Email',      value: email },
-            { label: 'Phone',      value: profile?.Phone ? `+250 ${profile.Phone}` : '—' },
-            { label: 'Faculty',    value: profile?.StudFaculty || profile?.Faculty || '—' },
+            { label: 'Email', value: email },
+            { label: 'Phone', value: profile?.Phone ? `+250 ${profile.Phone}` : '—' },
+            { label: 'Faculty', value: profile?.StudFaculty || profile?.Faculty || '—' },
           ].map((item, i, arr) => (
             <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: i < arr.length - 1 ? '1px solid var(--border)' : 'none' }}>
               <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: 600 }}>{item.label}</span>

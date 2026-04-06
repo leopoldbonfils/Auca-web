@@ -21,10 +21,10 @@ const POST_TYPES = [
   
 ];
 
-//  Accepted file types 
+// Accepted file types 
 const ACCEPT_ATTR = 'image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.rar,.zip';
 
-//  Audience data (mirrors the RN app) 
+// Audience data (mirrors the RN app) 
 const FACULTY_DEPARTMENTS = {
   'IT': ['Software Engineering', 'Information Management', 'Network and Communication Systems'],
   'Business Administration': ['Marketing', 'Management', 'Finance', 'Accounting'],
@@ -384,7 +384,7 @@ export default function CreatePost({ onNavigate, onPostCreated }) {
               Drag & drop a file here, or choose below
             </div>
 
-            {/* Two picker buttons — Image and File */}
+            {/* Two picker buttons Image and File */}
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
 
               {/* Image picker */}
@@ -413,12 +413,12 @@ export default function CreatePost({ onNavigate, onPostCreated }) {
             </div>
           </div>
 
-          {/* Hidden input — accept attribute is set dynamically before each click */}
+          {/* Hidden input accept attribute is set dynamically before each click */}
           <input ref={fileInputRef} type="file" accept={ACCEPT_ATTR} onChange={handleFileInput} style={{ display: 'none' }} />
         </>
       )}
 
-      {/* ── Audience selector ── */}
+      {/* Audience selector */}
       <div style={{ background: 'var(--surface)', borderRadius: '14px', padding: '18px', marginBottom: '14px', border: '1px solid var(--border)', boxShadow: 'var(--shadow)' }}>
         <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--primary)', marginBottom: '14px' }}>Select Audience</div>
         <div style={{ display: 'flex', flexDirection: 'column' }}>

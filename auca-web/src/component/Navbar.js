@@ -25,7 +25,7 @@ const NAV_ITEMS = [
 const SLIM_W = 72;
 const EXPANDED_W = 240;
 
-// FIX: Read real user info from localStorage 
+// Read real user info from localStorage 
 function getUserInfo() {
   try {
     const raw = localStorage.getItem('userProfile');
@@ -153,7 +153,7 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange, o
         boxShadow: isDark ? '2px 0 24px rgba(0,0,0,0.5)' : '2px 0 16px rgba(13,59,142,0.08)',
       }}
     >
-      {/* ── LOGO ── */}
+      {/*  LOGO  */}
       <div style={{ padding: expanded ? '22px 20px 18px' : '22px 0 18px', borderBottom: '1px solid var(--nav-border)', width: '100%', display: 'flex', justifyContent: expanded ? 'flex-start' : 'center', flexShrink: 0, transition: 'padding 0.25s' }}>
         {aucaLogo ? (
           <img src={aucaLogo} alt="AUCA" style={{ width: expanded ? '110px' : '36px', height: '36px', objectFit: 'contain', objectPosition: 'left center', transition: 'width 0.25s' }} />
@@ -162,7 +162,7 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange, o
         )}
       </div>
 
-      {/* ── Nav items ── */}
+      {/*  Nav items */}
       <div style={{ flex: 1, width: '100%', padding: '14px 0', overflowY: 'auto', overflowX: 'hidden' }}>
         {NAV_ITEMS.map(item => {
           const isActive = activePage === item.id;
@@ -185,10 +185,10 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange, o
         })}
       </div>
 
-      {/* ── Bottom section ── */}
+      {/* Bottom section  */}
       <div style={{ padding: '10px 0 18px', borderTop: '1px solid var(--nav-border)', width: '100%', flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: expanded ? 'flex-start' : 'center', gap: '0px' }}>
 
-        {/* ── More button ── */}
+        {/* More button */}
         <div style={{ position: 'relative', width: '100%' }} ref={moreRef}>
           <button
             onClick={() => { setShowMore(p => !p); setShowAccount(false); }}
@@ -222,7 +222,7 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange, o
           )}
         </div>
 
-        {/* ── Account button ── */}
+        {/* Account button */}
         <div style={{ position: 'relative', width: '100%' }} ref={accountRef}>
           <button
             onClick={() => { setShowAccount(p => !p); setShowMore(false); }}
@@ -231,7 +231,7 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange, o
             onMouseEnter={e => e.currentTarget.style.background = 'var(--surface-2)'}
             onMouseLeave={e => e.currentTarget.style.background = showAccount && expanded ? 'var(--surface-2)' : 'transparent'}
           >
-            {/* FIX: real profile image if available, else initials */}
+            {/* real profile image if available, else initials */}
             <div style={{
               width: '30px', height: '30px', borderRadius: '50%', flexShrink: 0,
               background: userInfo.avatarUrl ? 'transparent' : 'linear-gradient(135deg, #0d3b8e, #f0a500)',
@@ -251,7 +251,7 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange, o
               }
             </div>
 
-            {/* FIX: real name and role */}
+            {/* real name and role */}
             {expanded && (
               <div style={{ minWidth: 0 }}>
                 <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '130px' }}>

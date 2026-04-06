@@ -27,7 +27,7 @@ export default function LoginPage({ onLoginSuccess }) {
     const IdValue = /^\d+$/.test(id.trim()) ? Number(id.trim()) : id.trim();
     const payload = { Id: IdValue, Password: password, isStaff };
     try {
-      const res  = await fetch(`${API}/login`, {
+      const res = await fetch(`${API}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -56,11 +56,11 @@ export default function LoginPage({ onLoginSuccess }) {
     <>
       <div className="lp-root">
 
-        {/* ══ LEFT PANEL ══ */}
+        {/*  LEFT PANEL */}
         <div className="lp-left">
           <div className="lp-left-circles" />
 
-          {/* FIX 1: auca_logoo.png shown inside the circle */}
+          {/* auca_logoo.png shown inside the circle */}
           <div className="lp-logo-wrap">
             {aucaLogo
               ? <img src={aucaLogo} alt="AUCA Logo" />
@@ -72,7 +72,7 @@ export default function LoginPage({ onLoginSuccess }) {
           
         </div>
 
-        {/* ══ RIGHT PANEL ══ */}
+        {/* RIGHT PANEL */}
         <div className="lp-right">
           <button className="lp-signup-btn">Sign Up</button>
 
@@ -80,7 +80,7 @@ export default function LoginPage({ onLoginSuccess }) {
             <div className="lp-form-title">Welcome Back</div>
             <div className="lp-form-sub">Please log in to continue</div>
 
-            {/* FIX 2: type="text" — accepts numbers (student ID) and characters (email) */}
+            {/* type="text" accepts numbers (student ID) and characters (email) */}
             <div className="lp-field">
               <span className="lp-field-icon-left"><HiOutlineUser size={18} /></span>
               <input

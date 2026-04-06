@@ -1,30 +1,36 @@
 import React, { useState, useEffect } from 'react';
 import './Styles/global.css';
-import Navbar      from './component/Navbar';
-import Home        from './Page/Home';
-import Search      from './Page/Search';
-import CreatePost  from './Page/CreatePost';
-import Profile     from './Page/Profile';
-import Comment     from './Page/Comment';
-import LoginPage   from './Page/LoginPage';
+import Navbar from './component/Navbar';
+import Home from './Page/Home';
+import Search from './Page/Search';
+import CreatePost from './Page/CreatePost';
+import Profile from './Page/Profile';
+import Comment from './Page/Comment';
+import LoginPage from './Page/LoginPage';
 
 //  Page renderer 
 function renderPage(page, onNavigate, onPostCreated, selectedPost) {
   switch (page) {
-    case 'home':     return <Home onNavigate={onNavigate} />;
-    case 'search':   return <Search />;
-    case 'create':   return <CreatePost onNavigate={onNavigate} onPostCreated={onPostCreated} />;
-    case 'profile':  return <Profile onNavigate={onNavigate} />;
-    case 'comments': return <Comment post={selectedPost} onBack={() => onNavigate('home')} />;
-    default:         return <Home onNavigate={onNavigate} />;
+    case 'home':    
+      return <Home onNavigate={onNavigate} />;
+    case 'search':   
+      return <Search />;
+    case 'create':   
+      return <CreatePost onNavigate={onNavigate} onPostCreated={onPostCreated} />;
+    case 'profile':  
+      return <Profile onNavigate={onNavigate} />;
+    case 'comments': 
+      return <Comment post={selectedPost} onBack={() => onNavigate('home')} />;
+    default:         
+      return <Home onNavigate={onNavigate} />;
   }
 }
 
 export default function App() {
-  const [auth,         setAuth]         = useState(null);   // null = not logged in
-  const [currentPage,  setCurrentPage]  = useState('home');
+  const [auth, setAuth] = useState(null); 
+  const [currentPage, setCurrentPage]  = useState('home');
   const [selectedPost, setSelectedPost] = useState(null);
-  const [theme,        setTheme]        = useState(() => localStorage.getItem('auca-theme') || 'light');
+  const [theme, setTheme] = useState(() => localStorage.getItem('auca-theme') || 'light');
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -64,7 +70,7 @@ export default function App() {
     );
   }
 
-  //  LOGGED IN → show main app 
+  //  LOGGED IN show main app 
   return (
     <div className="app-layout">
       <Navbar

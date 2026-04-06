@@ -61,16 +61,16 @@ function getFileCategory(fileType, mimeType = '') {
   const ext  = (fileType  || '').toLowerCase().replace('.', '');
   const mime = (mimeType  || '').toLowerCase();
 
-  if (ext === 'pdf'  || mime.includes('pdf')) return 'pdf';
+  if (ext === 'pdf' || mime.includes('pdf')) return 'pdf';
   if (ext === 'docx' || mime.includes('wordprocessingml')) return 'docx';
-  if (ext === 'doc'  || mime.includes('msword')) return 'doc';
+  if (ext === 'doc' || mime.includes('msword')) return 'doc';
   if (ext === 'xlsx' || mime.includes('spreadsheetml')) return 'xlsx';
-  if (ext === 'xls'  || mime.includes('excel')) return 'xls';
+  if (ext === 'xls' || mime.includes('excel')) return 'xls';
   if (ext === 'pptx' || mime.includes('presentationml')) return 'pptx';
-  if (ext === 'ppt'  || mime.includes('powerpoint')) return 'ppt';
-  if (ext === 'txt'  || mime.includes('text/plain')) return 'txt';
-  if (ext === 'rar'  || mime.includes('rar'))  return 'rar';
-  if (ext === 'zip'  || mime.includes('zip')) return 'zip';
+  if (ext === 'ppt' || mime.includes('powerpoint')) return 'ppt';
+  if (ext === 'txt' || mime.includes('text/plain')) return 'txt';
+  if (ext === 'rar' || mime.includes('rar'))  return 'rar';
+  if (ext === 'zip' || mime.includes('zip')) return 'zip';
   if (['png','jpg','jpeg','gif','webp'].includes(ext) || mime.startsWith('image/')) return 'image';
   return 'file';
 }
@@ -94,7 +94,7 @@ function formatFileSize(bytes) {
   if (!bytes) return '';
   const n = Number(bytes);
   if (isNaN(n)) return bytes;
-  if (n === 0)  return '0 B';
+  if (n === 0) return '0 B';
   const sizes = ['B', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(n) / Math.log(1024));
   return `${(n / Math.pow(1024, i)).toFixed(1)} ${sizes[i]}`;
@@ -111,7 +111,7 @@ function getFileName(url, fileType) {
   }
 }
 
-// ── Image lightbox overlay ──
+//  Image lightbox overlay 
 function ImageLightbox({ src, onClose }) {
   // Close on Escape key
   useEffect(() => {
@@ -431,9 +431,9 @@ function ReactionSummary({ reactions, myReaction }) {
 export default function PostCard({ post, onDelete, onComment }) {
   const [showPicker, setShowPicker] = useState(false);
   const [myReaction, setMyReaction] = useState(null);
-  const [reactions, setReactions]  = useState(post?.reactions || {});
-  const [expanded, setExpanded]   = useState(false);
-  const [showShare, setShowShare]  = useState(false);
+  const [reactions, setReactions] = useState(post?.reactions || {});
+  const [expanded, setExpanded] = useState(false);
+  const [showShare, setShowShare] = useState(false);
   const [reactionLoading, setReactionLoading] = useState(false);
 
   const pickerRef = useRef(null);
@@ -462,7 +462,7 @@ export default function PostCard({ post, onDelete, onComment }) {
   const raw = post?._raw || {};
   const fileType = raw.FileType || null;
   const mimeType = raw.MimeType || '';
-  const fullUrl  = raw.FullUrl  || null;
+  const fullUrl = raw.FullUrl || null;
   const thumbUrl = raw.ThumbnailUrl || null;
   const fileSize = raw.FileSize || null;
 

@@ -6,7 +6,7 @@ import { io } from 'socket.io-client';
 const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000';
 const TABS = ['All', 'Announcements', 'Posts'];
 
-//  Emoji name → character map (mirrors the app's emojiData) 
+//  Emoji name character map (mirrors the app's emojiData) 
 const EMOJI_NAME_MAP = {
   love: '❤️', happy: '😄', laugh: '😂', thumbs_up: '👍',
   skull: '💀', angry: '😡', sad: '😢',
@@ -74,7 +74,7 @@ function resolveImageUrl(url) {
   return null;
 }
 
-// Parse backend ReactionTypes (JSON string or array) → { emoji: count }
+// Parse backend ReactionTypes (JSON string or array) { emoji: count }
 function parseReactions(raw) {
   if (!raw) return {};
   try {
@@ -90,7 +90,7 @@ function parseReactions(raw) {
 }
 
 function mapPost(post) {
-  const p   = JSON.parse(localStorage.getItem('userProfile') || '{}');
+  const p = JSON.parse(localStorage.getItem('userProfile') || '{}');
   const myId = p?.Id || p?.StudentId;
   const imageUrl = resolveImageUrl(post.FullUrl) || resolveImageUrl(post.ThumbnailUrl);
   return {
@@ -136,14 +136,14 @@ function Toast({ toasts }) {
       <style>{`
         @keyframes toastSlideIn {
           from { opacity:0; transform:translateX(40px); }
-          to   { opacity:1; transform:translateX(0);    }
+          to { opacity:1; transform:translateX(0);    }
         }
       `}</style>
     </div>
   );
 }
 
-//  Feature 4: Shimmer skeleton loader 
+//  Feature : Shimmer skeleton loader 
 function SkeletonCard() {
   return (
     <div style={{
@@ -198,17 +198,16 @@ function SkeletonCard() {
 function SkeletonFeed() {
   return <>{[1, 2, 3].map(i => <SkeletonCard key={i} />)}</>;
 }
-
 //  Main component 
 export default function Home({ onNavigate }) {
   const [activeTab, setActiveTab] = useState('All');
-  const [posts,     setPosts]     = useState([]);
-  const [loading,   setLoading]   = useState(true);
-  const [error,     setError]     = useState('');
-  const [toasts,    setToasts]    = useState([]);
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [toasts, setToasts] = useState([]);
 
   const currentUser = useMemo(() => getCurrentUser(), []);
-  const hasFetched  = useRef(false);
+  const hasFetched = useRef(false);
 
   //  Toast helper 
   const showToast = useCallback((type, message) => {
@@ -270,7 +269,7 @@ export default function Home({ onNavigate }) {
                   if (!upd) return post;
                   return {
                     ...post,
-                    reactions:     parseReactions(upd.ReactionTypes),
+                    reactions: parseReactions(upd.ReactionTypes),
                     reactionCount: upd.count,
                   };
                 }),
@@ -343,7 +342,6 @@ export default function Home({ onNavigate }) {
       );
     });
 
-   
     socket.on('comment_added', ({ postId, newCommentCount }) => {
       setPosts(prev =>
         prev.map(post =>
@@ -370,7 +368,7 @@ export default function Home({ onNavigate }) {
 
   const filtered = posts.filter(p => {
     if (activeTab === 'Announcements') return p.type === 'announcement' || p.type === 'memo';
-    if (activeTab === 'Posts')         return p.type === 'post';
+    if (activeTab === 'Posts') return p.type === 'post';
     return true;
   });
 
@@ -454,7 +452,7 @@ export default function Home({ onNavigate }) {
 
         {!loading && !error && filtered.length === 0 && (
           <div style={{ textAlign: 'center', padding: '60px 20px' }}>
-            <div style={{ fontSize: '48px', marginBottom: '12px' }}>📭</div>
+            <div style={{ fontSize: '48px', marginBottom: '12px' }}></div>
             <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-secondary)' }}>No posts yet</div>
             <div style={{ fontSize: '13px', marginTop: '6px', color: 'var(--text-muted)' }}>Be the first to share something!</div>
           </div>

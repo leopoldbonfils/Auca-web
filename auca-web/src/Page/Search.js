@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { RiSearchLine } from 'react-icons/ri';
 import { IoClose } from 'react-icons/io5';
 import { MdWorkOutline, MdOutlineArticle } from 'react-icons/md';
-import { BsPersonCircle, BsCalendar3 } from 'react-icons/bs';
 import api from '../utils/api';
 
 const TABS = ['All', 'Posts', 'Courses'];
@@ -15,9 +14,9 @@ function resolveImageUrl(url) {
 
 function formatTimeFromUTC(utcTimestamp) {
   if (!utcTimestamp) return '';
-  const d   = new Date(utcTimestamp);
+  const d = new Date(utcTimestamp);
   const now = new Date();
-  const diffMin  = Math.floor((now - d) / 60000);
+  const diffMin = Math.floor((now - d) / 60000);
   const diffDays = Math.floor((now - d) / 86400000);
   if (diffMin < 1)  return 'now';
   if (diffMin < 60) return `${diffMin}m ago`;
@@ -178,7 +177,7 @@ function CourseResult({ course, query }) {
             </span>
           )}
           {course.GroupName && <span>{highlight(course.GroupName)}</span>}
-          {course.Semester   && <span>Sem {course.Semester}</span>}
+          {course.Semester && <span>Sem {course.Semester}</span>}
           {course.AcademicYear && <span>{course.AcademicYear}</span>}
         </div>
       </div>
@@ -270,9 +269,9 @@ export default function Search() {
   });
 
   const filteredCourses = !q ? [] : allCourses.filter(c => {
-    const name = (c.ClassName  || '').toLowerCase();
+    const name = (c.ClassName || '').toLowerCase();
     const code = (c.CourseCode || '').toLowerCase();
-    const group = (c.GroupName  || '').toLowerCase();
+    const group = (c.GroupName || '').toLowerCase();
     return name.includes(q) || code.includes(q) || group.includes(q);
   });
 
