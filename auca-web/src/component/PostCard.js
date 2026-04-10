@@ -374,27 +374,58 @@ function avatarColor(name = '') {
 function PostImage({ src }) {
   const [broken, setBroken] = useState(false);
   const [lightbox, setLightbox] = useState(false);
-  useEffect(() => { setBroken(false); }, [src]);
+  const [imgSize, setImgSize] = useState(null);
+
+  useEffect(() => { setBroken(false); setImgSize(null); }, [src]);
+
+  const handleLoad = (e) => {
+    const { naturalWidth, naturalHeight } = e.target;
+    setImgSize({ w: naturalWidth, h: naturalHeight });
+  };
+
   if (!src || broken) return null;
+
+  // Detect orientation once image loads
+  const isPortrait = imgSize && imgSize.h > imgSize.w * 1.2;
+  const isSquare = imgSize && Math.abs(imgSize.w - imgSize.h) < imgSize.w * 0.2;
+
+  // Choose ratio based on orientation
+  const aspectRatio = isPortrait ? '4/5' : isSquare ? '1/1' : '16/9';
+  const maxHeight = isPortrait ? '500px' : '380px';
+
   return (
     <>
       <div
         onClick={() => setLightbox(true)}
         title="Click to zoom"
         style={{
-          width: '100%', maxHeight: '480px', overflow: 'hidden',
-          background: 'var(--surface-2)', borderRadius: '4px',
+          width: '100%',
+          aspectRatio: imgSize ? aspectRatio : '16/9',  
+          maxHeight,
+          overflow: 'hidden',
+          background: 'var(--surface-2)',
           cursor: 'pointer',
+          margin: '8px 0 4px',
         }}
       >
         <img
           src={src}
           alt="post"
           onError={() => setBroken(true)}
-          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+          onLoad={handleLoad}
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',      
+            objectPosition: 'center top', 
+            display: 'block',
+            transition: 'transform 0.3s ease',
+          }}
+          onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.02)'}
+          onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
           crossOrigin="anonymous"
         />
-    </div>
+      </div>
       {lightbox && <ImageLightbox src={src} onClose={() => setLightbox(false)} />}
     </>
   );
