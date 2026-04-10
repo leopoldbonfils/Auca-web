@@ -34,11 +34,11 @@ export default function LoginPage({ onLoginSuccess }) {
       });
       const data = await res.json();
       if (!res.ok) { setError(typeof data === 'string' ? data : data.message || 'Invalid credentials.'); setLoading(false); return; }
-      localStorage.setItem('accessToken',  data.accessToken);
+      localStorage.setItem('accessToken', data.accessToken);
       localStorage.setItem('refreshToken', data.refreshToken);
-      localStorage.setItem('isStaff',      String(isStaff));
+      localStorage.setItem('isStaff', String(isStaff));
       const profile = isStaff
-        ? (data.staffProfile?.[0]   ?? data.staffProfile)
+        ? (data.staffProfile?.[0] ?? data.staffProfile)
         : (data.studentProfile?.[0] ?? data.studentProfile);
       if (profile) localStorage.setItem('userProfile', JSON.stringify(profile));
       onLoginSuccess({ accessToken: data.accessToken, profile, isStaff });

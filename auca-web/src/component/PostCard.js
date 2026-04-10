@@ -93,7 +93,7 @@ const FILE_META = {
 function formatFileSize(bytes) {
   if (!bytes) return '';
   const n = Number(bytes);
-  if (isNaN(n)) return bytes;
+  if (isNaN(n)) return bytes;  
   if (n === 0) return '0 B';
   const sizes = ['B', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(n) / Math.log(1024));
@@ -211,6 +211,7 @@ function FileCard({ fileUrl, fileType, fileSize, mimeType, fileName }) {
         e.currentTarget.style.borderColor = 'var(--border)';
       }}
     >
+      {/* PNG icon box */}
       <div style={{
         width: '52px', height: '52px', borderRadius: '10px',
         background: meta.bg, padding: '6px', flexShrink: 0,
@@ -219,6 +220,7 @@ function FileCard({ fileUrl, fileType, fileSize, mimeType, fileName }) {
         <img src={meta.icon} alt={meta.label} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
       </div>
 
+      {/* Info */}
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {name}
@@ -228,6 +230,7 @@ function FileCard({ fileUrl, fileType, fileSize, mimeType, fileName }) {
         </div>
       </div>
 
+      {/* Open arrow */}
       {fileUrl && (
         <div style={{ color: 'var(--text-muted)', flexShrink: 0 }}>
           <MdOpenInNew size={20} />
@@ -256,6 +259,8 @@ function PdfCard({ fileUrl, thumbnailUrl, fileSize, fileName }) {
 
   return (
     <div style={{ margin: '10px 18px', borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border)', background: 'var(--surface-2)' }}>
+
+      {/* Blurred thumbnail preview */}
       {hasThumbnail && (
         <div style={{ position: 'relative', background: '#111', maxHeight: '200px', overflow: 'hidden' }}>
           <img
@@ -268,6 +273,7 @@ function PdfCard({ fileUrl, thumbnailUrl, fileSize, fileName }) {
         </div>
       )}
 
+      {/* Bottom row: pdf.png icon + name + buttons */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px' }}>
         <div style={{ width: '48px', height: '48px', borderRadius: '10px', background: '#ffeaea', padding: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
           <img src={pdfIcon} alt="PDF" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
@@ -365,7 +371,6 @@ function avatarColor(name = '') {
   return colors[(name.charCodeAt(0) || 0) % colors.length];
 }
 
-// ── PostImage: clickable thumbnail → opens lightbox ──
 function PostImage({ src }) {
   const [broken, setBroken] = useState(false);
   const [lightbox, setLightbox] = useState(false);
@@ -389,7 +394,7 @@ function PostImage({ src }) {
           style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
           crossOrigin="anonymous"
         />
-      </div>
+    </div>
       {lightbox && <ImageLightbox src={src} onClose={() => setLightbox(false)} />}
     </>
   );
@@ -436,12 +441,18 @@ export default function PostCard({ post, onDelete, onComment }) {
   const [showShare, setShowShare] = useState(false);
   const [reactionLoading, setReactionLoading] = useState(false);
 
+  // controls visibility of the delete confirmation modal
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  // Ref for the emoji picker used to detect outside-clicks
   const pickerRef = useRef(null);
 
+  
   useEffect(() => {
     setReactions(post?.reactions || {});
   }, [post?.reactions]);
 
+  // Close emoji picker on outside click
   useEffect(() => {
     if (!showPicker) return;
     const handler = (e) => {
@@ -475,12 +486,15 @@ export default function PostCard({ post, onDelete, onComment }) {
 
   const handleReaction = async (emoji) => {
     if (reactionLoading) return;
+
+    // Capture previous reaction BEFORE touching state
     const prevReaction = myReaction;
-    const isToggleOff = prevReaction === emoji;
+    const isToggleOff = prevReaction === emoji;   // same emoji again = un-react
 
     setShowPicker(false);
     setReactionLoading(true);
 
+    // Optimistic UI update 
     const next = { ...reactions };
     if (prevReaction) {
       next[prevReaction] = Math.max(0, (next[prevReaction] || 1) - 1);
@@ -503,6 +517,7 @@ export default function PostCard({ post, onDelete, onComment }) {
       }
     } catch (e) {
       console.warn('[Reaction] API call failed, reverting:', e.message);
+      // Revert optimistic update so the UI stays consistent with server
       setReactions(post?.reactions || {});
       setMyReaction(prevReaction);
     } finally {
@@ -518,6 +533,119 @@ export default function PostCard({ post, onDelete, onComment }) {
   return (
     <>
       {showShare && <ShareModal postUrl={postUrl} onClose={() => setShowShare(false)} />}
+
+      {/* Delete confirmation modal — styled like the reference image */}
+      {showDeleteModal && (
+        <>
+          {/* Backdrop clicking it cancels the modal */}
+          <div
+            onClick={() => setShowDeleteModal(false)}
+            style={{
+              position: 'fixed', inset: 0,
+              background: 'rgba(0,0,0,0.6)',
+              zIndex: 400,
+              animation: 'deleteModalFadeIn 0.15s ease',
+            }}
+          />
+
+          {/* Modal box */}
+          <div style={{
+            position: 'fixed',
+            top: '50%', left: '50%',
+            transform: 'translate(-50%, -50%)',
+            background: '#2a2a2a',
+            borderRadius: '16px',
+            padding: '28px 24px 24px',
+            width: '90%',
+            maxWidth: '380px',
+            zIndex: 401,
+            fontFamily: "'Nunito', sans-serif",
+            boxShadow: '0 24px 60px rgba(0,0,0,0.6)',
+            animation: 'deleteModalSlideIn 0.2s ease',
+          }}>
+
+            {/* Title */}
+            <div style={{ fontSize: '18px', fontWeight: 800, color: '#fff', marginBottom: '14px' }}>
+              Delete Post?
+            </div>
+
+            {/* Description line 1 — shows a snippet of the post content */}
+            <div style={{ fontSize: '14px', color: '#ccc', marginBottom: '6px', lineHeight: 1.5 }}>
+              This will delete{' '}
+              <strong style={{ color: '#fff' }}>
+                {content.length > 50 ? content.slice(0, 50) + '…' : content || 'this post'}
+              </strong>.
+            </div>
+
+            {/* Description line 2 — extra note like the reference image */}
+            <div style={{ fontSize: '13px', color: '#888', marginBottom: '28px', lineHeight: 1.5 }}>
+              This action cannot be undone.
+            </div>
+
+            {/* Button row — Cancel on left, Delete (red pill) on right */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+
+              {/* Cancel button */}
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                style={{
+                  padding: '10px 24px',
+                  borderRadius: '50px',
+                  border: 'none',
+                  background: '#3d3d3d',
+                  color: '#fff',
+                  fontSize: '14px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                  transition: 'background 0.15s',
+                }}
+                onMouseEnter={e => e.currentTarget.style.background = '#4d4d4d'}
+                onMouseLeave={e => e.currentTarget.style.background = '#3d3d3d'}
+              >
+                Cancel
+              </button>
+
+              {/* Delete button — red pill exactly like the image */}
+              <button
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  onDelete && onDelete(id);
+                }}
+                style={{
+                  padding: '10px 24px',
+                  borderRadius: '50px',
+                  border: 'none',
+                  background: '#e53935',
+                  color: '#fff',
+                  fontSize: '14px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                  transition: 'background 0.15s',
+                }}
+                onMouseEnter={e => e.currentTarget.style.background = '#c62828'}
+                onMouseLeave={e => e.currentTarget.style.background = '#e53935'}
+              >
+                Delete
+              </button>
+
+            </div>
+          </div>
+
+          {/* Keyframe animations for the modal */}
+          <style>{`
+            @keyframes deleteModalFadeIn {
+              from { opacity: 0; }
+              to   { opacity: 1; }
+            }
+            @keyframes deleteModalSlideIn {
+              from { opacity: 0; transform: translate(-50%, -48%); }
+              to   { opacity: 1; transform: translate(-50%, -50%); }
+            }
+          `}</style>
+        </>
+      )}
 
       <div
         style={{ background: 'var(--surface)', borderRadius: '6px', marginBottom: '3px', boxShadow: 'var(--shadow)', border: '1px solid var(--border)', fontFamily: "'Nunito', sans-serif", overflow: 'hidden', transition: 'box-shadow 0.2s ease' }}
@@ -537,7 +665,8 @@ export default function PostCard({ post, onDelete, onComment }) {
             {role && <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '1px' }}>{role}</div>}
           </div>
           {isOwner && (
-            <button onClick={() => onDelete && onDelete(id)} title="Delete post"
+            // CHANGED: was calling onDelete directly, now opens the confirmation modal first
+            <button onClick={() => setShowDeleteModal(true)} title="Delete post"
               style={{ padding: '6px', color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s' }}
               onMouseEnter={e => { e.currentTarget.style.background = '#fee2e2'; e.currentTarget.style.color = '#e53935'; }}
               onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = 'var(--text-muted)'; }}
@@ -575,7 +704,7 @@ export default function PostCard({ post, onDelete, onComment }) {
               </div>
             )}
 
-            {/* Image — now clickable */}
+            {/* Image */}
             {isImage && image && <PostImage src={image} />}
 
             {/* PDF */}
@@ -583,7 +712,7 @@ export default function PostCard({ post, onDelete, onComment }) {
               <PdfCard fileUrl={fullUrl} thumbnailUrl={thumbUrl} fileSize={fileSize} fileName={getFileName(fullUrl, fileType)} />
             )}
 
-            {/* Other files */}
+            {/* DOC / DOCX / XLS / XLSX / PPT / PPTX / TXT / ZIP / RAR / … */}
             {isOtherFile && !isPdf && fullUrl && (
               <FileCard fileUrl={fullUrl} fileType={fileType} fileSize={fileSize} mimeType={mimeType} fileName={getFileName(fullUrl, fileType)} />
             )}
