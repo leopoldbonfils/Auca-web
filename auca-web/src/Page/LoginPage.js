@@ -74,8 +74,12 @@ export default function LoginPage({ onLoginSuccess }) {
 
         {/* RIGHT PANEL */}
         <div className="lp-right">
-          <button className="lp-signup-btn">Sign Up</button>
-
+          <button 
+            className="lp-signup-btn"
+            onClick={() => alert("Go to your app to create an account. This button doesn't do or show anything. Thank you for understanding.")}
+          >
+            Sign Up
+          </button>
           <div className="lp-form">
             <div className="lp-form-title">Welcome Back</div>
             <div className="lp-form-sub">Please log in to continue</div>
@@ -109,7 +113,7 @@ export default function LoginPage({ onLoginSuccess }) {
 
             {/* Forgot */}
             <div className="lp-forgot">
-              <button onClick={() => alert('Contact your administrator to reset your password.')}>
+              <button onClick={() => alert('Contact your administrator of AUCA to reset your password. Thank you for understanding.')} className="lp-forgot-btn">
                 Forgot password?
               </button>
             </div>
