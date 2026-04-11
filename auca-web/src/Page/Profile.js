@@ -283,7 +283,7 @@ function EditProfileModal({ profile, isStaff, onClose, onSaved }) {
             <div style={{
               width: '88px', height: '88px', borderRadius: '50%',
               border: '4px solid var(--surface)',
-              background: avatarPreview ? 'transparent' : 'linear-gradient(135deg, #0d3b8e, #f0a500)',
+              background: avatarPreview ? 'transparent' : '#0d3b8e',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               color: '#fff', fontWeight: 900, fontSize: '28px',
               overflow: 'hidden', boxShadow: '0 4px 14px rgba(0,0,0,0.2)',
@@ -511,7 +511,7 @@ export default function Profile({ onNavigate }) {
       {/*  Profile card  */}
       <div style={{ background: 'var(--surface)', borderRadius: '16px', overflow: 'hidden', border: '1px solid var(--border)', marginBottom: '16px', boxShadow: 'var(--shadow)' }}>
         {/* Cover */}
-        <div style={{ height: '110px', background: 'linear-gradient(135deg, #0d3b8e 0%, #1a4fa8 50%, #f0a500 100%)', position: 'relative' }}>
+        <div style={{ height: '110px',background: '#0d3b8e', position: 'relative' }}>
           {resolveImageUrl(profile?.CoverUrl) && (
             <img src={resolveImageUrl(profile.CoverUrl)} alt="cover" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
           )}

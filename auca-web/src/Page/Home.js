@@ -6,7 +6,7 @@ import { io } from 'socket.io-client';
 const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000';
 const TABS = ['All', 'Announcements', 'Posts'];
 
-//  Emoji name character map (mirrors the app's emojiData) 
+//  Emoji name → character map (mirrors the app's emojiData) 
 const EMOJI_NAME_MAP = {
   love: '❤️', happy: '😄', laugh: '😂', thumbs_up: '👍',
   skull: '💀', angry: '😡', sad: '😢',
@@ -61,7 +61,8 @@ function getCurrentUser() {
     const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
     const rawUrl = p.ProfileUrl || '';
     const avatarUrl = rawUrl.startsWith('https://') ? rawUrl : null;
-    return { name, initials, avatarUrl };
+    const isStaff = localStorage.getItem('isStaff') === 'true';
+    return { name, initials, avatarUrl, isStaff };
   } catch {
     return { name: 'User', initials: 'U', avatarUrl: null };
   }
@@ -74,7 +75,7 @@ function resolveImageUrl(url) {
   return null;
 }
 
-// Parse backend ReactionTypes (JSON string or array) { emoji: count }
+// Parse backend ReactionTypes (JSON string or array) → { emoji: count }
 function parseReactions(raw) {
   if (!raw) return {};
   try {
@@ -341,7 +342,7 @@ export default function Home({ onNavigate }) {
         }),
       );
     });
-
+   
     socket.on('comment_added', ({ postId, newCommentCount }) => {
       setPosts(prev =>
         prev.map(post =>
@@ -384,7 +385,8 @@ export default function Home({ onNavigate }) {
         <h2 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--text-primary)' }}>Home</h2>
       </div>
 
-      {/* Quick-create bar */}
+      {/* Quick-create bar — staff only */}
+      {currentUser.isStaff && (
       <div style={{
         background: 'var(--surface)', borderRadius: '14px', padding: '14px 16px',
         marginBottom: '16px', border: '1px solid var(--border)',
@@ -392,7 +394,7 @@ export default function Home({ onNavigate }) {
       }}>
         <div style={{
           width: '40px', height: '40px', borderRadius: '50%', flexShrink: 0, overflow: 'hidden',
-          background: currentUser.avatarUrl ? 'transparent' : 'linear-gradient(135deg, #0d3b8e, #f0a500)',
+          background: currentUser.avatarUrl ? 'transparent' : '#0d3b8e',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           color: '#fff', fontWeight: 800, fontSize: '14px',
         }}>
@@ -412,6 +414,7 @@ export default function Home({ onNavigate }) {
           }}
         />
       </div>
+      )}
 
       {/* Tabs */}
       <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', borderBottom: '1px solid var(--border)' }}>

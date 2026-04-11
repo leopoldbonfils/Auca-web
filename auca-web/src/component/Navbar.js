@@ -14,12 +14,12 @@ import { MdOutlinePersonAddAlt } from 'react-icons/md';
 let aucaLogo;
 try { aucaLogo = require('../assets/auca_logoo.png'); } catch (e) { aucaLogo = null; }
 
-//  Nav items
-const NAV_ITEMS = [
+//  All nav items Create is filtered out for students at render time
+const NAV_ITEMS_ALL = [
   { id: 'home', label: 'Home', icon: <GoHome size={30} />, iconActive: <GoHomeFill size={30} /> },
   { id: 'search', label: 'Search', icon: <RiSearchLine size={30} />, iconActive: <RiSearchFill size={30} /> },
-  { id: 'create', label: 'Create',  icon: <FiPlusCircle size={30} />, iconActive: <FiPlusCircle size={30} /> },
-  { id: 'profile', label: 'Profile', icon: <RiUser3Line size={30} />,  iconActive: <RiUser3Fill size={30} /> },
+  { id: 'create', label: 'Create', staffOnly: true, icon: <FiPlusCircle size={30} />, iconActive: <FiPlusCircle size={30} /> },
+  { id: 'profile', label: 'Profile', icon: <RiUser3Line size={30} />, iconActive: <RiUser3Fill size={30} /> },
 ];
 
 const SLIM_W = 72;
@@ -164,7 +164,7 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange, o
 
       {/*  Nav items */}
       <div style={{ flex: 1, width: '100%', padding: '14px 0', overflowY: 'auto', overflowX: 'hidden' }}>
-        {NAV_ITEMS.map(item => {
+        {NAV_ITEMS_ALL.filter(item => !item.staffOnly || userInfo.role !== 'Student').map(item => {
           const isActive = activePage === item.id;
           return (
             <button key={item.id}
@@ -234,7 +234,7 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange, o
             {/* real profile image if available, else initials */}
             <div style={{
               width: '30px', height: '30px', borderRadius: '50%', flexShrink: 0,
-              background: userInfo.avatarUrl ? 'transparent' : 'linear-gradient(135deg, #0d3b8e, #f0a500)',
+              background: userInfo.avatarUrl ? 'transparent' : '#0d3b8e',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               color: '#fff', fontWeight: 800, fontSize: '10px', overflow: 'hidden',
               border: showAccount ? '2px solid var(--primary)' : '2px solid transparent',
