@@ -106,8 +106,8 @@ export default function LoginPage({ onLoginSuccess }) {
                 onChange={e => { setPassword(e.target.value); setError(''); }}
                 onKeyDown={onKey}
               />
-              <button className="lp-field-icon-right" onClick={() => setShowPass(v => !v)} tabIndex={-1}>
-                {showPass ? <HiOutlineEye size={18} /> : <HiOutlineEyeOff size={18} />}
+              <button className="lp-field-icon-right" onClick={() => setShowPass(v => !v)} tabIndex={-1} type="button">
+                {showPass ? <HiOutlineEyeOff size={18} /> : <HiOutlineEye size={18} />}
               </button>
             </div>
 
