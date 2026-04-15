@@ -27,7 +27,13 @@ function renderPage(page, onNavigate, onPostCreated, selectedPost) {
 }
 
 export default function App() {
-  const [auth, setAuth] = useState(null); 
+  const [auth, setAuth] = useState(() => {
+    const accessToken = localStorage.getItem('accessToken');
+    if (!accessToken) return null;
+    const isStaff = localStorage.getItem('isStaff') === 'true';
+    const profile = JSON.parse(localStorage.getItem('userProfile') || 'null');
+    return { accessToken, profile, isStaff };
+  });
   const [currentPage, setCurrentPage]  = useState('home');
   const [selectedPost, setSelectedPost] = useState(null);
   const [theme, setTheme] = useState(() => localStorage.getItem('auca-theme') || 'light');
@@ -46,6 +52,7 @@ export default function App() {
       setCurrentPage(target);
     }
   };
+  
 
   const handlePostCreated = () => setCurrentPage('home');
 
