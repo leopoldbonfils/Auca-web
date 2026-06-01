@@ -5,3 +5,5 @@ A university intranet and social platform for **Adventist University of Central 
 ---
 
 ## 📁 Project Structure
+
+Implement Aucasa dashboard
