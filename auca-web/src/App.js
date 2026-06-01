@@ -7,6 +7,7 @@ import CreatePost from './Page/CreatePost';
 import Profile from './Page/Profile';
 import Comment from './Page/Comment';
 import LoginPage from './Page/LoginPage';
+import AUCASADashboard from './Page/AUCASADashboard';
 
 //  Page renderer 
 function renderPage(page, onNavigate, onPostCreated, selectedPost) {
@@ -21,6 +22,8 @@ function renderPage(page, onNavigate, onPostCreated, selectedPost) {
       return <Profile onNavigate={onNavigate} />;
     case 'comments': 
       return <Comment post={selectedPost} onBack={() => onNavigate('home')} />;
+    case 'aucasa':
+      return <AUCASADashboard />;
     default:         
       return <Home onNavigate={onNavigate} />;
   }
@@ -28,13 +31,11 @@ function renderPage(page, onNavigate, onPostCreated, selectedPost) {
 
 export default function App() {
   const [auth, setAuth] = useState(() => {
-    const accessToken = localStorage.getItem('accessToken');
-    if (!accessToken) return null;
-    const isStaff = localStorage.getItem('isStaff') === 'true';
-    const profile = JSON.parse(localStorage.getItem('userProfile') || 'null');
-    return { accessToken, profile, isStaff };
+    // TEMPORARY MOCK FOR DEMONSTRATION
+    return { accessToken: 'mock-token', profile: { Role: 'AUCASA', name: 'Mock AUCASA User' }, isStaff: false };
   });
-  const [currentPage, setCurrentPage]  = useState('home');
+  const [currentPage, setCurrentPage]  = useState('aucasa');
+  const [navExpanded, setNavExpanded] = useState(false);
   const [selectedPost, setSelectedPost] = useState(null);
   const [theme, setTheme] = useState(() => localStorage.getItem('auca-theme') || 'light');
 
@@ -72,6 +73,11 @@ export default function App() {
           localStorage.setItem('isStaff', String(isStaff));
           if (profile) localStorage.setItem('userProfile', JSON.stringify(profile));
           setAuth({ accessToken, profile, isStaff });
+          if (profile && (profile.Role === 'AUCASA' || profile.role === 'AUCASA' || profile.department === 'AUCASA' || profile.Role === 'Minister' || profile.role === 'Minister')) {
+            setCurrentPage('aucasa');
+          } else {
+            setCurrentPage('home');
+          }
         }}
       />
     );
@@ -86,9 +92,10 @@ export default function App() {
         theme={theme}
         onThemeChange={setTheme}
         onLogout={handleLogout}
+        onExpandedChange={setNavExpanded}
       />
       <main style={{
-        marginLeft: '72px',
+        marginLeft: navExpanded ? '240px' : '72px',
         flex: 1,
         padding: '24px 16px',
         background: 'var(--bg)',

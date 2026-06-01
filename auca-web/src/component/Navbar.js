@@ -97,7 +97,7 @@ function PopupRow({ iconBg, iconColor, icon, label, sublabel, right, onClick, da
 }
 
 //  Navbar
-export default function Navbar({ activePage, onNavigate, theme, onThemeChange, onLogout }) {
+export default function Navbar({ activePage, onNavigate, theme, onThemeChange, onLogout, onExpandedChange }) {
   const [expanded, setExpanded] = useState(false);
   const [showMore, setShowMore] = useState(false);
   const [showAccount, setShowAccount] = useState(false);
@@ -141,8 +141,8 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange, o
   return (
     <nav
       ref={navRef}
-      onMouseEnter={() => setExpanded(true)}
-      onMouseLeave={() => { setExpanded(false); setShowMore(false); setShowAccount(false); }}
+      onMouseEnter={() => { setExpanded(true); onExpandedChange && onExpandedChange(true); }}
+      onMouseLeave={() => { setExpanded(false); setShowMore(false); setShowAccount(false); onExpandedChange && onExpandedChange(false); }}
       style={{
         position: 'fixed', top: 0, left: 0, height: '100vh',
         width: `${expanded ? EXPANDED_W : SLIM_W}px`,
