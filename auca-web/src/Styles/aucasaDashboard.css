@@ -118,31 +118,15 @@
   align-items: center;
 }
 
-.aucasa-status-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.status-red { background: var(--danger); box-shadow: 0 0 8px rgba(229, 57, 53, 0.4); }
-.status-amber { background: var(--accent); box-shadow: 0 0 8px rgba(240, 165, 0, 0.4); }
-.status-green { background: #10b981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.4); }
-.status-gray { background: var(--text-muted); }
-
-.aucasa-card-status-label {
-  font-size: 12px;
+.aucasa-card-tag {
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  color: var(--primary);
+  background: var(--primary-pale);
+  padding: 4px 8px;
+  border-radius: 4px;
 }
-
-.aucasa-card-status-label.red { color: var(--danger); }
-.aucasa-card-status-label.amber { color: var(--accent); }
-.aucasa-card-status-label.green { color: #10b981; }
-.aucasa-card-status-label.gray { color: var(--text-muted); }
 
 .aucasa-card-time {
   font-size: 12px;
@@ -278,13 +262,26 @@
 .aucasa-badge.public { background: #d1fae5; color: #059669; }
 .aucasa-badge.private { background: #ede9fe; color: #6d28d9; }
 
-.aucasa-concern-stats {
+.aucasa-claim-stats {
+  display: flex;
+  gap: 16px;
+  margin-top: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.aucasa-claim-stat {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   font-size: 13px;
-  font-weight: 600;
   color: var(--text-secondary);
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.aucasa-claim-stat:hover {
+  color: var(--primary);
 }
 
 .aucasa-concern-text {
