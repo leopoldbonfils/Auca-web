@@ -6,12 +6,12 @@ import '../Styles/claimDetails.css';
 // Mock data for claims related to the post
 const generateMockClaims = (postId) => {
   return [
-    { id: 1, text: 'This policy is very unclear. When does the new semester fee actually apply?', student: 'Jane Doe', date: 'Oct 24, 2023 09:15 AM', status: 'Pending', isPrivate: false },
-    { id: 2, text: 'I cannot afford the 5% adjustment. Are there any financial aid options available?', student: 'Anonymous', date: 'Oct 24, 2023 11:30 AM', status: 'Reviewed', isPrivate: true },
-    { id: 3, text: 'The breakdown of the laboratory fee was not provided in the announcement.', student: 'John Smith', date: 'Oct 25, 2023 02:45 PM', status: 'Pending', isPrivate: false },
-    { id: 4, text: 'Will this affect scholarships? Please clarify as soon as possible.', student: 'Sarah Connor', date: 'Oct 26, 2023 08:20 AM', status: 'Pending', isPrivate: false },
-    { id: 5, text: 'Private claim regarding personal financial situation related to the fee increase.', student: 'Anonymous', date: 'Oct 26, 2023 10:10 AM', status: 'Reviewed', isPrivate: true },
-    { id: 6, text: 'I think the university should host a town hall to discuss these changes.', student: 'Michael Chang', date: 'Oct 27, 2023 01:15 PM', status: 'Pending', isPrivate: false },
+    { id: 1, text: 'This policy is very unclear. When does the new semester fee actually apply?', student: 'MUGISHA Leopold • 26636', date: 'Oct 24, 2023 09:15 AM', status: 'Pending', isPrivate: false },
+    { id: 2, text: 'I cannot afford the 5% adjustment. Are there any financial aid options available?', student: 'BISUBIZO DANNY • 26637', date: 'Oct 24, 2023 11:30 AM', status: 'Reviewed', isPrivate: true },
+    { id: 3, text: 'The breakdown of the laboratory fee was not provided in the announcement.', student: 'IRABA OLIVE • 26638', date: 'Oct 25, 2023 02:45 PM', status: 'Pending', isPrivate: false },
+    { id: 4, text: 'Will this affect scholarships? Please clarify as soon as possible.', student: 'UWINEZA Alice • 26639', date: 'Oct 26, 2023 08:20 AM', status: 'Pending', isPrivate: false },
+    { id: 5, text: 'Private claim regarding personal financial situation related to the fee increase.', student: 'Anonymous • 26640', date: 'Oct 26, 2023 10:10 AM', status: 'Reviewed', isPrivate: true },
+    { id: 6, text: 'I think the university should host a town hall to discuss these changes.', student: 'KAGABO Peter • 26641', date: 'Oct 27, 2023 01:15 PM', status: 'Pending', isPrivate: false },
   ];
 };
 
