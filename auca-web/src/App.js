@@ -8,6 +8,7 @@ import Profile from './Page/Profile';
 import Comment from './Page/Comment';
 import LoginPage from './Page/LoginPage';
 import AUCASADashboard from './Page/AUCASADashboard';
+import ClaimDetails from './Page/ClaimDetails';
 
 //  Page renderer 
 function renderPage(page, onNavigate, onPostCreated, selectedPost) {
@@ -23,7 +24,9 @@ function renderPage(page, onNavigate, onPostCreated, selectedPost) {
     case 'comments': 
       return <Comment post={selectedPost} onBack={() => onNavigate('home')} />;
     case 'aucasa':
-      return <AUCASADashboard />;
+      return <AUCASADashboard onNavigate={onNavigate} />;
+    case 'claimDetails':
+      return <ClaimDetails post={selectedPost} onBack={() => onNavigate('aucasa')} />;
     default:         
       return <Home onNavigate={onNavigate} />;
   }
@@ -46,9 +49,13 @@ export default function App() {
 
   //  Navigate handler (string or { page, post }) 
   const handleNavigate = (target) => {
-    if (target && typeof target === 'object' && target.page === 'comments') {
-      setSelectedPost(target.post || null);
-      setCurrentPage('comments');
+    if (target && typeof target === 'object') {
+      if (target.page === 'comments' || target.page === 'claimDetails') {
+        setSelectedPost(target.post || null);
+        setCurrentPage(target.page);
+      } else {
+        setCurrentPage(target.page);
+      }
     } else {
       setCurrentPage(target);
     }

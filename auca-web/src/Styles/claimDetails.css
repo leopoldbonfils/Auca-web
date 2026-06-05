@@ -1,0 +1,420 @@
+/* src/Styles/claimDetails.css */
+
+.claim-details-layout {
+  display: flex;
+  height: calc(100vh - 120px); /* Adjust based on your header/padding */
+  background: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
+
+/* LEFT PANEL */
+.cd-left-panel {
+  flex: 0 0 35%;
+  border-right: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  background: #f8fafc;
+}
+
+.cd-header {
+  padding: 20px;
+  border-bottom: 1px solid #e2e8f0;
+  background: #fff;
+}
+
+.cd-back-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  color: #64748b;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 12px;
+  padding: 0;
+  transition: color 0.2s;
+}
+
+.cd-back-btn:hover {
+  color: #0f172a;
+}
+
+.cd-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #0f172a;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cd-filters {
+  padding: 16px 20px;
+  background: #fff;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.cd-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f1f5f9;
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.cd-search input {
+  border: none;
+  background: transparent;
+  width: 100%;
+  outline: none;
+  font-size: 0.9rem;
+  color: #334155;
+}
+
+.cd-status-tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.cd-tab {
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  color: #64748b;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cd-tab.active {
+  background: #0f172a;
+  color: #fff;
+  border-color: #0f172a;
+}
+
+.cd-claims-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.cd-claim-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cd-claim-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.cd-claim-card.selected {
+  border-color: #3b82f6;
+  background: #eff6ff;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+}
+
+.cd-claim-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.cd-claim-student {
+  font-weight: 600;
+  color: #0f172a;
+  font-size: 0.95rem;
+}
+
+.cd-status-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.cd-status-badge.pending {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.cd-status-badge.reviewed {
+  background: #dcfce3;
+  color: #166534;
+}
+
+.cd-claim-preview {
+  color: #475569;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  margin: 0 0 10px 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cd-claim-date {
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+.cd-empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+
+/* RIGHT PANEL */
+.cd-right-panel {
+  flex: 0 0 65%;
+  position: relative; /* For absolute positioning of FAB and Bottom Sheet */
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+.cd-detail-content {
+  padding: 40px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.cd-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.cd-detail-meta h3 {
+  margin: 0 0 8px 0;
+  font-size: 1.5rem;
+  color: #0f172a;
+}
+
+.cd-detail-date {
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+.cd-detail-badges {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.cd-detail-body {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: #334155;
+  margin-bottom: 40px;
+}
+
+.cd-detail-actions {
+  display: flex;
+  gap: 16px;
+}
+
+.cd-btn-primary {
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.cd-btn-primary:hover {
+  background: #2563eb;
+}
+
+.cd-btn-outline {
+  background: transparent;
+  color: #64748b;
+  border: 1px solid #cbd5e1;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+/* FLOATING ACTION BUTTON (FAB) */
+.cd-fab {
+  position: absolute;
+  bottom: 30px;
+  right: 30px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: white;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4);
+  cursor: pointer;
+  z-index: 10;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s;
+}
+
+.cd-fab:hover {
+  transform: scale(1.1) translateY(-5px);
+  box-shadow: 0 15px 30px rgba(37, 99, 235, 0.5);
+}
+
+.cd-fab:active {
+  transform: scale(0.95);
+}
+
+/* SLIDE-UP SUMMARY PANEL (Bottom Sheet) */
+.cd-summary-panel {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 65%;
+  background: #fff;
+  border-radius: 24px 24px 0 0;
+  box-shadow: 0 -10px 40px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  z-index: 20;
+  transform: translateY(100%); /* Hidden by default */
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cd-summary-panel.open {
+  transform: translateY(0);
+}
+
+.cd-summary-header {
+  padding: 20px 30px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cd-summary-header h3 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 1.2rem;
+}
+
+.cd-close-btn {
+  background: #f1f5f9;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.cd-close-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.cd-summary-body {
+  flex: 1;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+}
+
+.cd-summary-body textarea {
+  flex: 1;
+  width: 100%;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  font-size: 1rem;
+  color: #334155;
+  resize: none;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.cd-summary-body textarea:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.cd-summary-footer {
+  padding: 20px 30px;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Optional overlay for right panel */
+.cd-summary-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(15, 23, 42, 0.3);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+  z-index: 15;
+}
+
+.cd-summary-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* RESPONSIVE DESIGN */
+@media (max-width: 900px) {
+  .claim-details-layout {
+    flex-direction: column;
+    height: auto;
+    min-height: calc(100vh - 80px);
+  }
+  
+  .cd-left-panel {
+    flex: none;
+    height: 400px; /* Fixed height for scrollable area on mobile */
+    border-right: none;
+    border-bottom: 2px solid #e2e8f0;
+  }
+  
+  .cd-right-panel {
+    flex: 1;
+    min-height: 500px;
+  }
+}

@@ -46,7 +46,7 @@ const MOCK_CLAIMS = {
   ]
 };
 
-export default function AUCASADashboard() {
+export default function AUCASADashboard({ onNavigate }) {
   const navigate = useNavigate();
   const [selectedPost, setSelectedPost] = useState(MOCK_POSTS[0]);
   const [activeTab, setActiveTab] = useState('All Claims'); // 'All Claims', 'Public Claims', 'Private Claims'
@@ -164,7 +164,7 @@ export default function AUCASADashboard() {
                 </div>
 
                 <div className="aucasa-concern-actions" style={{ marginTop: '12px' }}>
-                  <button className="aucasa-btn primary" onClick={() => navigate(`/claims/post/${selectedPost.id}`)}>
+                  <button className="aucasa-btn primary" onClick={() => onNavigate({ page: 'claimDetails', post: selectedPost })}>
                     <HiOutlineDocumentReport size={16} /> View Claims
                   </button>
                   <button className="aucasa-btn outline">Mark Reviewed</button>
