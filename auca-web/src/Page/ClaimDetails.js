@@ -20,13 +20,29 @@ export default function ClaimDetails({ post, onBack }) {
   const [selectedClaim, setSelectedClaim] = useState(claims[0]);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
+  const [visibilityFilter, setVisibilityFilter] = useState('All');
   const [isSummaryOpen, setIsSummaryOpen] = useState(false);
   const [summaryText, setSummaryText] = useState('');
+  const [showFilters, setShowFilters] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  const handleScroll = (e) => {
+    const currentScrollY = e.target.scrollTop;
+    if (currentScrollY > lastScrollY && currentScrollY > 20) {
+      setShowFilters(false);
+    } else if (currentScrollY < lastScrollY) {
+      setShowFilters(true);
+    }
+    setLastScrollY(currentScrollY);
+  };
 
   const filteredClaims = claims.filter(c => {
     const matchesSearch = c.text.toLowerCase().includes(searchQuery.toLowerCase()) || c.student.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === 'All' || c.status === statusFilter;
-    return matchesSearch && matchesStatus;
+    const matchesVisibility = visibilityFilter === 'All' || 
+                              (visibilityFilter === 'Private' && c.isPrivate) || 
+                              (visibilityFilter === 'Public' && !c.isPrivate);
+    return matchesSearch && matchesStatus && matchesVisibility;
   });
 
   const handleMarkReviewed = (claimId) => {
@@ -48,7 +64,7 @@ export default function ClaimDetails({ post, onBack }) {
         </div>
 
         <div className="cd-filters">
-          <div className="cd-search">
+          <div className="cd-search" style={{ marginBottom: '12px' }}>
             <HiOutlineSearch size={18} />
             <input 
               type="text" 
@@ -57,20 +73,33 @@ export default function ClaimDetails({ post, onBack }) {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <div className="cd-status-tabs">
-            {['All', 'Pending', 'Reviewed'].map(tab => (
-              <button 
-                key={tab}
-                className={`cd-tab ${statusFilter === tab ? 'active' : ''}`}
-                onClick={() => setStatusFilter(tab)}
-              >
-                {tab}
-              </button>
-            ))}
+          <div className={`cd-filter-tabs-wrapper ${!showFilters ? 'hidden' : ''}`}>
+            <div className="cd-status-tabs" style={{ marginBottom: '12px' }}>
+              {['Public', 'Private'].map(tab => (
+                <button 
+                  key={tab}
+                  className={`cd-tab ${visibilityFilter === tab ? 'active' : ''}`}
+                  onClick={() => setVisibilityFilter(visibilityFilter === tab ? 'All' : tab)}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+            <div className="cd-status-tabs">
+              {['All', 'Pending', 'Reviewed'].map(tab => (
+                <button 
+                  key={tab}
+                  className={`cd-tab ${statusFilter === tab ? 'active' : ''}`}
+                  onClick={() => setStatusFilter(tab)}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
-        <div className="cd-claims-list">
+        <div className="cd-claims-list" onScroll={handleScroll}>
           {filteredClaims.length > 0 ? filteredClaims.map(claim => (
             <div 
               key={claim.id} 

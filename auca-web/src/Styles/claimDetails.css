@@ -2,7 +2,7 @@
 
 .claim-details-layout {
   display: flex;
-  height: calc(100vh - 120px);
+  height: calc(100vh - 60px);
   background: var(--surface);
   border-radius: 12px;
   overflow: hidden;
@@ -79,8 +79,22 @@
   color: var(--text-primary);
 }
 
+.cd-filter-tabs-wrapper {
+  transition: all 0.3s ease-in-out;
+  overflow: hidden;
+  max-height: 200px; /* arbitrary height to allow animation */
+  opacity: 1;
+}
+
+.cd-filter-tabs-wrapper.hidden {
+  max-height: 0;
+  opacity: 0;
+  margin-top: 0;
+}
+
 .cd-status-tabs {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
