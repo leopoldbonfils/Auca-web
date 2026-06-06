@@ -49,14 +49,14 @@ const MOCK_CLAIMS = {
 export default function AUCASADashboard({ onNavigate }) {
   const navigate = useNavigate();
   const [selectedPost, setSelectedPost] = useState(MOCK_POSTS[0]);
-  const [activeTab, setActiveTab] = useState('All Claims'); // 'All Claims', 'Public Claims', 'Private Claims'
+  const [activeTab, setActiveTab] = useState('All Categories');
 
   const claims = MOCK_CLAIMS[selectedPost?.id] || [];
+  const categories = ['All Categories'];
 
   const filteredClaims = claims.filter(c => {
-    if (activeTab === 'Public Claims') return !c.isPrivate;
-    if (activeTab === 'Private Claims') return c.isPrivate;
-    return true;
+    if (activeTab === 'All Categories') return true;
+    return c.category === activeTab;
   });
 
   return (
@@ -98,7 +98,10 @@ export default function AUCASADashboard({ onNavigate }) {
             <div 
               key={post.id} 
               className={`aucasa-card ${selectedPost?.id === post.id ? 'selected' : ''}`}
-              onClick={() => setSelectedPost(post)}
+              onClick={() => {
+                setSelectedPost(post);
+                setActiveTab('All Categories');
+              }}
             >
               <div className="aucasa-card-top">
                 <div className="aucasa-card-tag">
@@ -121,7 +124,7 @@ export default function AUCASADashboard({ onNavigate }) {
         {/* RIGHT PANEL */}
         <div className="aucasa-panel">
           <div className="aucasa-panel-tabs">
-            {['All Claims', 'Public Claims', 'Private Claims'].map(tab => (
+            {categories.map(tab => (
               <button 
                 key={tab}
                 className={`aucasa-panel-tab ${activeTab === tab ? 'active' : ''}`}
@@ -134,33 +137,20 @@ export default function AUCASADashboard({ onNavigate }) {
 
           <div className="aucasa-panel-content">
             <div className="aucasa-panel-header">
-              <span>Viewing {activeTab.toLowerCase()}</span>
+              <span>Viewing {activeTab === 'All Categories' ? 'all categories' : activeTab}</span>
             </div>
             
             {filteredClaims.length > 0 ? filteredClaims.map(c => (
               <div key={c.id} className={`aucasa-concern ${c.isPrivate ? 'private' : ''}`}>
                 <div className="aucasa-concern-top">
                   <div className="aucasa-badges">
-                    {c.isPrivate ? (
-                      <span className="aucasa-badge private"><MdLockOutline style={{ marginRight: 2 }} /> PRIVATE</span>
-                    ) : (
-                      <span className="aucasa-badge public"><MdOutlinePublic style={{ marginRight: 2 }} /> PUBLIC</span>
-                    )}
+                    <span className="aucasa-badge category">{c.category}</span>
                   </div>
                 </div>
-                <p className="aucasa-concern-text">{c.text}</p>
                 
-                <div className="aucasa-claim-stats">
-                  <div className="aucasa-claim-stat">
-                    <HiOutlineChatAlt2 size={18} />
-                    <span>{c.commentCount}</span>
-                  </div>
-                  <div className="aucasa-claim-stat">
-                    <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                    </svg>
-                    <span>{c.supportCount}</span>
-                  </div>
+                <div className="aucasa-progress-container" title={`${c.supportCount} students supporting`}>
+                  <div className="aucasa-progress-fill" style={{ width: `${Math.min(100, Math.round((c.supportCount / 150) * 100))}%` }}></div>
+                  <div className="aucasa-progress-text">{Math.min(100, Math.round((c.supportCount / 150) * 100))}%</div>
                 </div>
 
                 <div className="aucasa-concern-actions" style={{ marginTop: '12px' }}>
