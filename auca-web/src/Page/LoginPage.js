@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { HiOutlineUser, HiOutlineLockClosed } from 'react-icons/hi';
 import { HiOutlineEye, HiOutlineEyeOff }      from 'react-icons/hi';
-import { HiOutlineUserGroup } from 'react-icons/hi';
+import { HiOutlineUserGroup, HiOutlineBadgeCheck } from 'react-icons/hi';
 import { MdArrowForward } from 'react-icons/md';
 import '../Styles/login.css';
 
@@ -13,6 +13,7 @@ const API = process.env.REACT_APP_API_URL || 'http://localhost:3000';
 
 export default function LoginPage({ onLoginSuccess }) {
   const [isStaff, setIsStaff]  = useState(false);
+  const [isAucasa, setIsAucasa] = useState(false);
   const [id, setId] = useState('');
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
@@ -25,7 +26,7 @@ export default function LoginPage({ onLoginSuccess }) {
     setLoading(true);
     // Send as number if it's all digits, otherwise send as string (email)
     const IdValue = /^\d+$/.test(id.trim()) ? Number(id.trim()) : id.trim();
-    const payload = { Id: IdValue, Password: password, isStaff };
+    const payload = { Id: IdValue, Password: password, isStaff, isAucasa };
     try {
       const res = await fetch(`${API}/login`, {
         method: 'POST',
@@ -37,11 +38,12 @@ export default function LoginPage({ onLoginSuccess }) {
       localStorage.setItem('accessToken', data.accessToken);
       localStorage.setItem('refreshToken', data.refreshToken);
       localStorage.setItem('isStaff', String(isStaff));
+      localStorage.setItem('isAucasa', String(isAucasa));
       const profile = isStaff
         ? (data.staffProfile?.[0] ?? data.staffProfile)
         : (data.studentProfile?.[0] ?? data.studentProfile);
       if (profile) localStorage.setItem('userProfile', JSON.stringify(profile));
-      onLoginSuccess({ accessToken: data.accessToken, profile, isStaff });
+      onLoginSuccess({ accessToken: data.accessToken, profile, isStaff, isAucasa });
     } catch {
       setError('Network error. Check your connection and try again.');
     } finally {
@@ -119,13 +121,24 @@ export default function LoginPage({ onLoginSuccess }) {
             </div>
 
             {/* Staff toggle */}
-            <div className={`lp-staff${isStaff ? ' active' : ''}`} onClick={() => setIsStaff(v => !v)}>
+            <div className={`lp-staff${isStaff ? ' active' : ''}`} onClick={() => { setIsStaff(!isStaff); setIsAucasa(false); }}>
               <HiOutlineUserGroup size={22} color={isStaff ? '#f0a500' : '#8090a0'} style={{ flexShrink: 0 }} />
               <span style={{ flex: 1, fontSize: '14px', fontWeight: 600, color: isStaff ? '#1a1a2e' : '#8090a0', lineHeight: 1.4 }}>
                 Tap here if you are a lecturer or a staff member.
               </span>
               <div className={`lp-radio${isStaff ? ' on' : ''}`}>
                 {isStaff && <div className="lp-radio-dot" />}
+              </div>
+            </div>
+
+            {/* Aucasa toggle */}
+            <div className={`lp-staff${isAucasa ? ' active' : ''}`} onClick={() => { setIsAucasa(!isAucasa); setIsStaff(false); }}>
+              <HiOutlineBadgeCheck size={22} color={isAucasa ? '#f0a500' : '#8090a0'} style={{ flexShrink: 0 }} />
+              <span style={{ flex: 1, fontSize: '14px', fontWeight: 600, color: isAucasa ? '#1a1a2e' : '#8090a0', lineHeight: 1.4 }}>
+                Tap here if you are an Aucasa member.
+              </span>
+              <div className={`lp-radio${isAucasa ? ' on' : ''}`}>
+                {isAucasa && <div className="lp-radio-dot" />}
               </div>
             </div>
 
