@@ -71,6 +71,12 @@ export const api = {
       body: JSON.stringify(body),
     }),
 
+  put: (endpoint, body) =>
+    apiFetch(endpoint, {
+      method: 'PUT',
+      body: JSON.stringify(body),
+    }),
+
   delete: (endpoint, body) =>
     apiFetch(endpoint, {
       method: 'DELETE',

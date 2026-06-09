@@ -1,64 +1,90 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../Styles/aucasaDashboard.css';
 import { HiOutlineChatAlt2, HiOutlineDocumentReport } from 'react-icons/hi';
-import { MdOutlinePublic, MdLockOutline } from 'react-icons/md';
+import api from '../utils/api';
 
-const MOCK_POSTS = [
-  {
-    id: 1,
-    title: 'Tuition Fee Increase - Semester 2',
-    description: 'Administrative notice regarding the 5% adjustment in laboratory and facility fees for upcoming engineering students.',
-    time: '2 hours ago',
-    claimsCount: 24,
-    category: 'Finance'
-  },
-  {
-    id: 2,
-    title: 'Campus Internet Infrastructure Upgrade',
-    description: 'Updates on the fiber optic rollout across the south wing dormitories and central library.',
-    time: 'Yesterday',
-    claimsCount: 12,
-    category: 'IT Infrastructure'
-  },
-  {
-    id: 3,
-    title: 'Graduation Gown Rental Policy',
-    description: 'Revised timeline for gown collection and security deposit refunds for the Class of 2024.',
-    time: '3 days ago',
-    claimsCount: 8,
-    category: 'Policy'
-  },
-  {
-    id: 4,
-    title: 'New Library Extended Hours',
-    description: 'The main library will now remain open until midnight during the mid-semester examination period.',
-    time: '1 week ago',
-    claimsCount: 3,
-    category: 'Campus Life'
-  }
-].sort((a, b) => b.claimsCount - a.claimsCount);
-
-const MOCK_CLAIMS = {
-  1: [
-    { id: 101, category: 'Finance', text: 'Claim regarding the lack of transparency in the breakdown of lab equipment maintenance fees for IT students.', isPrivate: true, supportCount: 142, commentCount: 45 },
-    { id: 102, category: 'Policy', text: 'Inquiry about student discount eligibility for international certification exams coordinated by the university.', isPrivate: false, supportCount: 89, commentCount: 12 },
-  ]
-};
+// ─── helpers ──────────────────────────────────────────────────────────────────
+/** Convert a UTC timestamp string to a human-readable relative label */
+function relativeTime(isoString) {
+  if (!isoString) return '';
+  const diff = Math.floor((Date.now() - new Date(isoString).getTime()) / 1000);
+  if (diff < 60)   return 'Just now';
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+  if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
+  return new Date(isoString).toLocaleDateString();
+}
 
 export default function AUCASADashboard({ onNavigate }) {
   const navigate = useNavigate();
-  const [selectedPost, setSelectedPost] = useState(MOCK_POSTS[0]);
-  const [activeTab, setActiveTab] = useState('All Categories');
 
-  const claims = MOCK_CLAIMS[selectedPost?.id] || [];
-  const categories = ['All Categories'];
+  // ── state ──────────────────────────────────────────────────────────────────
+  const [posts,        setPosts]        = useState([]);
+  const [metrics,      setMetrics]      = useState({ activePosts: 0, activePostClaims: 0, unreviewedClaims: 0 });
+  const [selectedPost, setSelectedPost] = useState(null);
+  const [postClaims,   setPostClaims]   = useState([]);
+  const [activeTab,    setActiveTab]    = useState('All');
+  const [loadingPosts,  setLoadingPosts]  = useState(true);
+  const [loadingClaims, setLoadingClaims] = useState(false);
+  const [error,        setError]        = useState('');
 
-  const filteredClaims = claims.filter(c => {
-    if (activeTab === 'All Categories') return true;
-    return c.category === activeTab;
+  // ── fetch top-level metrics (summary card values) ──────────────────────────
+  useEffect(() => {
+    api.get('/home/posts/claims/management/summary')
+      .then(data => setMetrics(data))
+      .catch(err  => console.error('Metrics fetch error:', err));
+  }, []);
+
+  // ── fetch posts that have claims (left feed) ───────────────────────────────
+  useEffect(() => {
+    setLoadingPosts(true);
+    api.get('/home/posts/claims/management/postsWithClaims')
+      .then(data => {
+        const list = data.posts || [];
+        setPosts(list);
+        if (list.length > 0) setSelectedPost(list[0]);
+      })
+      .catch(err => {
+        console.error('Posts fetch error:', err);
+        setError('Failed to load posts. Please try again.');
+      })
+      .finally(() => setLoadingPosts(false));
+  }, []);
+
+  // ── fetch claims for the selected post (right panel) ──────────────────────
+  useEffect(() => {
+    if (!selectedPost) return;
+    setLoadingClaims(true);
+    setPostClaims([]);
+    api.get(`/home/posts/claims/management/post/${selectedPost.Id}/claims`)
+      .then(data => setPostClaims(data.claims || []))
+      .catch(err  => console.error('Claims fetch error:', err))
+      .finally(() => setLoadingClaims(false));
+  }, [selectedPost]);
+
+  // ── derive unique category tabs from the loaded claims ────────────────────
+  const categories = ['All', ...new Set(postClaims.map(c => c.Category).filter(Boolean))];
+
+  const filteredClaims = postClaims.filter(c => {
+    if (activeTab === 'All') return true;
+    return c.Category === activeTab;
   });
 
+  // ── mark a single claim as reviewed ──────────────────────────────────────
+  const handleMarkReviewed = async (claimId) => {
+    try {
+      await api.put('/home/posts/claims/management/review', { ClaimIds: [claimId] });
+      // Update local state so the UI reflects the change instantly
+      setPostClaims(prev =>
+        prev.map(c => c.ClaimId === claimId ? { ...c, ClaimStatus: 'reviewed' } : c)
+      );
+    } catch (err) {
+      console.error('Mark reviewed error:', err);
+    }
+  };
+
+  // ── render ─────────────────────────────────────────────────────────────────
   return (
     <div className="aucasa-dashboard">
       <div className="aucasa-header">
@@ -66,66 +92,66 @@ export default function AUCASADashboard({ onNavigate }) {
         <p className="aucasa-subtitle">Minister of Communication Dashboard</p>
       </div>
 
+      {/* METRICS */}
       <div className="aucasa-metrics">
         <div className="aucasa-metric-card">
           <span className="aucasa-metric-title">Total Posts</span>
-          <span className="aucasa-metric-value">48</span>
+          <span className="aucasa-metric-value">{metrics.activePosts}</span>
         </div>
         <div className="aucasa-metric-card">
           <span className="aucasa-metric-title">Total Claims</span>
-          <span className="aucasa-metric-value">312</span>
+          <span className="aucasa-metric-value">{metrics.activePostClaims}</span>
         </div>
         <div className="aucasa-metric-card" style={{ borderColor: 'var(--danger)' }}>
           <span className="aucasa-metric-title" style={{ color: 'var(--danger)' }}>Unreviewed Claims</span>
-          <span className="aucasa-metric-value">14</span>
-        </div>
-        <div className="aucasa-metric-card">
-          <span className="aucasa-metric-title">Escalated Reports</span>
-          <span className="aucasa-metric-value">8</span>
+          <span className="aucasa-metric-value">{metrics.unreviewedClaims}</span>
         </div>
       </div>
 
+      {error && <div className="aucasa-error">{error}</div>}
+
       <div className="aucasa-content">
-        
-        {/* LEFT FEED */}
+
+        {/* LEFT FEED — posts with claims */}
         <div className="aucasa-feed">
           <div className="aucasa-feed-header">
             <h2 className="aucasa-feed-title">Posts With Claims</h2>
-            <button className="aucasa-btn outline" style={{ padding: '6px 12px', fontSize: '12px' }}>ALL TRACKS</button>
           </div>
-          
-          {MOCK_POSTS.map(post => (
-            <div 
-              key={post.id} 
-              className={`aucasa-card ${selectedPost?.id === post.id ? 'selected' : ''}`}
-              onClick={() => {
-                setSelectedPost(post);
-                setActiveTab('All Categories');
-              }}
-            >
-              <div className="aucasa-card-top">
-                <div className="aucasa-card-tag">
-                  {post.category}
+
+          {loadingPosts ? (
+            <div className="aucasa-empty">Loading posts…</div>
+          ) : posts.length === 0 ? (
+            <div className="aucasa-empty">No posts with claims found.</div>
+          ) : (
+            posts.map(post => (
+              <div
+                key={post.Id}
+                className={`aucasa-card ${selectedPost?.Id === post.Id ? 'selected' : ''}`}
+                onClick={() => { setSelectedPost(post); setActiveTab('All'); }}
+              >
+                <div className="aucasa-card-top">
+                  <span className="aucasa-card-time">{relativeTime(post.Timestamp)}</span>
                 </div>
-                <span className="aucasa-card-time">{post.time}</span>
-              </div>
-              <h3 className="aucasa-card-title">{post.title}</h3>
-              <p className="aucasa-card-body">{post.description}</p>
-              <div className="aucasa-card-bottom">
-                <div className="aucasa-card-concerns">
-                  <HiOutlineChatAlt2 size={16} />
-                  {post.claimsCount} Claims
+                <h3 className="aucasa-card-title">{post.Title}</h3>
+                <p className="aucasa-card-body">{post.Description}</p>
+                <div className="aucasa-card-bottom">
+                  <div className="aucasa-card-concerns">
+                    <HiOutlineChatAlt2 size={16} />
+                    {post.claimsCount} Claims
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
 
-        {/* RIGHT PANEL */}
+        {/* RIGHT PANEL — claims for selected post */}
         <div className="aucasa-panel">
+
+          {/* Category tabs — built from real data */}
           <div className="aucasa-panel-tabs">
             {categories.map(tab => (
-              <button 
+              <button
                 key={tab}
                 className={`aucasa-panel-tab ${activeTab === tab ? 'active' : ''}`}
                 onClick={() => setActiveTab(tab)}
@@ -137,31 +163,62 @@ export default function AUCASADashboard({ onNavigate }) {
 
           <div className="aucasa-panel-content">
             <div className="aucasa-panel-header">
-              <span>Viewing {activeTab === 'All Categories' ? 'all categories' : activeTab}</span>
+              <span>Viewing {activeTab === 'All' ? 'all categories' : activeTab}</span>
             </div>
-            
-            {filteredClaims.length > 0 ? filteredClaims.map(c => (
-              <div key={c.id} className={`aucasa-concern ${c.isPrivate ? 'private' : ''}`}>
-                <div className="aucasa-concern-top">
-                  <div className="aucasa-badges">
-                    <span className="aucasa-badge category">{c.category}</span>
+
+            {loadingClaims ? (
+              <div className="aucasa-empty">Loading claims…</div>
+            ) : filteredClaims.length > 0 ? (
+              filteredClaims.map(c => (
+                <div
+                  key={c.ClaimId}
+                  className={`aucasa-concern ${c.VisibilityStatus === 'private' ? 'private' : ''}`}
+                >
+                  <div className="aucasa-concern-top">
+                    <div className="aucasa-badges">
+                      <span className="aucasa-badge category">{c.Category}</span>
+                      <span className={`aucasa-badge ${c.ClaimStatus === 'reviewed' ? 'reviewed' : 'pending'}`}>
+                        {c.ClaimStatus === 'reviewed' ? 'Reviewed' : 'Pending'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Support progress bar — max baseline 150 */}
+                  <div
+                    className="aucasa-progress-container"
+                    title={`${c.NumberOfSupports} students supporting`}
+                  >
+                    <div
+                      className="aucasa-progress-fill"
+                      style={{ width: `${Math.min(100, Math.round((c.NumberOfSupports / 150) * 100))}%` }}
+                    />
+                    <div className="aucasa-progress-text">
+                      {Math.min(100, Math.round((c.NumberOfSupports / 150) * 100))}%
+                    </div>
+                  </div>
+
+                  <div className="aucasa-concern-actions" style={{ marginTop: '12px' }}>
+                    <button
+                      className="aucasa-btn primary"
+                      onClick={() => onNavigate({ page: 'claimDetails', post: selectedPost })}
+                    >
+                      <HiOutlineDocumentReport size={16} /> View Claims
+                    </button>
+                    {c.ClaimStatus !== 'reviewed' && (
+                      <button
+                        className="aucasa-btn outline"
+                        onClick={() => handleMarkReviewed(c.ClaimId)}
+                      >
+                        Mark Reviewed
+                      </button>
+                    )}
                   </div>
                 </div>
-                
-                <div className="aucasa-progress-container" title={`${c.supportCount} students supporting`}>
-                  <div className="aucasa-progress-fill" style={{ width: `${Math.min(100, Math.round((c.supportCount / 150) * 100))}%` }}></div>
-                  <div className="aucasa-progress-text">{Math.min(100, Math.round((c.supportCount / 150) * 100))}%</div>
-                </div>
-
-                <div className="aucasa-concern-actions" style={{ marginTop: '12px' }}>
-                  <button className="aucasa-btn primary" onClick={() => onNavigate({ page: 'claimDetails', post: selectedPost })}>
-                    <HiOutlineDocumentReport size={16} /> View Claims
-                  </button>
-                  <button className="aucasa-btn outline">Mark Reviewed</button>
-                </div>
+              ))
+            ) : (
+              <div className="aucasa-empty">
+                {selectedPost ? 'No claims to display for this filter.' : 'Select a post to view its claims.'}
               </div>
-            )) : (
-              <div className="aucasa-empty">No claims to display for this filter.</div>
             )}
           </div>
         </div>
