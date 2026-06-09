@@ -26,7 +26,12 @@ export default function LoginPage({ onLoginSuccess }) {
     setLoading(true);
     // Send as number if it's all digits, otherwise send as string (email)
     const IdValue = /^\d+$/.test(id.trim()) ? Number(id.trim()) : id.trim();
-    const payload = { Id: IdValue, Password: password, isStaff, isAucasa };
+    
+    let UserType = "student";
+    if (isStaff) UserType = "staff";
+    else if (isAucasa) UserType = "aucasa";
+
+    const payload = { Id: IdValue, Password: password, UserType, isStaff, isAucasa };
     try {
       const res = await fetch(`${API}/login`, {
         method: 'POST',
