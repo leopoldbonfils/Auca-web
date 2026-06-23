@@ -11,6 +11,16 @@ import LoginPage from './Page/LoginPage';
 import AUCASADashboard from './Page/AUCASADashboard';
 import ClaimDetails from './Page/ClaimDetails';
 
+// ============================================================================
+// 🚨 TEMPORARY DEVELOPMENT BYPASS CONFIGURATION
+// Set DEV_BYPASS_LOGIN to true to automatically log in as an AUCASA user.
+// Set to false for standard student/staff/AUCASA login flow.
+const DEV_BYPASS_LOGIN = true; 
+
+// Paste an active backend-signed token here if claims endpoints validate signatures.
+const DEV_BYPASS_TOKEN = "bypass-test-token-value";
+// ============================================================================
+
 // ── Route wrappers for pages that need a "post" object passed via nav state ─
 // This avoids modifying Comment.js or ClaimDetails.js internals.
 function CommentRoute() {
@@ -36,6 +46,31 @@ export default function App() {
 
   // ── Auth — read real values from localStorage (no more mock token) ────────
   const [auth, setAuth] = useState(() => {
+    if (DEV_BYPASS_LOGIN) {
+      const mockProfile = {
+        Id: 1001,
+        Fname: "AUCASA",
+        Lname: "Representative (Dev Bypass)",
+        Email: "aucasa.dev@auca.ac.rw",
+        Role: "aucasa",
+        aucasaUserRole: "Minister of Communication",
+        Department: "Communication",
+      };
+
+      // Seed localStorage so that Navbar and other sub-pages/components have access to it
+      localStorage.setItem('accessToken', DEV_BYPASS_TOKEN);
+      localStorage.setItem('isStaff', 'false');
+      localStorage.setItem('isAucasa', 'true');
+      localStorage.setItem('userProfile', JSON.stringify(mockProfile));
+
+      return {
+        accessToken: DEV_BYPASS_TOKEN,
+        profile: mockProfile,
+        isStaff: false,
+        isAucasa: true,
+      };
+    }
+
     const token   = localStorage.getItem('accessToken');
     const raw     = localStorage.getItem('userProfile');
     const profile = raw ? JSON.parse(raw) : null;
@@ -53,6 +88,15 @@ export default function App() {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('auca-theme', theme);
   }, [theme]);
+
+  // Redirect to AUCASA dashboard when bypass is active and we start at root/login
+  useEffect(() => {
+    if (DEV_BYPASS_LOGIN) {
+      if (location.pathname === '/' || location.pathname === '/login') {
+        navigate('/aucasa', { replace: true });
+      }
+    }
+  }, [navigate, location.pathname]);
 
   // ── Derive the active nav item from the real URL path ────────────────────
   const activePage = (() => {
