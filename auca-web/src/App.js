@@ -190,8 +190,15 @@ export default function App() {
           <Route path="/comments"     element={<CommentRoute />} />
           <Route path="/aucasa/claims" element={<ClaimDetailsRoute />} />
 
-          {/* AUCASA dashboard */}
-          <Route path="/aucasa" element={<AUCASADashboard onNavigate={handleNavigate} />} />
+          {/* AUCASA dashboard — AUCASA users only (redirects others to /home) */}
+          <Route
+            path="/aucasa"
+            element={
+              auth?.isAucasa
+                ? <AUCASADashboard onNavigate={handleNavigate} />
+                : <Navigate to="/home" replace />
+            }
+          />
 
           {/* Catch-all */}
           <Route path="*" element={<Navigate to="/home" replace />} />

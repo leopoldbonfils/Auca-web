@@ -90,7 +90,7 @@ function mapPost(post, myId) {
 }
 
 //  Edit Profile Modal — Twitter/X style 
-function EditProfileModal({ profile, isStaff, onClose, onSaved }) {
+function EditProfileModal({ profile, isStaff, isAucasa, onClose, onSaved }) {
   const [form, setForm] = useState({
     Fname: profile?.Fname || '',
     Lname: profile?.Lname || '',
@@ -132,7 +132,7 @@ function EditProfileModal({ profile, isStaff, onClose, onSaved }) {
     setSaving(true);
     setError('');
     try {
-      const endpoint = isStaff ? '/staff/profile' : '/student/profile';
+      const endpoint = isAucasa ? '/aucasa/profile' : isStaff ? '/staff/profile' : '/student/profile';
 
       // If photos were changed, use FormData; otherwise JSON PATCH
       if (avatarFile || coverFile) {
@@ -391,18 +391,39 @@ export default function Profile({ onNavigate }) {
   const [postsFetched, setPostsFetched] = useState(false);
   const [stats, setStats] = useState({ posts: '—', reactions: '—', comments: '—' });
 
-  const isStaff = localStorage.getItem('isStaff') === 'true';
+  const isStaff  = localStorage.getItem('isStaff')  === 'true';
+  const isAucasa = localStorage.getItem('isAucasa') === 'true';
 
   //  Load profile 
   useEffect(() => {
     async function loadProfile() {
       try {
         setLoading(true);
-        const endpoint = isStaff ? '/staff/profile' : '/student/profile';
-        const data = await api.get(endpoint);
-        setProfile(data);
-        const existing = JSON.parse(localStorage.getItem('userProfile') || '{}');
-        localStorage.setItem('userProfile', JSON.stringify({ ...existing, ...data }));
+
+        if (isAucasa) {
+          // AUCASA: profile is seeded into localStorage at login / dev bypass.
+          // Try a dedicated endpoint first; if it fails, fall back to localStorage.
+          try {
+            const data = await api.get('/aucasa/profile');
+            setProfile(data);
+            const existing = JSON.parse(localStorage.getItem('userProfile') || '{}');
+            localStorage.setItem('userProfile', JSON.stringify({ ...existing, ...data }));
+          } catch {
+            // No dedicated endpoint yet — use what's already in localStorage
+            const cached = JSON.parse(localStorage.getItem('userProfile') || '{}');
+            if (Object.keys(cached).length > 0) {
+              setProfile(cached);
+            } else {
+              setError('Could not load AUCASA profile.');
+            }
+          }
+        } else {
+          const endpoint = isStaff ? '/staff/profile' : '/student/profile';
+          const data = await api.get(endpoint);
+          setProfile(data);
+          const existing = JSON.parse(localStorage.getItem('userProfile') || '{}');
+          localStorage.setItem('userProfile', JSON.stringify({ ...existing, ...data }));
+        }
       } catch (err) {
         setError(err.message);
       } finally {
@@ -410,7 +431,7 @@ export default function Profile({ onNavigate }) {
       }
     }
     loadProfile();
-  }, [isStaff]);
+  }, [isStaff, isAucasa]);
 
   //  Load posts + stats 
   const loadMyPosts = useCallback(async () => {
@@ -503,6 +524,7 @@ export default function Profile({ onNavigate }) {
         <EditProfileModal
           profile={profile}
           isStaff={isStaff}
+          isAucasa={isAucasa}
           onClose={() => setShowEdit(false)}
           onSaved={handleProfileSaved}
         />
@@ -615,12 +637,16 @@ export default function Profile({ onNavigate }) {
       {activeTab === 'About' && (
         <div style={{ background: 'var(--surface)', borderRadius: '14px', padding: '20px', border: '1px solid var(--border)', boxShadow: 'var(--shadow)', marginBottom: '40px' }}>
           {[
-            { label: 'Full Name', value: fullName },
-            { label: 'Role', value: role },
-            { label: 'Department', value: department },
-            { label: 'Email', value: email },
-            { label: 'Phone', value: profile?.Phone ? `+250 ${profile.Phone}` : '—' },
-            { label: 'Faculty', value: profile?.StudFaculty || profile?.Faculty || '—' },
+            { label: 'Full Name',   value: fullName },
+            { label: 'Role',        value: role },
+            { label: 'Department',  value: department },
+            { label: 'Email',       value: email },
+            { label: 'Phone',       value: profile?.Phone ? `+250 ${profile.Phone}` : '—' },
+            { label: 'Faculty',     value: profile?.StudFaculty || profile?.Faculty || '—' },
+            // AUCASA-specific field
+            ...(isAucasa && profile?.aucasaUserRole
+              ? [{ label: 'AUCASA Role', value: profile.aucasaUserRole }]
+              : []),
           ].map((item, i, arr) => (
             <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: i < arr.length - 1 ? '1px solid var(--border)' : 'none' }}>
               <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: 600 }}>{item.label}</span>

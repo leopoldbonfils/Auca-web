@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import '../Styles/aucasaDashboard.css';
 import { HiOutlineChatAlt2, HiOutlineDocumentReport } from 'react-icons/hi';
 import api from '../utils/api';
+import PostCard from '../component/PostCard';
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 /** Convert a UTC timestamp string to a human-readable relative label */
@@ -19,7 +20,10 @@ function relativeTime(isoString) {
 export default function AUCASADashboard({ onNavigate }) {
   const navigate = useNavigate();
 
-  // ── state ──────────────────────────────────────────────────────────────────
+  // ── dashboard tab: 'claims' | 'feed' ─────────────────────────────────────
+  const [dashTab, setDashTab] = useState('claims');
+
+  // ── state (claims management) ──────────────────────────────────────────────
   const [posts,        setPosts]        = useState([]);
   const [metrics,      setMetrics]      = useState({ activePosts: 0, activePostClaims: 0, unreviewedClaims: 0 });
   const [selectedPost, setSelectedPost] = useState(null);
@@ -28,6 +32,12 @@ export default function AUCASADashboard({ onNavigate }) {
   const [loadingPosts,  setLoadingPosts]  = useState(true);
   const [loadingClaims, setLoadingClaims] = useState(false);
   const [error,        setError]        = useState('');
+
+  // ── state (post feed) ────────────────────────────────────────────────────
+  const [feedPosts,       setFeedPosts]       = useState([]);
+  const [feedLoading,     setFeedLoading]     = useState(false);
+  const [feedFetched,     setFeedFetched]     = useState(false);
+  const [feedError,       setFeedError]       = useState('');
 
   // ── fetch top-level metrics (summary card values) ──────────────────────────
   useEffect(() => {
@@ -71,7 +81,53 @@ export default function AUCASADashboard({ onNavigate }) {
     return c.Category === activeTab;
   });
 
-  // ── mark a single claim as reviewed ──────────────────────────────────────
+  // ── fetch post feed (read-only, mirrors Home.js logic) ───────────────────
+  useEffect(() => {
+    if (dashTab !== 'feed' || feedFetched) return;
+    setFeedLoading(true);
+    setFeedError('');
+    api.get('/home/posts')
+      .then(data => {
+        const list = Array.isArray(data) ? data : (data.posts || []);
+        // Map to the shape PostCard expects
+        const mapped = list.map(post => {
+          const p = JSON.parse(localStorage.getItem('userProfile') || '{}');
+          const myId = p?.Id || p?.StudentId;
+          const resolveUrl = (url) => url?.startsWith('https://') ? url : null;
+          return {
+            id: String(post.Id),
+            rawId: post.Id,
+            author: `${post.Fname || ''} ${post.Lname || ''}`.trim(),
+            role: post.Role || '',
+            department: post.Department || '',
+            timestamp: (() => {
+              const d = new Date(post.Timestamp);
+              const diff = Math.floor((Date.now() - d.getTime()) / 1000);
+              if (diff < 60) return 'Just now';
+              if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+              if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+              return d.toLocaleDateString();
+            })(),
+            content: post.Description || '',
+            image: resolveUrl(post.FullUrl) || resolveUrl(post.ThumbnailUrl),
+            thumbnailUrl: resolveUrl(post.ThumbnailUrl),
+            avatarUrl: resolveUrl(post.ProfileUrl),
+            type: 'post',
+            commentCount: post.PostComments || 0,
+            reactionCount: post.PostReactions || 0,
+            reactions: {},
+            // AUCASA can view all posts but cannot delete or create
+            isOwner: false,
+            _raw: post,
+          };
+        });
+        setFeedPosts(mapped);
+        setFeedFetched(true);
+      })
+      .catch(err => setFeedError(err.message || 'Failed to load posts.'))
+      .finally(() => setFeedLoading(false));
+  }, [dashTab, feedFetched]);
+
   const handleMarkReviewed = async (claimId) => {
     try {
       await api.put('/home/posts/claims/management/review', { ClaimIds: [claimId] });
@@ -92,6 +148,60 @@ export default function AUCASADashboard({ onNavigate }) {
         <p className="aucasa-subtitle">Minister of Communication Dashboard</p>
       </div>
 
+      {/* DASHBOARD TAB SWITCHER */}
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', borderBottom: '1px solid var(--border)' }}>
+        <button
+          onClick={() => setDashTab('claims')}
+          style={{
+            padding: '8px 18px', fontSize: '13px', fontWeight: dashTab === 'claims' ? 700 : 500,
+            color: dashTab === 'claims' ? 'var(--primary)' : 'var(--text-secondary)',
+            background: 'none', border: 'none',
+            borderBottom: dashTab === 'claims' ? '2px solid var(--primary)' : '2px solid transparent',
+            marginBottom: '-1px', cursor: 'pointer', fontFamily: "'Nunito', sans-serif",
+          }}
+        >
+          Claims Management
+        </button>
+        <button
+          onClick={() => setDashTab('feed')}
+          style={{
+            padding: '8px 18px', fontSize: '13px', fontWeight: dashTab === 'feed' ? 700 : 500,
+            color: dashTab === 'feed' ? 'var(--primary)' : 'var(--text-secondary)',
+            background: 'none', border: 'none',
+            borderBottom: dashTab === 'feed' ? '2px solid var(--primary)' : '2px solid transparent',
+            marginBottom: '-1px', cursor: 'pointer', fontFamily: "'Nunito', sans-serif",
+          }}
+        >
+          Post Feed
+        </button>
+      </div>
+
+      {/* POST FEED TAB */}
+      {dashTab === 'feed' && (
+        <div style={{ maxWidth: '680px' }}>
+          {feedLoading && (
+            <div className="aucasa-empty">Loading posts…</div>
+          )}
+          {feedError && !feedLoading && (
+            <div className="aucasa-error">{feedError}</div>
+          )}
+          {!feedLoading && !feedError && feedPosts.length === 0 && (
+            <div className="aucasa-empty">No posts available.</div>
+          )}
+          {!feedLoading && feedPosts.map(post => (
+            <PostCard
+              key={post.id}
+              post={post}
+              // AUCASA can see comments but cannot delete or create posts
+              onComment={id => onNavigate && onNavigate({ page: 'comments', post: feedPosts.find(p => p.id === id) })}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* CLAIMS MANAGEMENT TAB */}
+      {dashTab === 'claims' && (
+        <>
       {/* METRICS */}
       <div className="aucasa-metrics">
         <div className="aucasa-metric-card">
@@ -224,6 +334,8 @@ export default function AUCASADashboard({ onNavigate }) {
         </div>
 
       </div>
+        </>
+      )}
     </div>
   );
 }

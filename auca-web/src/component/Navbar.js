@@ -4,7 +4,7 @@ import { RiSearchLine, RiSearchFill } from 'react-icons/ri';
 import { FiPlusCircle } from 'react-icons/fi';
 import { RiUser3Line, RiUser3Fill } from 'react-icons/ri';
 import { CiCircleMore } from 'react-icons/ci';
-import { HiOutlineSun } from 'react-icons/hi';
+import { HiOutlineSun, HiOutlineDocumentReport, HiDocumentReport } from 'react-icons/hi';
 import { BsMoonStars } from 'react-icons/bs';
 import { RiLogoutBoxLine } from 'react-icons/ri';
 import { RiSettings3Line } from 'react-icons/ri';
@@ -14,26 +14,31 @@ import { MdOutlinePersonAddAlt } from 'react-icons/md';
 let aucaLogo;
 try { aucaLogo = require('../assets/auca_logoo.png'); } catch (e) { aucaLogo = null; }
 
-//  All nav items Create is filtered out for students at render time
+//  All nav items:
+//  - staffOnly: true  → hidden from plain Students; visible to Staff AND AUCASA
+//  - aucasaOnly: true → only visible to AUCASA users
 const NAV_ITEMS_ALL = [
-  { id: 'home', label: 'Home', icon: <GoHome size={30} />, iconActive: <GoHomeFill size={30} /> },
-  { id: 'search', label: 'Search', icon: <RiSearchLine size={30} />, iconActive: <RiSearchFill size={30} /> },
-  { id: 'create', label: 'Create', staffOnly: true, icon: <FiPlusCircle size={30} />, iconActive: <FiPlusCircle size={30} /> },
-  { id: 'profile', label: 'Profile', icon: <RiUser3Line size={30} />, iconActive: <RiUser3Fill size={30} /> },
+  { id: 'home',    label: 'Home',    icon: <GoHome size={30} />,                  iconActive: <GoHomeFill size={30} /> },
+  { id: 'search',  label: 'Search',  icon: <RiSearchLine size={30} />,            iconActive: <RiSearchFill size={30} /> },
+  { id: 'create',  label: 'Create',  staffOnly: true,  icon: <FiPlusCircle size={30} />,          iconActive: <FiPlusCircle size={30} /> },
+  { id: 'profile', label: 'Profile', icon: <RiUser3Line size={30} />,             iconActive: <RiUser3Fill size={30} /> },
+  // 🚩 AUCASA-only — Claims Management link
+  { id: 'aucasa',  label: 'Claims',  aucasaOnly: true, icon: <HiOutlineDocumentReport size={30} />, iconActive: <HiDocumentReport size={30} /> },
 ];
 
 const SLIM_W = 72;
 const EXPANDED_W = 240;
 
-// Read real user info from localStorage 
+// Read real user info from localStorage
 function getUserInfo() {
   try {
-    const raw = localStorage.getItem('userProfile');
-    const profile = raw ? JSON.parse(raw) : {};
-    const isStaff = localStorage.getItem('isStaff') === 'true';
+    const raw      = localStorage.getItem('userProfile');
+    const profile  = raw ? JSON.parse(raw) : {};
+    const isStaff  = localStorage.getItem('isStaff')  === 'true';
+    const isAucasa = localStorage.getItem('isAucasa') === 'true';
 
-    const fname = profile.Fname || '';
-    const lname = profile.Lname || '';
+    const fname    = profile.Fname || '';
+    const lname    = profile.Lname || '';
     const fullName = `${fname} ${lname}`.trim() || 'User';
 
     // Initials from real name
@@ -44,16 +49,16 @@ function getUserInfo() {
       .slice(0, 2)
       .toUpperCase();
 
-    // Role label
-    const role = profile.Role || (isStaff ? 'Staff' : 'Student');
+    // Role label — prefer the profile field, then derive from flags
+    const role = profile.Role || (isAucasa ? 'AUCASA' : isStaff ? 'Staff' : 'Student');
 
     // Profile image URL — only use https:// URLs (Cloudinary), not localhost
     const rawUrl    = profile.ProfileUrl || '';
     const avatarUrl = rawUrl.startsWith('https://') ? rawUrl : null;
 
-    return { fullName, initials, role, avatarUrl };
+    return { fullName, initials, role, avatarUrl, isStaff, isAucasa };
   } catch {
-    return { fullName: 'User', initials: 'U', role: '', avatarUrl: null };
+    return { fullName: 'User', initials: 'U', role: '', avatarUrl: null, isStaff: false, isAucasa: false };
   }
 }
 
@@ -164,7 +169,14 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange, o
 
       {/*  Nav items */}
       <div style={{ flex: 1, width: '100%', padding: '14px 0', overflowY: 'auto', overflowX: 'hidden' }}>
-        {NAV_ITEMS_ALL.filter(item => !item.staffOnly || userInfo.role !== 'Student').map(item => {
+        {NAV_ITEMS_ALL.filter(item => {
+          // staffOnly items: hidden from plain Students only.
+          // Staff AND AUCASA users both get Create.
+          if (item.staffOnly  && !userInfo.isStaff && !userInfo.isAucasa) return false;
+          // aucasaOnly items: only visible to AUCASA users
+          if (item.aucasaOnly && !userInfo.isAucasa) return false;
+          return true;
+        }).map(item => {
           const isActive = activePage === item.id;
           return (
             <button key={item.id}
