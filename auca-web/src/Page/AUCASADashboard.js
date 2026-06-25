@@ -48,18 +48,24 @@ export default function AUCASADashboard({ onNavigate }) {
 
   // ── fetch posts that have claims (left feed) ───────────────────────────────
   useEffect(() => {
-    setLoadingPosts(true);
-    api.get('/home/posts/claims/management/postsWithClaims')
-      .then(data => {
-        const list = data.posts || [];
-        setPosts(list);
-        if (list.length > 0) setSelectedPost(list[0]);
-      })
-      .catch(err => {
-        console.error('Posts fetch error:', err);
-        setError('Failed to load posts. Please try again.');
-      })
-      .finally(() => setLoadingPosts(false));
+    const fetchPosts = () => {
+      setLoadingPosts(true);
+      api.get('/home/posts/claims/management/postsWithClaims')
+        .then(data => {
+          const list = data.posts || [];
+          setPosts(list);
+          if (list.length > 0) setSelectedPost(prev => prev ?? list[0]);
+        })
+        .catch(err => {
+          console.error('Posts fetch error:', err);
+          setError('Failed to load posts. Please try again.');
+        })
+        .finally(() => setLoadingPosts(false));
+    };
+
+    fetchPosts();                                  // initial load
+    const interval = setInterval(fetchPosts, 30000); // W-3: refresh every 30 s
+    return () => clearInterval(interval);          // cleanup on unmount
   }, []);
 
   // ── fetch claims for the selected post (right panel) ──────────────────────
@@ -74,11 +80,12 @@ export default function AUCASADashboard({ onNavigate }) {
   }, [selectedPost]);
 
   // ── derive unique category tabs from the loaded claims ────────────────────
-  const categories = ['All', ...new Set(postClaims.map(c => c.Category).filter(Boolean))];
+  // W-2: API returns "CategoryName" — was incorrectly reading "Category"
+  const categories = ['All', ...new Set(postClaims.map(c => c.CategoryName).filter(Boolean))];
 
   const filteredClaims = postClaims.filter(c => {
     if (activeTab === 'All') return true;
-    return c.Category === activeTab;
+    return c.CategoryName === activeTab;
   });
 
   // ── fetch post feed (read-only, mirrors Home.js logic) ───────────────────
@@ -286,7 +293,8 @@ export default function AUCASADashboard({ onNavigate }) {
                 >
                   <div className="aucasa-concern-top">
                     <div className="aucasa-badges">
-                      <span className="aucasa-badge category">{c.Category}</span>
+                      {/* W-2: API field is CategoryName, not Category */}
+                      <span className="aucasa-badge category">{c.CategoryName}</span>
                       <span className={`aucasa-badge ${c.ClaimStatus === 'reviewed' ? 'reviewed' : 'pending'}`}>
                         {c.ClaimStatus === 'reviewed' ? 'Reviewed' : 'Pending'}
                       </span>
