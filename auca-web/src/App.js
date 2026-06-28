@@ -15,7 +15,7 @@ import ClaimDetails from './Page/ClaimDetails';
 // 🚨 TEMPORARY DEVELOPMENT BYPASS CONFIGURATION
 // Set DEV_BYPASS_LOGIN to true to automatically log in as an AUCASA user.
 // Set to false for standard student/staff/AUCASA login flow.
-const DEV_BYPASS_LOGIN = true; 
+const DEV_BYPASS_LOGIN = false; 
 
 // Paste an active backend-signed token here if claims endpoints validate signatures.
 const DEV_BYPASS_TOKEN = "bypass-test-token-value";
