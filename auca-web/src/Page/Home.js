@@ -6,10 +6,12 @@ import { io } from 'socket.io-client';
 const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000';
 const TABS = ['All', 'Announcements', 'Posts'];
 
-//  Emoji name → character map (mirrors the app's emojiData) 
+//  Emoji name → character map (mirrors the mobile app's academic emojiData) 
 const EMOJI_NAME_MAP = {
-  love: '❤️', happy: '😄', laugh: '😂', thumbs_up: '👍',
-  skull: '💀', angry: '😡', sad: '😢',
+  helpful:           '👍',
+  understood:        '✅',
+  important:         '📌',
+  need_clarification:'❓',
 };
 
 //  Feature 5: relative timestamp (mirrors app's formatTimeFromUTC) 
@@ -61,10 +63,13 @@ function getCurrentUser() {
     const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
     const rawUrl = p.ProfileUrl || '';
     const avatarUrl = rawUrl.startsWith('https://') ? rawUrl : null;
-    const isStaff = localStorage.getItem('isStaff') === 'true';
-    return { name, initials, avatarUrl, isStaff };
+    const isStaff  = localStorage.getItem('isStaff')  === 'true';
+    const isAucasa = localStorage.getItem('isAucasa') === 'true';
+    // A user can see the claim/concerns button if they are not staff (student or AUCASA role)
+    const isStudent = !isStaff;
+    return { name, initials, avatarUrl, isStaff, isStudent };
   } catch {
-    return { name: 'User', initials: 'U', avatarUrl: null };
+    return { name: 'User', initials: 'U', avatarUrl: null, isStaff: false, isStudent: false };
   }
 }
 
@@ -467,6 +472,7 @@ export default function Home({ onNavigate }) {
             post={post}
             onDelete={handleDelete}
             onComment={id => onNavigate({ page: 'comments', post: posts.find(p => p.id === id) })}
+            isStudent={currentUser.isStudent}
           />
         ))}
 

@@ -49,8 +49,10 @@ function formatUserName(fullName) {
 }
 
 const EMOJI_NAME_MAP = {
-  love: '❤️', happy: '😄', laugh: '😂', thumbs_up: '👍',
-  skull: '💀', angry: '😡', sad: '😢',
+  helpful:            '👍',
+  understood:         '✅',
+  important:          '📌',
+  need_clarification: '❓',
 };
 
 function parseReactions(raw) {
@@ -610,8 +612,7 @@ export default function Profile({ onNavigate }) {
             </div>
           )}
           {!postsLoading && filteredPosts.map(post => (
-            <PostCard key={post.id} post={post} onDelete={handleDelete}
-              onComment={id => onNavigate && onNavigate({ page: 'comments', post: posts.find(p => p.id === id) })} />
+            <PostCard key={post.id} post={post} onDelete={handleDelete} isStudent={!isStaff} />
           ))}
         </div>
       )}
@@ -627,8 +628,7 @@ export default function Profile({ onNavigate }) {
             </div>
           )}
           {!postsLoading && filteredPosts.map(post => (
-            <PostCard key={post.id} post={post} onDelete={handleDelete}
-              onComment={id => onNavigate && onNavigate({ page: 'comments', post: posts.find(p => p.id === id) })} />
+            <PostCard key={post.id} post={post} onDelete={handleDelete} isStudent={!isStaff} />
           ))}
         </div>
       )}

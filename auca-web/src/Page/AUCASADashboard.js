@@ -199,8 +199,7 @@ export default function AUCASADashboard({ onNavigate }) {
             <PostCard
               key={post.id}
               post={post}
-              // AUCASA can see comments but cannot delete or create posts
-              onComment={id => onNavigate && onNavigate({ page: 'comments', post: feedPosts.find(p => p.id === id) })}
+              isStudent={localStorage.getItem('isStaff') !== 'true'}
             />
           ))}
         </div>

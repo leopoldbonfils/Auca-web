@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MdOutlineAddReaction } from 'react-icons/md';
-import { FaRegCommentDots } from 'react-icons/fa';
+import { FaRegCommentDots, FaHandPaper } from 'react-icons/fa';
 import { FiTrash2 } from 'react-icons/fi';
 import { CiLocationArrow1 } from 'react-icons/ci';
 import { IoClose } from 'react-icons/io5';
@@ -24,26 +24,21 @@ import txtIcon from '../assets/txt.png';
 import wordIcon from '../assets/word.png';
 import api from '../utils/api';
 
-// Maps emoji character → backend reaction name (mirrors mobile's emojiData)
+// ── Academic Reactions (mirrors mobile app's emojiData) ─────────────────────
+// Maps emoji character → backend reaction name
 const EMOJI_TO_NAME = {
-  '❤️': 'love',
-  '😄': 'happy',
-  '😂': 'laugh',
-  '👍': 'thumbs_up',
-  '💀': 'skull',
-  '😡': 'angry',
-  '😢': 'sad',
+  '👍': 'helpful',
+  '✅': 'understood',
+  '📌': 'important',
+  '❓': 'need_clarification',
 };
 
-//  Reactions 
+// Academic reactions matching mobile app exactly
 const REACTIONS = [
-  { emoji: '❤️', label: 'Love' },
-  { emoji: '😄', label: 'Haha' },
-  { emoji: '😂', label: 'Laugh' },
-  { emoji: '👍', label: 'Like' },
-  { emoji: '💀', label: 'Dead' },
-  { emoji: '😡', label: 'Angry' },
-  { emoji: '😢', label: 'Sad' },
+  { emoji: '👍', label: 'Helpful',           color: 'rgba(24, 119, 242, 0.18)' },
+  { emoji: '✅', label: 'Understood',         color: 'rgba(34, 197, 94, 0.18)'  },
+  { emoji: '📌', label: 'Important',          color: 'rgba(245, 158, 11, 0.18)' },
+  { emoji: '❓', label: 'Need Clarification', color: 'rgba(168, 85, 247, 0.18)' },
 ];
 
 //  Share platforms 
@@ -113,7 +108,6 @@ function getFileName(url, fileType) {
 
 //  Image lightbox overlay 
 function ImageLightbox({ src, onClose }) {
-  // Close on Escape key
   useEffect(() => {
     const handler = (e) => { if (e.key === 'Escape') onClose(); };
     document.addEventListener('keydown', handler);
@@ -122,7 +116,6 @@ function ImageLightbox({ src, onClose }) {
 
   return (
     <>
-      {/* Backdrop */}
       <div
         onClick={onClose}
         style={{
@@ -134,7 +127,6 @@ function ImageLightbox({ src, onClose }) {
           cursor: 'pointer',
         }}
       >
-        {/* Image — stop propagation so clicking the image itself doesn't close */}
         <img
           src={src}
           alt="full size"
@@ -149,8 +141,6 @@ function ImageLightbox({ src, onClose }) {
             cursor: 'default',
           }}
         />
-
-        {/* Close button */}
         <button
           onClick={onClose}
           style={{
@@ -169,7 +159,6 @@ function ImageLightbox({ src, onClose }) {
           <IoClose size={22} />
         </button>
       </div>
-
       <style>{`
         @keyframes lbFadeIn { from { opacity: 0 } to { opacity: 1 } }
         @keyframes lbZoomIn { from { transform: scale(0.88); opacity: 0 } to { transform: scale(1); opacity: 1 } }
@@ -211,7 +200,6 @@ function FileCard({ fileUrl, fileType, fileSize, mimeType, fileName }) {
         e.currentTarget.style.borderColor = 'var(--border)';
       }}
     >
-      {/* PNG icon box */}
       <div style={{
         width: '52px', height: '52px', borderRadius: '10px',
         background: meta.bg, padding: '6px', flexShrink: 0,
@@ -219,8 +207,6 @@ function FileCard({ fileUrl, fileType, fileSize, mimeType, fileName }) {
       }}>
         <img src={meta.icon} alt={meta.label} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
       </div>
-
-      {/* Info */}
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {name}
@@ -229,8 +215,6 @@ function FileCard({ fileUrl, fileType, fileSize, mimeType, fileName }) {
           {[size, meta.label, 'Open'].filter(Boolean).join(' · ')}
         </div>
       </div>
-
-      {/* Open arrow */}
       {fileUrl && (
         <div style={{ color: 'var(--text-muted)', flexShrink: 0 }}>
           <MdOpenInNew size={20} />
@@ -248,62 +232,78 @@ function PdfCard({ fileUrl, thumbnailUrl, fileSize, fileName }) {
   const hasThumbnail = thumbnailUrl && !thumbBroken;
 
   const openFile = () => { if (fileUrl) window.open(fileUrl, '_blank'); };
-  const downloadFile = () => {
-    if (!fileUrl) return;
-    const a = document.createElement('a');
-    a.href = fileUrl;
-    a.download = name;
-    a.target = '_blank';
-    a.click();
-  };
 
   return (
-    <div style={{ margin: '10px 18px', borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border)', background: 'var(--surface-2)' }}>
-
-      {/* Blurred thumbnail preview */}
+    <div
+      onClick={openFile}
+      title="Click to open PDF"
+      style={{
+        margin: '10px 18px', borderRadius: '14px',
+        border: '1px solid var(--border)',
+        overflow: 'hidden', cursor: fileUrl ? 'pointer' : 'default',
+        background: 'var(--surface-2)',
+        transition: 'border-color 0.15s, box-shadow 0.15s',
+        display: 'flex', flexDirection: 'column',
+      }}
+      onMouseEnter={e => {
+        if (fileUrl) {
+          e.currentTarget.style.borderColor = '#e53935';
+          e.currentTarget.style.boxShadow   = '0 4px 16px rgba(229,57,53,0.15)';
+        }
+      }}
+      onMouseLeave={e => {
+        e.currentTarget.style.borderColor = 'var(--border)';
+        e.currentTarget.style.boxShadow   = 'none';
+      }}
+    >
       {hasThumbnail && (
-        <div style={{ position: 'relative', background: '#111', maxHeight: '200px', overflow: 'hidden' }}>
+        <div style={{ width: '100%', maxHeight: '240px', overflow: 'hidden', background: '#f5f5f5' }}>
           <img
             src={thumbnailUrl}
-            alt="pdf preview"
+            alt="PDF preview"
             onError={() => setThumbBroken(true)}
-            style={{ width: '100%', objectFit: 'cover', display: 'block', opacity: 0.85 }}
+            style={{ width: '100%', height: '240px', objectFit: 'cover', display: 'block' }}
           />
-          <div style={{ position: 'absolute', top: '10px', left: '10px', background: '#e53935', color: '#fff', fontWeight: 800, fontSize: '11px', padding: '3px 8px', borderRadius: '6px', letterSpacing: '0.5px' }}>PDF</div>
         </div>
       )}
-
-      {/* Bottom row: pdf.png icon + name + buttons */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px' }}>
-        <div style={{ width: '48px', height: '48px', borderRadius: '10px', background: '#ffeaea', padding: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '14px 16px' }}>
+        <div style={{
+          width: '52px', height: '52px', borderRadius: '10px',
+          background: '#ffeaea', padding: '6px', flexShrink: 0,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
           <img src={pdfIcon} alt="PDF" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
         </div>
-
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</div>
-          <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>{[size, 'PDF'].filter(Boolean).join(' · ')}</div>
+          <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {name}
+          </div>
+          <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '3px' }}>
+            {[size, 'PDF', 'Open'].filter(Boolean).join(' · ')}
+          </div>
         </div>
-
-        <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
-          {fileUrl && (
-            <button onClick={downloadFile}
-              style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '7px 12px', borderRadius: '8px', border: 'none', background: '#1565c0', color: '#fff', cursor: 'pointer', fontSize: '12px', fontWeight: 700, fontFamily: 'inherit', transition: 'background 0.15s' }}
-              onMouseEnter={e => e.currentTarget.style.background = '#0d47a1'}
-              onMouseLeave={e => e.currentTarget.style.background = '#1565c0'}
+        {fileUrl && (
+          <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
+            <button
+              onClick={e => { e.stopPropagation(); const a = document.createElement('a'); a.href = fileUrl; a.download = name; a.click(); }}
+              title="Download"
+              style={{ padding: '8px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s' }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'var(--surface-2)'; e.currentTarget.style.borderColor = 'var(--primary)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'var(--surface)'; e.currentTarget.style.borderColor = 'var(--border)'; }}
             >
-              <MdDownload size={16} /> Download
+              <MdDownload size={18} />
             </button>
-          )}
-          {fileUrl && (
-            <button onClick={openFile}
-              style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '7px 12px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '12px', fontWeight: 700, fontFamily: 'inherit', transition: 'all 0.15s' }}
+            <button
+              onClick={openFile}
+              title="Open"
+              style={{ padding: '8px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s' }}
               onMouseEnter={e => { e.currentTarget.style.background = 'var(--surface-2)'; e.currentTarget.style.borderColor = 'var(--primary)'; }}
               onMouseLeave={e => { e.currentTarget.style.background = 'var(--surface)'; e.currentTarget.style.borderColor = 'var(--border)'; }}
             >
               Open
             </button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -356,6 +356,327 @@ function ShareModal({ postUrl, onClose }) {
   );
 }
 
+// ── Claim / Concerns Modal (student only) ────────────────────────────────────
+function ClaimModal({ postId, onClose, onSuccess }) {
+  const [step, setStep] = useState('form'); // 'form' | 'submitting' | 'done' | 'error'
+  const [categories, setCategories] = useState([]);
+  const [loadingCats, setLoadingCats] = useState(true);
+
+  // form fields
+  const [selectedCategoryId, setSelectedCategoryId] = useState('');
+  const [newCategoryText, setNewCategoryText] = useState('');
+  const [claimText, setClaimText] = useState('');
+  const [visibility, setVisibility] = useState('public');
+  const [useNewCategory, setUseNewCategory] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+
+  const ref = useRef(null);
+
+  // Close on outside click or Escape
+  useEffect(() => {
+    const handler = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) onClose();
+    };
+    const keyHandler = (e) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('mousedown', handler);
+    document.addEventListener('keydown', keyHandler);
+    return () => {
+      document.removeEventListener('mousedown', handler);
+      document.removeEventListener('keydown', keyHandler);
+    };
+  }, [onClose]);
+
+  // Load existing categories for this post
+  useEffect(() => {
+    api.get(`/home/posts/claims/categories?PostId=${postId}`)
+      .then(data => {
+        setCategories(Array.isArray(data) ? data : []);
+        setLoadingCats(false);
+      })
+      .catch(() => {
+        setCategories([]);
+        setLoadingCats(false);
+      });
+  }, [postId]);
+
+  const handleSubmit = async () => {
+    setErrorMsg('');
+    if (!claimText.trim()) { setErrorMsg('Please describe your concern.'); return; }
+    if (!useNewCategory && !selectedCategoryId) { setErrorMsg('Please select a category or create a new one.'); return; }
+    if (useNewCategory && !newCategoryText.trim()) { setErrorMsg('Please enter a name for the new category.'); return; }
+    if (useNewCategory && newCategoryText.trim().length > 50) { setErrorMsg('Category name must be 50 characters or less.'); return; }
+
+    setStep('submitting');
+
+    const formData = new FormData();
+    formData.append('PostId', postId);
+    formData.append('ClaimText', claimText.trim());
+    formData.append('ClaimVisibility', visibility);
+    if (useNewCategory) {
+      formData.append('NewClaimCategoryText', newCategoryText.trim());
+    } else {
+      formData.append('ClaimCategoryId', selectedCategoryId);
+    }
+
+    try {
+      await api.post('/home/posts/claims/newClaim', formData);
+      setStep('done');
+      setTimeout(() => { onClose(); onSuccess && onSuccess(); }, 1800);
+    } catch (err) {
+      setErrorMsg(err.message || 'Failed to submit concern.');
+      setStep('form');
+    }
+  };
+
+  return (
+    <>
+      {/* Backdrop */}
+      <div style={{
+        position: 'fixed', inset: 0,
+        background: 'rgba(0,0,0,0.55)',
+        zIndex: 500,
+        animation: 'claimFadeIn 0.15s ease',
+      }} />
+
+      {/* Modal */}
+      <div ref={ref} style={{
+        position: 'fixed',
+        top: '50%', left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: '94%', maxWidth: '460px',
+        background: 'var(--surface)',
+        borderRadius: '18px',
+        zIndex: 501,
+        fontFamily: "'Nunito', sans-serif",
+        boxShadow: '0 24px 60px rgba(0,0,0,0.35)',
+        animation: 'claimSlideIn 0.22s ease',
+        overflow: 'hidden',
+      }}>
+
+        {/* Header */}
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '18px 20px 14px',
+          borderBottom: '1px solid var(--border)',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{
+              width: '34px', height: '34px', borderRadius: '10px',
+              background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <FaHandPaper size={16} color="#fff" />
+            </div>
+            <div>
+              <div style={{ fontSize: '16px', fontWeight: 800, color: 'var(--text-primary)' }}>Report Concerns</div>
+              <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '1px' }}>Submit a concern about this post</div>
+            </div>
+          </div>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '4px', borderRadius: '50%', display: 'flex', transition: 'all 0.15s' }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'var(--surface-2)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = 'var(--text-muted)'; }}
+          >
+            <IoClose size={20} />
+          </button>
+        </div>
+
+        {/* Body */}
+        <div style={{ padding: '18px 20px 20px' }}>
+
+          {step === 'done' && (
+            <div style={{ textAlign: 'center', padding: '20px 0' }}>
+              <div style={{ fontSize: '48px', marginBottom: '12px' }}>✅</div>
+              <div style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)' }}>Concern Submitted!</div>
+              <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '6px' }}>Your concern has been received.</div>
+            </div>
+          )}
+
+          {step === 'submitting' && (
+            <div style={{ textAlign: 'center', padding: '20px 0' }}>
+              <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: 600 }}>Submitting your concern…</div>
+            </div>
+          )}
+
+          {(step === 'form' || step === 'error') && (
+            <>
+              {/* Category section */}
+              <div style={{ marginBottom: '14px' }}>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  Category
+                </label>
+
+                {loadingCats ? (
+                  <div style={{ fontSize: '13px', color: 'var(--text-muted)', padding: '8px 0' }}>Loading categories…</div>
+                ) : (
+                  <>
+                    {/* Toggle: existing / new */}
+                    <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
+                      <button
+                        onClick={() => setUseNewCategory(false)}
+                        style={{
+                          flex: 1, padding: '7px', borderRadius: '8px', fontSize: '12px', fontWeight: 700,
+                          border: `1px solid ${!useNewCategory ? 'var(--primary)' : 'var(--border)'}`,
+                          background: !useNewCategory ? 'var(--primary-pale)' : 'var(--surface-2)',
+                          color: !useNewCategory ? 'var(--primary)' : 'var(--text-secondary)',
+                          cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s',
+                        }}
+                      >
+                        Existing Category
+                      </button>
+                      <button
+                        onClick={() => setUseNewCategory(true)}
+                        style={{
+                          flex: 1, padding: '7px', borderRadius: '8px', fontSize: '12px', fontWeight: 700,
+                          border: `1px solid ${useNewCategory ? 'var(--primary)' : 'var(--border)'}`,
+                          background: useNewCategory ? 'var(--primary-pale)' : 'var(--surface-2)',
+                          color: useNewCategory ? 'var(--primary)' : 'var(--text-secondary)',
+                          cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s',
+                        }}
+                      >
+                        + New Category
+                      </button>
+                    </div>
+
+                    {!useNewCategory && (
+                      <select
+                        value={selectedCategoryId}
+                        onChange={e => setSelectedCategoryId(e.target.value)}
+                        style={{
+                          width: '100%', padding: '10px 12px', borderRadius: '10px',
+                          border: '1px solid var(--border)', background: 'var(--surface-2)',
+                          color: 'var(--text-primary)', fontSize: '13px',
+                          fontFamily: 'inherit', outline: 'none',
+                          appearance: 'none', cursor: 'pointer',
+                        }}
+                      >
+                        <option value="">— Select a category —</option>
+                        {categories.map(c => (
+                          <option key={c.CategoryId} value={c.CategoryId}>
+                            {c.CategoryName} ({c.NumberOfClaims} {c.NumberOfClaims === 1 ? 'claim' : 'claims'})
+                          </option>
+                        ))}
+                        {categories.length === 0 && (
+                          <option value="" disabled>No existing categories — create one</option>
+                        )}
+                      </select>
+                    )}
+
+                    {useNewCategory && (
+                      <input
+                        type="text"
+                        placeholder="E.g. Misleading information"
+                        maxLength={50}
+                        value={newCategoryText}
+                        onChange={e => setNewCategoryText(e.target.value)}
+                        style={{
+                          width: '100%', padding: '10px 12px', borderRadius: '10px',
+                          border: '1px solid var(--border)', background: 'var(--surface-2)',
+                          color: 'var(--text-primary)', fontSize: '13px',
+                          fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box',
+                        }}
+                        onFocus={e => e.target.style.borderColor = 'var(--primary)'}
+                        onBlur={e => e.target.style.borderColor = 'var(--border)'}
+                      />
+                    )}
+                  </>
+                )}
+              </div>
+
+              {/* Concern text */}
+              <div style={{ marginBottom: '14px' }}>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  Your Concern <span style={{ color: '#e53935' }}>*</span>
+                </label>
+                <textarea
+                  rows={4}
+                  placeholder="Describe your concern about this post…"
+                  value={claimText}
+                  onChange={e => setClaimText(e.target.value)}
+                  style={{
+                    width: '100%', padding: '10px 12px', borderRadius: '10px',
+                    border: '1px solid var(--border)', background: 'var(--surface-2)',
+                    color: 'var(--text-primary)', fontSize: '13px', lineHeight: 1.6,
+                    fontFamily: 'inherit', resize: 'vertical', outline: 'none',
+                    boxSizing: 'border-box', minHeight: '90px',
+                  }}
+                  onFocus={e => e.target.style.borderColor = 'var(--primary)'}
+                  onBlur={e => e.target.style.borderColor = 'var(--border)'}
+                />
+              </div>
+
+              {/* Visibility */}
+              <div style={{ marginBottom: '18px' }}>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  Visibility
+                </label>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  {['public', 'private'].map(v => (
+                    <button
+                      key={v}
+                      onClick={() => setVisibility(v)}
+                      style={{
+                        flex: 1, padding: '8px', borderRadius: '8px', fontSize: '12px', fontWeight: 700,
+                        border: `1px solid ${visibility === v ? 'var(--primary)' : 'var(--border)'}`,
+                        background: visibility === v ? 'var(--primary-pale)' : 'var(--surface-2)',
+                        color: visibility === v ? 'var(--primary)' : 'var(--text-secondary)',
+                        cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s',
+                        textTransform: 'capitalize',
+                      }}
+                    >
+                      {v === 'public' ? '🌍 Public' : '🔒 Private'}
+                    </button>
+                  ))}
+                </div>
+                <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '5px' }}>
+                  {visibility === 'public' ? 'Other students can see and support this concern.' : 'Only AUCASA members will see this concern.'}
+                </div>
+              </div>
+
+              {/* Error */}
+              {errorMsg && (
+                <div style={{
+                  padding: '10px 14px', borderRadius: '8px',
+                  background: '#fff5f5', border: '1px solid #fcc',
+                  color: '#c00', fontSize: '13px', fontWeight: 600,
+                  marginBottom: '14px',
+                }}>
+                  {errorMsg}
+                </div>
+              )}
+
+              {/* Submit */}
+              <button
+                onClick={handleSubmit}
+                style={{
+                  width: '100%', padding: '12px',
+                  borderRadius: '12px', border: 'none',
+                  background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                  color: '#fff', fontSize: '14px', fontWeight: 800,
+                  cursor: 'pointer', fontFamily: 'inherit',
+                  transition: 'opacity 0.15s, transform 0.1s',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                }}
+                onMouseEnter={e => e.currentTarget.style.opacity = '0.88'}
+                onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+                onMouseDown={e => e.currentTarget.style.transform = 'scale(0.98)'}
+                onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
+              >
+                <FaHandPaper size={14} />
+                Submit Concern
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+
+      <style>{`
+        @keyframes claimFadeIn  { from { opacity: 0 } to { opacity: 1 } }
+        @keyframes claimSlideIn { from { opacity: 0; transform: translate(-50%, -46%); } to { opacity: 1; transform: translate(-50%, -50%); } }
+      `}</style>
+    </>
+  );
+}
+
 //  Helpers 
 function getInitials(name = '') {
   return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
@@ -385,11 +706,8 @@ function PostImage({ src }) {
 
   if (!src || broken) return null;
 
-  // Detect orientation once image loads
   const isPortrait = imgSize && imgSize.h > imgSize.w * 1.2;
   const isSquare = imgSize && Math.abs(imgSize.w - imgSize.h) < imgSize.w * 0.2;
-
-  // Choose ratio based on orientation
   const aspectRatio = isPortrait ? '4/5' : isSquare ? '1/1' : '16/9';
   const maxHeight = isPortrait ? '500px' : '380px';
 
@@ -400,7 +718,7 @@ function PostImage({ src }) {
         title="Click to zoom"
         style={{
           width: '100%',
-          aspectRatio: imgSize ? aspectRatio : '16/9',  
+          aspectRatio: imgSize ? aspectRatio : '16/9',
           maxHeight,
           overflow: 'hidden',
           background: 'var(--surface-2)',
@@ -416,8 +734,8 @@ function PostImage({ src }) {
           style={{
             width: '100%',
             height: '100%',
-            objectFit: 'cover',      
-            objectPosition: 'center top', 
+            objectFit: 'cover',
+            objectPosition: 'center top',
             display: 'block',
             transition: 'transform 0.3s ease',
           }}
@@ -451,11 +769,23 @@ function ReactionSummary({ reactions, myReaction }) {
   const allEmojis = Object.entries(reactions).sort((a, b) => b[1] - a[1]).map(([e]) => e);
   if (myReaction && !allEmojis.includes(myReaction)) allEmojis.unshift(myReaction);
   const topEmojis = allEmojis.slice(0, 3);
+
+  // Find background color for the reaction bubble
+  const getReactionColor = (emoji) => REACTIONS.find(r => r.emoji === emoji)?.color || 'var(--surface-2)';
+
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
       <div style={{ display: 'flex', alignItems: 'center' }}>
         {topEmojis.map((emoji, index) => (
-          <div key={emoji} style={{ width: '22px', height: '22px', borderRadius: '50%', background: 'var(--surface-2)', border: '2px solid var(--surface)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', marginLeft: index === 0 ? '0' : '-8px', zIndex: topEmojis.length - index, position: 'relative', boxShadow: '0 1px 3px rgba(0,0,0,0.15)' }}>{emoji}</div>
+          <div key={emoji} style={{
+            width: '22px', height: '22px', borderRadius: '50%',
+            background: getReactionColor(emoji),
+            border: '2px solid var(--surface)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: '12px', marginLeft: index === 0 ? '0' : '-8px',
+            zIndex: topEmojis.length - index, position: 'relative',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
+          }}>{emoji}</div>
         ))}
       </div>
       <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)' }}>{total}</span>
@@ -464,13 +794,14 @@ function ReactionSummary({ reactions, myReaction }) {
 }
 
 //  PostCard 
-export default function PostCard({ post, onDelete, onComment }) {
+// isStudent prop: true = show Concerns button; false/undefined = hide it (staff)
+export default function PostCard({ post, onDelete, onComment, isStudent }) {
   const [showPicker, setShowPicker] = useState(false);
   const [myReaction, setMyReaction] = useState(null);
   const [reactions, setReactions] = useState(post?.reactions || {});
   const [expanded, setExpanded] = useState(false);
-  const [showShare, setShowShare] = useState(false);
   const [reactionLoading, setReactionLoading] = useState(false);
+  const [showClaimModal, setShowClaimModal] = useState(false);
 
   // controls visibility of the delete confirmation modal
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -478,7 +809,6 @@ export default function PostCard({ post, onDelete, onComment }) {
   // Ref for the emoji picker used to detect outside-clicks
   const pickerRef = useRef(null);
 
-  
   useEffect(() => {
     setReactions(post?.reactions || {});
   }, [post?.reactions]);
@@ -518,14 +848,13 @@ export default function PostCard({ post, onDelete, onComment }) {
   const handleReaction = async (emoji) => {
     if (reactionLoading) return;
 
-    // Capture previous reaction BEFORE touching state
     const prevReaction = myReaction;
-    const isToggleOff = prevReaction === emoji;   // same emoji again = un-react
+    const isToggleOff = prevReaction === emoji;
 
     setShowPicker(false);
     setReactionLoading(true);
 
-    // Optimistic UI update 
+    // Optimistic UI update
     const next = { ...reactions };
     if (prevReaction) {
       next[prevReaction] = Math.max(0, (next[prevReaction] || 1) - 1);
@@ -548,7 +877,6 @@ export default function PostCard({ post, onDelete, onComment }) {
       }
     } catch (e) {
       console.warn('[Reaction] API call failed, reverting:', e.message);
-      // Revert optimistic update so the UI stays consistent with server
       setReactions(post?.reactions || {});
       setMyReaction(prevReaction);
     } finally {
@@ -561,14 +889,24 @@ export default function PostCard({ post, onDelete, onComment }) {
   const isLong = content.length > MAX_LENGTH;
   const displayedContent = isLong && !expanded ? content.slice(0, MAX_LENGTH) + '...' : content;
 
+  // Find the label of the active reaction for display
+  const activeReactionData = myReaction ? REACTIONS.find(r => r.emoji === myReaction) : null;
+
   return (
     <>
-      {showShare && <ShareModal postUrl={postUrl} onClose={() => setShowShare(false)} />}
 
-      {/* Delete confirmation modal — styled like the reference image */}
+      {/* Claim Modal — student only */}
+      {showClaimModal && (
+        <ClaimModal
+          postId={Number(id)}
+          onClose={() => setShowClaimModal(false)}
+          onSuccess={() => {}}
+        />
+      )}
+
+      {/* Delete confirmation modal */}
       {showDeleteModal && (
         <>
-          {/* Backdrop clicking it cancels the modal */}
           <div
             onClick={() => setShowDeleteModal(false)}
             style={{
@@ -578,8 +916,6 @@ export default function PostCard({ post, onDelete, onComment }) {
               animation: 'deleteModalFadeIn 0.15s ease',
             }}
           />
-
-          {/* Modal box */}
           <div style={{
             position: 'fixed',
             top: '50%', left: '50%',
@@ -594,86 +930,40 @@ export default function PostCard({ post, onDelete, onComment }) {
             boxShadow: '0 24px 60px rgba(0,0,0,0.6)',
             animation: 'deleteModalSlideIn 0.2s ease',
           }}>
-
-            {/* Title */}
             <div style={{ fontSize: '18px', fontWeight: 800, color: '#fff', marginBottom: '14px' }}>
               Delete Post?
             </div>
-
-            {/* Description line 1 — shows a snippet of the post content */}
             <div style={{ fontSize: '14px', color: '#ccc', marginBottom: '6px', lineHeight: 1.5 }}>
               This will delete{' '}
               <strong style={{ color: '#fff' }}>
                 {content.length > 50 ? content.slice(0, 50) + '…' : content || 'this post'}
               </strong>.
             </div>
-
-            {/* Description line 2 — extra note like the reference image */}
             <div style={{ fontSize: '13px', color: '#888', marginBottom: '28px', lineHeight: 1.5 }}>
               This action cannot be undone.
             </div>
-
-            {/* Button row — Cancel on left, Delete (red pill) on right */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-
-              {/* Cancel button */}
               <button
                 onClick={() => setShowDeleteModal(false)}
-                style={{
-                  padding: '10px 24px',
-                  borderRadius: '50px',
-                  border: 'none',
-                  background: '#3d3d3d',
-                  color: '#fff',
-                  fontSize: '14px',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  fontFamily: 'inherit',
-                  transition: 'background 0.15s',
-                }}
+                style={{ padding: '10px 24px', borderRadius: '50px', border: 'none', background: '#3d3d3d', color: '#fff', fontSize: '14px', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', transition: 'background 0.15s' }}
                 onMouseEnter={e => e.currentTarget.style.background = '#4d4d4d'}
                 onMouseLeave={e => e.currentTarget.style.background = '#3d3d3d'}
               >
                 Cancel
               </button>
-
-              {/* Delete button — red pill exactly like the image */}
               <button
-                onClick={() => {
-                  setShowDeleteModal(false);
-                  onDelete && onDelete(id);
-                }}
-                style={{
-                  padding: '10px 24px',
-                  borderRadius: '50px',
-                  border: 'none',
-                  background: '#e53935',
-                  color: '#fff',
-                  fontSize: '14px',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  fontFamily: 'inherit',
-                  transition: 'background 0.15s',
-                }}
+                onClick={() => { setShowDeleteModal(false); onDelete && onDelete(id); }}
+                style={{ padding: '10px 24px', borderRadius: '50px', border: 'none', background: '#e53935', color: '#fff', fontSize: '14px', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', transition: 'background 0.15s' }}
                 onMouseEnter={e => e.currentTarget.style.background = '#c62828'}
                 onMouseLeave={e => e.currentTarget.style.background = '#e53935'}
               >
                 Delete
               </button>
-
             </div>
           </div>
-
-          {/* Keyframe animations for the modal */}
           <style>{`
-            @keyframes deleteModalFadeIn {
-              from { opacity: 0; }
-              to   { opacity: 1; }
-            }
-            @keyframes deleteModalSlideIn {
-              from { opacity: 0; transform: translate(-50%, -48%); }
-              to   { opacity: 1; transform: translate(-50%, -50%); }
-            }
+            @keyframes deleteModalFadeIn { from { opacity: 0; } to { opacity: 1; } }
+            @keyframes deleteModalSlideIn { from { opacity: 0; transform: translate(-50%, -48%); } to { opacity: 1; transform: translate(-50%, -50%); } }
           `}</style>
         </>
       )}
@@ -696,7 +986,6 @@ export default function PostCard({ post, onDelete, onComment }) {
             {role && <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '1px' }}>{role}</div>}
           </div>
           {isOwner && (
-            // CHANGED: was calling onDelete directly, now opens the confirmation modal first
             <button onClick={() => setShowDeleteModal(true)} title="Delete post"
               style={{ padding: '6px', color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s' }}
               onMouseEnter={e => { e.currentTarget.style.background = '#fee2e2'; e.currentTarget.style.color = '#e53935'; }}
@@ -734,16 +1023,10 @@ export default function PostCard({ post, onDelete, onComment }) {
                 )}
               </div>
             )}
-
-            {/* Image */}
             {isImage && image && <PostImage src={image} />}
-
-            {/* PDF */}
             {isPdf && fullUrl && (
               <PdfCard fileUrl={fullUrl} thumbnailUrl={thumbUrl} fileSize={fileSize} fileName={getFileName(fullUrl, fileType)} />
             )}
-
-            {/* DOC / DOCX / XLS / XLSX / PPT / PPTX / TXT / ZIP / RAR / … */}
             {isOtherFile && !isPdf && fullUrl && (
               <FileCard fileUrl={fullUrl} fileType={fileType} fileSize={fileSize} mimeType={mimeType} fileName={getFileName(fullUrl, fileType)} />
             )}
@@ -758,13 +1041,25 @@ export default function PostCard({ post, onDelete, onComment }) {
         )}
 
         {/* FOOTER */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '10px 18px 14px', borderTop: '1px solid var(--border)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '10px 18px 14px', borderTop: '1px solid var(--border)', flexWrap: 'wrap' }}>
 
-          {/* React */}
+          {/* ── React button ── */}
           <div style={{ position: 'relative' }} ref={pickerRef}>
             <button
+              id={`reaction-btn-${id}`}
               onClick={() => !reactionLoading && setShowPicker(p => !p)}
-              style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '7px 14px', borderRadius: '20px', border: `1px solid ${myReaction ? 'var(--primary-pale)' : 'var(--border)'}`, background: myReaction ? 'var(--primary-pale)' : 'var(--surface-2)', cursor: reactionLoading ? 'wait' : 'pointer', transition: 'all 0.15s', fontFamily: "'Nunito', sans-serif", opacity: reactionLoading ? 0.7 : 1 }}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '7px',
+                padding: '7px 14px', borderRadius: '20px',
+                border: `1px solid ${myReaction ? 'var(--primary-pale)' : 'var(--border)'}`,
+                background: myReaction
+                  ? (REACTIONS.find(r => r.emoji === myReaction)?.color || 'var(--primary-pale)')
+                  : 'var(--surface-2)',
+                cursor: reactionLoading ? 'wait' : 'pointer',
+                transition: 'all 0.15s',
+                fontFamily: "'Nunito', sans-serif",
+                opacity: reactionLoading ? 0.7 : 1,
+              }}
               onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--primary)'}
               onMouseLeave={e => e.currentTarget.style.borderColor = myReaction ? 'var(--primary-pale)' : 'var(--border)'}
             >
@@ -773,46 +1068,74 @@ export default function PostCard({ post, onDelete, onComment }) {
                 : <MdOutlineAddReaction size={20} style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
               }
               <span style={{ fontSize: '13px', fontWeight: 600, color: myReaction ? 'var(--primary)' : 'var(--text-secondary)' }}>
-                {reactionLoading ? '...' : myReaction ? 'Reacted' : 'React'}
+                {reactionLoading
+                  ? '...'
+                  : activeReactionData
+                    ? activeReactionData.label
+                    : 'Reaction'
+                }
               </span>
             </button>
 
+            {/* Emoji picker — academic reactions */}
             {showPicker && (
-              <div style={{ position: 'absolute', bottom: '46px', left: '0', background: 'rgba(25,25,25,0.93)', backdropFilter: 'blur(12px)', borderRadius: '50px', padding: '10px 16px', display: 'flex', gap: '2px', alignItems: 'center', boxShadow: '0 8px 32px rgba(0,0,0,0.45)', border: '1px solid rgba(255,255,255,0.1)', zIndex: 50, whiteSpace: 'nowrap' }}>
+              <div style={{
+                position: 'absolute', bottom: '48px', left: '0',
+                background: 'rgba(20,20,20,0.96)',
+                backdropFilter: 'blur(12px)',
+                borderRadius: '14px',
+                padding: '10px 12px',
+                display: 'flex', gap: '6px', alignItems: 'center',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.45)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                zIndex: 50,
+                whiteSpace: 'nowrap',
+              }}>
                 {REACTIONS.map(r => (
-                  <button key={r.emoji} onClick={() => handleReaction(r.emoji)} title={r.label}
-                    style={{ fontSize: '26px', cursor: 'pointer', padding: '4px 6px', borderRadius: '50%', border: 'none', background: myReaction === r.emoji ? 'rgba(255,255,255,0.2)' : 'none', transition: 'transform 0.15s ease', lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                    onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.45)'}
-                    onMouseLeave={e => e.currentTarget.style.transform = myReaction === r.emoji ? 'scale(1.2)' : 'scale(1)'}
-                  >{r.emoji}</button>
+                  <button
+                    key={r.emoji}
+                    onClick={() => handleReaction(r.emoji)}
+                    title={r.label}
+                    style={{
+                      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px',
+                      padding: '8px 10px', borderRadius: '10px', border: 'none',
+                      background: myReaction === r.emoji ? r.color : 'transparent',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease',
+                      outline: myReaction === r.emoji ? `2px solid rgba(255,255,255,0.4)` : 'none',
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.background = r.color; e.currentTarget.style.transform = 'scale(1.12)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = myReaction === r.emoji ? r.color : 'transparent'; e.currentTarget.style.transform = 'scale(1)'; }}
+                  >
+                    <span style={{ fontSize: '26px', lineHeight: 1 }}>{r.emoji}</span>
+                    <span style={{ fontSize: '10px', color: '#ddd', fontWeight: 600, fontFamily: "'Nunito', sans-serif" }}>{r.label}</span>
+                  </button>
                 ))}
               </div>
             )}
           </div>
 
-          {/* Comment */}
-          <button
-            onClick={() => onComment && onComment(id)}
-            style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '7px 14px', borderRadius: '20px', border: '1px solid var(--border)', background: 'var(--surface-2)', cursor: 'pointer', transition: 'all 0.15s', fontFamily: "'Nunito', sans-serif" }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'var(--primary-pale)'; e.currentTarget.style.borderColor = 'var(--primary)'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'var(--surface-2)'; e.currentTarget.style.borderColor = 'var(--border)'; }}
-          >
-            <FaRegCommentDots size={18} style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
-            <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)' }}>
-              {commentCount > 0 ? commentCount : 'Comment'}
-            </span>
-          </button>
 
-          {/* Share */}
-          <button
-            onClick={() => setShowShare(true)}
-            style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '7px 14px', borderRadius: '20px', border: '1px solid var(--border)', background: 'var(--surface-2)', cursor: 'pointer', transition: 'all 0.15s', fontFamily: "'Nunito', sans-serif" }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'var(--primary-pale)'; e.currentTarget.style.borderColor = 'var(--primary)'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'var(--surface-2)'; e.currentTarget.style.borderColor = 'var(--border)'; }}
-          >
-            <CiLocationArrow1 size={18} style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
-            <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)' }}>Share</span>
-          </button>
+          {/* ── Concerns button — students only ── */}
+          {isStudent && (
+            <button
+              id={`concerns-btn-${id}`}
+              onClick={() => setShowClaimModal(true)}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '7px',
+                padding: '7px 14px', borderRadius: '20px',
+                border: '1px solid var(--border)',
+                background: 'var(--surface-2)',
+                cursor: 'pointer', transition: 'all 0.15s',
+                fontFamily: "'Nunito', sans-serif",
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(245, 158, 11, 0.12)'; e.currentTarget.style.borderColor = '#f59e0b'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'var(--surface-2)'; e.currentTarget.style.borderColor = 'var(--border)'; }}
+            >
+              <FaHandPaper size={16} style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
+              <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)' }}>Concerns</span>
+            </button>
+          )}
 
         </div>
       </div>
