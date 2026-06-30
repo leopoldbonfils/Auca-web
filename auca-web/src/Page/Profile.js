@@ -239,7 +239,7 @@ function EditProfileModal({ profile, isStaff, isAucasa, onClose, onSaved }) {
         </div>
 
         {/* Cover photo area  */}
-        <div style={{ position: 'relative', height: '160px', background: coverPreview ? 'transparent' : 'linear-gradient(135deg, #0d3b8e, #1a4fa8, #f0a500)', overflow: 'hidden', flexShrink: 0 }}>
+        <div style={{ position: 'relative', height: '160px', background: coverPreview ? 'transparent' : '#0d3b8e', overflow: 'hidden', flexShrink: 0 }}>
           {coverPreview && (
             <img src={coverPreview} alt="cover" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
           )}
@@ -544,7 +544,7 @@ export default function Profile({ onNavigate }) {
         <div style={{ padding: '0 20px 20px', position: 'relative' }}>
           <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '12px' }}>
             {/* Avatar */}
-            <div style={{ width: '76px', height: '76px', borderRadius: '50%', background: avatarUrl ? 'transparent' : 'linear-gradient(135deg, #0d3b8e, #f0a500)', border: '3px solid var(--surface)', marginTop: '-38px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: '26px', boxShadow: '0 4px 12px rgba(13,59,142,0.2)', overflow: 'hidden' }}>
+            <div style={{ width: '76px', height: '76px', borderRadius: '50%', background: avatarUrl ? 'transparent' : '#0d3b8e', border: '3px solid var(--surface)', marginTop: '-38px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: '26px', boxShadow: '0 4px 12px rgba(13,59,142,0.2)', overflow: 'hidden' }}>
               {avatarUrl
                 ? <img src={avatarUrl} alt={fullName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 : initials
