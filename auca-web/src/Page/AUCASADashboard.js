@@ -2,8 +2,17 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../Styles/aucasaDashboard.css';
 import { HiOutlineChatAlt2, HiOutlineDocumentReport } from 'react-icons/hi';
+import { BsShieldFillCheck } from 'react-icons/bs';
+import { MdOutlineChatBubbleOutline, MdOutlineAnalytics } from 'react-icons/md';
 import api from '../utils/api';
 import PostCard from '../component/PostCard';
+
+const getScoreColor = (score) => {
+  if (score >= 80) return '#10b981';
+  if (score >= 50) return '#f59e0b';
+  if (score >= 20) return '#f97316';
+  return '#ef4444';
+};
 
 // helpers 
 /** Convert a UTC timestamp string to a human-readable relative label */
@@ -285,53 +294,77 @@ export default function AUCASADashboard({ onNavigate }) {
                 {loadingClaims ? (
                   <div className="aucasa-empty">Loading claims…</div>
                 ) : filteredClaims.length > 0 ? (
-                  filteredClaims.map(c => (
-                    <div
-                      key={c.ClaimId}
-                      className={`aucasa-concern ${c.VisibilityStatus === 'private' ? 'private' : ''}`}
-                    >
-                      <div className="aucasa-concern-top">
-                        <div className="aucasa-badges">
-                          {/* W-2: API field is CategoryName, not Category */}
-                          <span className="aucasa-badge category">{c.CategoryName}</span>
-                          <span className={`aucasa-badge ${c.ClaimStatus === 'reviewed' ? 'reviewed' : 'pending'}`}>
-                            {c.ClaimStatus === 'reviewed' ? 'Reviewed' : 'Pending'}
+                  filteredClaims.map(c => {
+                    const percent = Math.min(100, Math.round((c.NumberOfSupports / 150) * 100));
+                    const currentColor = getScoreColor(percent);
+
+                    return (
+                      <div
+                        key={c.ClaimId}
+                        className={`aucasa-concern ${c.VisibilityStatus === 'private' ? 'private' : ''}`}
+                        style={{ padding: '24px', backgroundColor: '#f8fafe', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '16px', display: 'flex', flexDirection: 'column' }}
+                      >
+                        {/* Top Header Row */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                            <button style={{ backgroundColor: '#ebf4ff', color: '#0033a0', border: 'none', padding: '8px 16px', borderRadius: '6px', fontWeight: '700', fontSize: '13px', cursor: 'pointer', textTransform: 'uppercase' }}>
+                              {c.CategoryName}
+                            </button>
+                            <span style={{ color: '#1e293b', fontWeight: '700', fontSize: '13px', textTransform: 'uppercase' }}>
+                              {c.ClaimStatus === 'Reviewed' ? 'Reviewed' : 'Pending'}
+                            </span>
+                          </div>
+
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: currentColor }}>
+
+                            <span style={{ fontSize: '16px', fontWeight: '700' }}>{percent}%</span>
+                          </div>
+                        </div>
+
+                        {/* Progress Bar */}
+                        <div style={{ height: '14px', backgroundColor: '#333333', borderRadius: '10px', overflow: 'hidden', width: '100%', marginBottom: '16px' }}>
+                          <div
+                            style={{
+                              height: '100%',
+                              width: `${percent}%`,
+                              backgroundColor: currentColor,
+                              borderRadius: '10px',
+                              transition: 'width 0.4s ease, background-color 0.4s ease',
+                            }}
+                          />
+                        </div>
+
+                        {/* Total Claims */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+                          <HiOutlineChatAlt2 size={16} color="#0033a0" />
+                          <span style={{ color: '#0f172a', fontSize: '14px', fontWeight: '600' }}>
+                            Total Claims: {c.NumberOfSupports}
                           </span>
                         </div>
-                      </div>
 
-                      {/* Support progress bar — max baseline 150 */}
-                      <div
-                        className="aucasa-progress-container"
-                        title={`${c.NumberOfSupports} students supporting`}
-                      >
-                        <div
-                          className="aucasa-progress-fill"
-                          style={{ width: `${Math.min(100, Math.round((c.NumberOfSupports / 150) * 100))}%` }}
-                        />
-                        <div className="aucasa-progress-text">
-                          {Math.min(100, Math.round((c.NumberOfSupports / 150) * 100))}%
+                        {/* Divider */}
+                        <hr style={{ border: 'none', borderTop: '1px solid #e2e8f0', margin: '0 0 16px 0', width: '100%' }} />
+
+                        {/* Actions */}
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                          <button
+                            style={{ flex: 1, backgroundColor: '#0033a0', color: '#ffffff', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: '700', fontSize: '14px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                            onClick={() => onNavigate({ page: 'claimDetails', post: selectedPost })}
+                          >
+                            <MdOutlineAnalytics size={16} /> View Claims
+                          </button>
+                          {c.ClaimStatus !== 'reviewed' && (
+                            <button
+                              style={{ flex: 1, backgroundColor: 'transparent', color: '#0033a0', border: '1px solid #0033a0', padding: '12px', borderRadius: '8px', fontWeight: '700', fontSize: '14px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                              onClick={() => handleMarkReviewed(c.ClaimId)}
+                            >
+                              Mark Reviewed
+                            </button>
+                          )}
                         </div>
                       </div>
-
-                      <div className="aucasa-concern-actions" style={{ marginTop: '12px' }}>
-                        <button
-                          className="aucasa-btn primary"
-                          onClick={() => onNavigate({ page: 'claimDetails', post: selectedPost })}
-                        >
-                          <HiOutlineDocumentReport size={16} /> View Claims
-                        </button>
-                        {c.ClaimStatus !== 'reviewed' && (
-                          <button
-                            className="aucasa-btn outline"
-                            onClick={() => handleMarkReviewed(c.ClaimId)}
-                          >
-                            Mark Reviewed
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  ))
+                    );
+                  })
                 ) : (
                   <div className="aucasa-empty">
                     {selectedPost ? 'No claims to display for this filter.' : 'Select a post to view its claims.'}
