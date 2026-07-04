@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MdOutlineAddReaction } from 'react-icons/md';
+import { MdOutlineAddReaction, MdPublic, MdLockOutline, MdOutlineImage } from 'react-icons/md';
 import { FaRegCommentDots, FaHandPaper } from 'react-icons/fa';
 import { FiTrash2 } from 'react-icons/fi';
 import { CiLocationArrow1 } from 'react-icons/ci';
@@ -9,7 +9,7 @@ import { FaWhatsapp, FaFacebook } from 'react-icons/fa';
 import { MdEmail } from 'react-icons/md';
 import { FaXTwitter } from 'react-icons/fa6';
 import { MdContentCopy } from 'react-icons/md';
-import { BsCheck2 } from 'react-icons/bs';
+import { BsCheck2, BsCheckCircleFill } from 'react-icons/bs';
 import { IoLogoInstagram } from 'react-icons/io5';
 import { MdDownload, MdOpenInNew } from 'react-icons/md';
 import docIcon from '../assets/doc.png';
@@ -358,6 +358,7 @@ function ShareModal({ postUrl, onClose }) {
 
 // ── Claim / Concerns Modal (student only) ────────────────────────────────────
 function ClaimModal({ postId, onClose, onSuccess }) {
+  const [tab, setTab] = useState('overview'); // 'overview' | 'create'
   const [step, setStep] = useState('form'); // 'form' | 'submitting' | 'done' | 'error'
   const [categories, setCategories] = useState([]);
   const [loadingCats, setLoadingCats] = useState(true);
@@ -428,6 +429,10 @@ function ClaimModal({ postId, onClose, onSuccess }) {
     }
   };
 
+  const totalActiveConcerns = categories.reduce((sum, cat) => sum + Number(cat.NumberOfClaims || 0), 0);
+  const activeTopicsCount = categories.length;
+  const isFormValid = claimText.trim() && (useNewCategory ? newCategoryText.trim() : selectedCategoryId);
+
   return (
     <>
       {/* Backdrop */}
@@ -438,240 +443,263 @@ function ClaimModal({ postId, onClose, onSuccess }) {
         animation: 'claimFadeIn 0.15s ease',
       }} />
 
-      {/* Modal */}
+      {/* Modal - Centered Style */}
       <div ref={ref} style={{
         position: 'fixed',
         top: '50%', left: '50%',
         transform: 'translate(-50%, -50%)',
-        width: '94%', maxWidth: '460px',
-        background: 'var(--surface)',
-        borderRadius: '18px',
+        width: '90%', maxWidth: '600px',
+        background: '#fff',
+        borderRadius: '24px',
         zIndex: 501,
-        fontFamily: "'Nunito', sans-serif",
-        boxShadow: '0 24px 60px rgba(0,0,0,0.35)',
-        animation: 'claimSlideIn 0.22s ease',
+        fontFamily: "'Inter', 'Nunito', sans-serif",
+        boxShadow: '0 10px 50px rgba(0,0,0,0.2)',
+        animation: 'claimFadeInScale 0.2s ease-out',
         overflow: 'hidden',
+        display: 'flex', flexDirection: 'column',
+        maxHeight: '90vh'
       }}>
-
-        {/* Header */}
-        <div style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '18px 20px 14px',
-          borderBottom: '1px solid var(--border)',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{
-              width: '34px', height: '34px', borderRadius: '10px',
-              background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              <FaHandPaper size={16} color="#fff" />
-            </div>
-            <div>
-              <div style={{ fontSize: '16px', fontWeight: 800, color: 'var(--text-primary)' }}>Report Concerns</div>
-              <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '1px' }}>Submit a concern about this post</div>
-            </div>
-          </div>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '4px', borderRadius: '50%', display: 'flex', transition: 'all 0.15s' }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'var(--surface-2)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = 'var(--text-muted)'; }}
-          >
-            <IoClose size={20} />
+        {/* Close Button */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '16px 20px 0' }}>
+          <button onClick={onClose} style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '24px', color: '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', borderRadius: '50%', transition: 'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = '#f1f5f9'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+            &times;
           </button>
         </div>
 
-        {/* Body */}
-        <div style={{ padding: '18px 20px 20px' }}>
+        {/* Custom Tabs */}
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '0 20px', marginBottom: '24px' }}>
+          <div style={{ display: 'flex', background: '#e2e8f0', borderRadius: '30px', padding: '4px', width: '100%', maxWidth: '400px' }}>
+            <button
+              onClick={() => setTab('overview')}
+              style={{
+                flex: 1, padding: '12px 0', borderRadius: '26px', fontSize: '15px', fontWeight: 700,
+                background: tab === 'overview' ? '#0033a0' : 'transparent',
+                color: tab === 'overview' ? '#fff' : '#fff', // From screenshot, the inactive tab text is white inside grey? Wait, the screenshot shows the inactive tab text is white inside the light grey background? Actually no, the inactive tab seems to have white text "Overview" or "Create Concern" when inactive? Let's check image 2: "Overview" is white. Ah! The background is `#d2d2d2` and the text is white `#ffffff`.
+                border: 'none', cursor: 'pointer', transition: 'all 0.2s',
+                textShadow: tab === 'overview' ? 'none' : '0px 1px 2px rgba(0,0,0,0.1)'
+              }}
+            >
+              Overview
+            </button>
+            <button
+              onClick={() => setTab('create')}
+              style={{
+                flex: 1, padding: '12px 0', borderRadius: '26px', fontSize: '15px', fontWeight: 700,
+                background: tab === 'create' ? '#0033a0' : 'transparent',
+                color: tab === 'create' ? '#fff' : '#fff',
+                border: 'none', cursor: 'pointer', transition: 'all 0.2s',
+                textShadow: tab === 'create' ? 'none' : '0px 1px 2px rgba(0,0,0,0.1)'
+              }}
+            >
+              Create Concern
+            </button>
+          </div>
+        </div>
 
-          {step === 'done' && (
-            <div style={{ textAlign: 'center', padding: '20px 0' }}>
-              <div style={{ fontSize: '48px', marginBottom: '12px' }}>✅</div>
-              <div style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)' }}>Concern Submitted!</div>
-              <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '6px' }}>Your concern has been received.</div>
+        {/* Content Area */}
+        <div style={{ padding: '0 24px 30px', overflowY: 'auto' }}>
+          
+          {tab === 'overview' && (
+            <div style={{ animation: 'claimFadeIn 0.2s ease' }}>
+              <div style={{ textAlign: 'center', fontSize: '18px', fontWeight: 800, color: '#000', marginBottom: '20px' }}>
+                {totalActiveConcerns} Active Concerns across {activeTopicsCount} Topics
+              </div>
+
+              {loadingCats ? (
+                 <div style={{ textAlign: 'center', color: '#64748b', padding: '20px' }}>Loading...</div>
+              ) : categories.length === 0 ? (
+                 <div style={{ textAlign: 'center', color: '#64748b', padding: '20px', border: '1px solid #f1f5f9', borderRadius: '20px' }}>No active concerns yet.</div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  {categories.map(cat => {
+                    const numClaims = Number(cat.NumberOfClaims || 0);
+                    const percent = totalActiveConcerns > 0 ? Math.round((numClaims / totalActiveConcerns) * 100) : 0;
+                    return (
+                      <div key={cat.CategoryId} style={{ border: '1px solid #f1f5f9', borderRadius: '20px', padding: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
+                        <div style={{ fontSize: '16px', fontWeight: 800, color: '#000', marginBottom: '14px' }}>{cat.CategoryName}</div>
+                        <div style={{ height: '12px', background: '#e2e8f0', borderRadius: '6px', overflow: 'hidden', marginBottom: '10px' }}>
+                          <div style={{ height: '100%', width: `${percent}%`, background: '#0033a0', borderRadius: '6px' }} />
+                        </div>
+                        <div style={{ fontSize: '14px', color: '#333' }}>
+                          {numClaims} Concerns ({percent}%)
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           )}
 
-          {step === 'submitting' && (
-            <div style={{ textAlign: 'center', padding: '20px 0' }}>
-              <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: 600 }}>Submitting your concern…</div>
-            </div>
-          )}
+          {tab === 'create' && (
+            <div style={{ animation: 'claimFadeIn 0.2s ease' }}>
+              <div style={{ fontSize: '24px', fontWeight: 800, color: '#000', marginBottom: '6px' }}>Create Your Concern</div>
+              <div style={{ fontSize: '15px', color: '#64748b', marginBottom: '24px' }}>Report an issue or concern related to this post.</div>
 
-          {(step === 'form' || step === 'error') && (
-            <>
-              {/* Category section */}
-              <div style={{ marginBottom: '14px' }}>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                  Category
-                </label>
-
-                {loadingCats ? (
-                  <div style={{ fontSize: '13px', color: 'var(--text-muted)', padding: '8px 0' }}>Loading categories…</div>
-                ) : (
-                  <>
-                    {/* Toggle: existing / new */}
-                    <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
-                      <button
-                        onClick={() => setUseNewCategory(false)}
-                        style={{
-                          flex: 1, padding: '7px', borderRadius: '8px', fontSize: '12px', fontWeight: 700,
-                          border: `1px solid ${!useNewCategory ? 'var(--primary)' : 'var(--border)'}`,
-                          background: !useNewCategory ? 'var(--primary-pale)' : 'var(--surface-2)',
-                          color: !useNewCategory ? 'var(--primary)' : 'var(--text-secondary)',
-                          cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s',
-                        }}
-                      >
-                        Existing Category
-                      </button>
-                      <button
-                        onClick={() => setUseNewCategory(true)}
-                        style={{
-                          flex: 1, padding: '7px', borderRadius: '8px', fontSize: '12px', fontWeight: 700,
-                          border: `1px solid ${useNewCategory ? 'var(--primary)' : 'var(--border)'}`,
-                          background: useNewCategory ? 'var(--primary-pale)' : 'var(--surface-2)',
-                          color: useNewCategory ? 'var(--primary)' : 'var(--text-secondary)',
-                          cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s',
-                        }}
-                      >
-                        + New Category
-                      </button>
-                    </div>
-
-                    {!useNewCategory && (
-                      <select
-                        value={selectedCategoryId}
-                        onChange={e => setSelectedCategoryId(e.target.value)}
-                        style={{
-                          width: '100%', padding: '10px 12px', borderRadius: '10px',
-                          border: '1px solid var(--border)', background: 'var(--surface-2)',
-                          color: 'var(--text-primary)', fontSize: '13px',
-                          fontFamily: 'inherit', outline: 'none',
-                          appearance: 'none', cursor: 'pointer',
-                        }}
-                      >
-                        <option value="">— Select a category —</option>
-                        {categories.map(c => (
-                          <option key={c.CategoryId} value={c.CategoryId}>
-                            {c.CategoryName} ({c.NumberOfClaims} {c.NumberOfClaims === 1 ? 'claim' : 'claims'})
-                          </option>
-                        ))}
-                        {categories.length === 0 && (
-                          <option value="" disabled>No existing categories — create one</option>
-                        )}
-                      </select>
-                    )}
-
-                    {useNewCategory && (
-                      <input
-                        type="text"
-                        placeholder="E.g. Misleading information"
-                        maxLength={50}
-                        value={newCategoryText}
-                        onChange={e => setNewCategoryText(e.target.value)}
-                        style={{
-                          width: '100%', padding: '10px 12px', borderRadius: '10px',
-                          border: '1px solid var(--border)', background: 'var(--surface-2)',
-                          color: 'var(--text-primary)', fontSize: '13px',
-                          fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box',
-                        }}
-                        onFocus={e => e.target.style.borderColor = 'var(--primary)'}
-                        onBlur={e => e.target.style.borderColor = 'var(--border)'}
-                      />
-                    )}
-                  </>
-                )}
-              </div>
-
-              {/* Concern text */}
-              <div style={{ marginBottom: '14px' }}>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                  Your Concern <span style={{ color: '#e53935' }}>*</span>
-                </label>
-                <textarea
-                  rows={4}
-                  placeholder="Describe your concern about this post…"
-                  value={claimText}
-                  onChange={e => setClaimText(e.target.value)}
-                  style={{
-                    width: '100%', padding: '10px 12px', borderRadius: '10px',
-                    border: '1px solid var(--border)', background: 'var(--surface-2)',
-                    color: 'var(--text-primary)', fontSize: '13px', lineHeight: 1.6,
-                    fontFamily: 'inherit', resize: 'vertical', outline: 'none',
-                    boxSizing: 'border-box', minHeight: '90px',
-                  }}
-                  onFocus={e => e.target.style.borderColor = 'var(--primary)'}
-                  onBlur={e => e.target.style.borderColor = 'var(--border)'}
-                />
-              </div>
-
-              {/* Visibility */}
-              <div style={{ marginBottom: '18px' }}>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                  Visibility
-                </label>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  {['public', 'private'].map(v => (
-                    <button
-                      key={v}
-                      onClick={() => setVisibility(v)}
-                      style={{
-                        flex: 1, padding: '8px', borderRadius: '8px', fontSize: '12px', fontWeight: 700,
-                        border: `1px solid ${visibility === v ? 'var(--primary)' : 'var(--border)'}`,
-                        background: visibility === v ? 'var(--primary-pale)' : 'var(--surface-2)',
-                        color: visibility === v ? 'var(--primary)' : 'var(--text-secondary)',
-                        cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s',
-                        textTransform: 'capitalize',
-                      }}
-                    >
-                      {v === 'public' ? '🌍 Public' : '🔒 Private'}
-                    </button>
-                  ))}
-                </div>
-                <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '5px' }}>
-                  {visibility === 'public' ? 'Other students can see and support this concern.' : 'Only AUCASA members will see this concern.'}
-                </div>
-              </div>
-
-              {/* Error */}
-              {errorMsg && (
-                <div style={{
-                  padding: '10px 14px', borderRadius: '8px',
-                  background: '#fff5f5', border: '1px solid #fcc',
-                  color: '#c00', fontSize: '13px', fontWeight: 600,
-                  marginBottom: '14px',
-                }}>
-                  {errorMsg}
+              {step === 'done' && (
+                <div style={{ textAlign: 'center', padding: '40px 0', border: '1px solid #f1f5f9', borderRadius: '20px', background: '#fff' }}>
+                  <div style={{ fontSize: '56px', marginBottom: '12px' }}>✅</div>
+                  <div style={{ fontSize: '20px', fontWeight: 800, color: '#000' }}>Concern Submitted!</div>
+                  <div style={{ fontSize: '15px', color: '#64748b', marginTop: '6px' }}>Your concern has been received.</div>
                 </div>
               )}
 
-              {/* Submit */}
-              <button
-                onClick={handleSubmit}
-                style={{
-                  width: '100%', padding: '12px',
-                  borderRadius: '12px', border: 'none',
-                  background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-                  color: '#fff', fontSize: '14px', fontWeight: 800,
-                  cursor: 'pointer', fontFamily: 'inherit',
-                  transition: 'opacity 0.15s, transform 0.1s',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                }}
-                onMouseEnter={e => e.currentTarget.style.opacity = '0.88'}
-                onMouseLeave={e => e.currentTarget.style.opacity = '1'}
-                onMouseDown={e => e.currentTarget.style.transform = 'scale(0.98)'}
-                onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
-              >
-                <FaHandPaper size={14} />
-                Submit Concern
-              </button>
-            </>
+              {step === 'submitting' && (
+                <div style={{ textAlign: 'center', padding: '40px 0', border: '1px solid #f1f5f9', borderRadius: '20px', background: '#fff' }}>
+                  <div style={{ fontSize: '15px', color: '#64748b', fontWeight: 600 }}>Submitting your concern…</div>
+                </div>
+              )}
+
+              {(step === 'form' || step === 'error') && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                  {/* Select Topic */}
+                  <div style={{ border: '1px solid #f1f5f9', borderRadius: '20px', padding: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
+                    <div style={{ fontSize: '16px', fontWeight: 800, color: '#000', marginBottom: '16px' }}>
+                      Select Topic <span style={{ color: '#e53935' }}>*</span>
+                    </div>
+                    {loadingCats ? (
+                      <div style={{ fontSize: '14px', color: '#64748b' }}>Loading...</div>
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        {categories.map(c => (
+                          <div
+                            key={c.CategoryId}
+                            onClick={() => { setSelectedCategoryId(c.CategoryId); setUseNewCategory(false); }}
+                            style={{ padding: '16px 20px', border: `1px solid ${!useNewCategory && selectedCategoryId === c.CategoryId ? '#0033a0' : '#f1f5f9'}`, borderRadius: '16px', fontSize: '15px', color: '#000', cursor: 'pointer', background: '#fff' }}
+                          >
+                            {c.CategoryName}
+                          </div>
+                        ))}
+                        
+                        <div
+                          onClick={() => setUseNewCategory(true)}
+                          style={{ padding: '16px 20px', border: `1px solid ${useNewCategory ? '#0033a0' : '#f1f5f9'}`, borderRadius: '16px', fontSize: '15px', color: '#000', cursor: 'pointer', background: '#fff' }}
+                        >
+                          Other
+                        </div>
+                        {useNewCategory && (
+                          <input
+                            type="text"
+                            placeholder="Enter new topic..."
+                            maxLength={50}
+                            value={newCategoryText}
+                            onChange={e => setNewCategoryText(e.target.value)}
+                            style={{
+                              width: '100%', padding: '16px 20px', borderRadius: '16px',
+                              border: '1px solid #0033a0', background: '#fff',
+                              color: '#000', fontSize: '15px',
+                              fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box',
+                              marginTop: '8px'
+                            }}
+                          />
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Concern Description */}
+                  <div style={{ border: '1px solid #f1f5f9', borderRadius: '20px', padding: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
+                    <div style={{ fontSize: '16px', fontWeight: 800, color: '#000', marginBottom: '16px' }}>
+                      Concern Description <span style={{ color: '#e53935' }}>*</span>
+                    </div>
+                    <div style={{ border: '1px solid #f1f5f9', borderRadius: '16px', overflow: 'hidden' }}>
+                      <textarea
+                        rows={4}
+                        placeholder="Describe the issue in detail..."
+                        value={claimText}
+                        onChange={e => setClaimText(e.target.value.slice(0, 500))}
+                        style={{
+                          width: '100%', padding: '20px', border: 'none', background: 'transparent',
+                          color: '#000', fontSize: '15px', lineHeight: 1.5,
+                          fontFamily: 'inherit', resize: 'vertical', outline: 'none',
+                          boxSizing: 'border-box', minHeight: '140px',
+                        }}
+                      />
+                      <div style={{ textAlign: 'right', padding: '10px 20px', fontSize: '13px', color: '#94a3b8' }}>
+                        {claimText.length}/500
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Visibility */}
+                  <div style={{ border: '1px solid #f1f5f9', borderRadius: '20px', padding: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
+                    <div style={{ fontSize: '16px', fontWeight: 800, color: '#000', marginBottom: '16px' }}>
+                      Visibility
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      <div
+                        onClick={() => setVisibility('public')}
+                        style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '16px 20px', border: `1px solid ${visibility === 'public' ? '#f0f9ff' : '#f1f5f9'}`, borderRadius: '16px', cursor: 'pointer', background: visibility === 'public' ? '#f8fafc' : '#fff' }}
+                      >
+                        <MdPublic size={24} color={visibility === 'public' ? '#0033a0' : '#64748b'} />
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: '15px', fontWeight: 800, color: visibility === 'public' ? '#0033a0' : '#000' }}>Public</div>
+                          <div style={{ fontSize: '13px', color: '#64748b' }}>Other students can view this concern.</div>
+                        </div>
+                        {visibility === 'public' && <BsCheckCircleFill size={20} color="#0033a0" />}
+                      </div>
+                      
+                      <div
+                        onClick={() => setVisibility('private')}
+                        style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '16px 20px', border: `1px solid ${visibility === 'private' ? '#f0f9ff' : '#f1f5f9'}`, borderRadius: '16px', cursor: 'pointer', background: visibility === 'private' ? '#f8fafc' : '#fff' }}
+                      >
+                        <MdLockOutline size={24} color={visibility === 'private' ? '#0033a0' : '#64748b'} />
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: '15px', fontWeight: 800, color: visibility === 'private' ? '#0033a0' : '#000' }}>Private</div>
+                          <div style={{ fontSize: '13px', color: '#64748b' }}>Visible only to AUCASA Minister.</div>
+                        </div>
+                        {visibility === 'private' && <BsCheckCircleFill size={20} color="#0033a0" />}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Image Evidence (Optional) */}
+                  <div style={{ border: '1px solid #f1f5f9', borderRadius: '20px', padding: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
+                    <div style={{ fontSize: '16px', fontWeight: 800, color: '#000', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      Image Evidence <span style={{ color: '#94a3b8', fontWeight: 500, fontSize: '14px' }}>(Optional)</span>
+                    </div>
+                    <div style={{ border: '1px dashed #cbd5e1', borderRadius: '16px', padding: '30px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', background: '#fff' }}>
+                       <MdOutlineImage size={32} color="#0033a0" style={{ marginBottom: '10px' }} />
+                       <div style={{ fontSize: '15px', color: '#0033a0' }}>Tap to add image</div>
+                    </div>
+                  </div>
+
+                  {/* Error Msg */}
+                  {errorMsg && (
+                    <div style={{ padding: '14px 20px', borderRadius: '16px', background: '#fef2f2', border: '1px solid #fecaca', color: '#ef4444', fontSize: '15px' }}>
+                      {errorMsg}
+                    </div>
+                  )}
+
+                  {/* Submit Button */}
+                  <button
+                    onClick={handleSubmit}
+                    disabled={!isFormValid}
+                    style={{
+                      width: '100%', padding: '18px',
+                      borderRadius: '16px', border: 'none',
+                      background: isFormValid ? '#0033a0' : '#8ca3ba',
+                      color: '#fff', fontSize: '16px', fontWeight: 800,
+                      cursor: isFormValid ? 'pointer' : 'not-allowed', fontFamily: 'inherit',
+                      marginTop: '10px',
+                      transition: 'background 0.2s ease'
+                    }}
+                    onMouseEnter={e => { if (isFormValid) e.currentTarget.style.opacity = '0.9'; }}
+                    onMouseLeave={e => { if (isFormValid) e.currentTarget.style.opacity = '1'; }}
+                  >
+                    Submit Concern
+                  </button>
+                </div>
+              )}
+            </div>
           )}
+
         </div>
       </div>
 
       <style>{`
         @keyframes claimFadeIn  { from { opacity: 0 } to { opacity: 1 } }
-        @keyframes claimSlideIn { from { opacity: 0; transform: translate(-50%, -46%); } to { opacity: 1; transform: translate(-50%, -50%); } }
+        @keyframes claimFadeInScale { from { opacity: 0; transform: translate(-50%, -46%) scale(0.96); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
       `}</style>
     </>
   );
