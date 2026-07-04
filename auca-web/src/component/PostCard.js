@@ -370,8 +370,11 @@ function ClaimModal({ postId, onClose, onSuccess }) {
   const [visibility, setVisibility] = useState('public');
   const [useNewCategory, setUseNewCategory] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
 
   const ref = useRef(null);
+  const fileInputRef = useRef(null);
 
   // Close on outside click or Escape
   useEffect(() => {
@@ -386,6 +389,14 @@ function ClaimModal({ postId, onClose, onSuccess }) {
       document.removeEventListener('keydown', keyHandler);
     };
   }, [onClose]);
+
+  const handleImageChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
 
   // Load existing categories for this post
   useEffect(() => {
@@ -417,6 +428,9 @@ function ClaimModal({ postId, onClose, onSuccess }) {
       formData.append('NewClaimCategoryText', newCategoryText.trim());
     } else {
       formData.append('ClaimCategoryId', selectedCategoryId);
+    }
+    if (imageFile) {
+      formData.append('ClaimEvidenceImageFile', imageFile);
     }
 
     try {
@@ -658,10 +672,29 @@ function ClaimModal({ postId, onClose, onSuccess }) {
                     <div style={{ fontSize: '16px', fontWeight: 800, color: '#000', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                       Image Evidence <span style={{ color: '#94a3b8', fontWeight: 500, fontSize: '14px' }}>(Optional)</span>
                     </div>
-                    <div style={{ border: '1px dashed #cbd5e1', borderRadius: '16px', padding: '30px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', background: '#fff' }}>
-                       <MdOutlineImage size={32} color="#0033a0" style={{ marginBottom: '10px' }} />
-                       <div style={{ fontSize: '15px', color: '#0033a0' }}>Tap to add image</div>
-                    </div>
+                    <input 
+                      type="file" 
+                      ref={fileInputRef} 
+                      onChange={handleImageChange} 
+                      accept="image/*" 
+                      style={{ display: 'none' }} 
+                    />
+                    {!imagePreview ? (
+                      <div onClick={() => fileInputRef.current.click()} style={{ border: '1px dashed #cbd5e1', borderRadius: '16px', padding: '30px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', background: '#fff' }}>
+                         <MdOutlineImage size={32} color="#0033a0" style={{ marginBottom: '10px' }} />
+                         <div style={{ fontSize: '15px', color: '#0033a0' }}>Tap to add image</div>
+                      </div>
+                    ) : (
+                      <div style={{ position: 'relative', borderRadius: '16px', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
+                        <img src={imagePreview} alt="Preview" style={{ width: '100%', display: 'block', maxHeight: '200px', objectFit: 'cover' }} />
+                        <button 
+                          onClick={() => { setImageFile(null); setImagePreview(null); }}
+                          style={{ position: 'absolute', top: '10px', right: '10px', background: 'rgba(0,0,0,0.6)', color: '#fff', border: 'none', borderRadius: '50%', width: '30px', height: '30px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}
+                        >
+                          &times;
+                        </button>
+                      </div>
+                    )}
                   </div>
 
                   {/* Error Msg */}
