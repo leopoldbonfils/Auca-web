@@ -1,8 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MdOutlineAddReaction, MdPublic, MdLockOutline, MdOutlineImage } from 'react-icons/md';
-import { FaRegCommentDots, FaHandPaper } from 'react-icons/fa';
+import { FaHandPaper } from 'react-icons/fa';
 import { FiTrash2 } from 'react-icons/fi';
-import { CiLocationArrow1 } from 'react-icons/ci';
 import { IoClose } from 'react-icons/io5';
 import { MdOutlineCode } from 'react-icons/md';
 import { FaWhatsapp, FaFacebook } from 'react-icons/fa';
@@ -35,9 +34,9 @@ const EMOJI_TO_NAME = {
 
 // Academic reactions matching mobile app exactly
 const REACTIONS = [
-  { emoji: '👍', label: 'Helpful',           color: 'rgba(24, 119, 242, 0.18)' },
-  { emoji: '✅', label: 'Understood',         color: 'rgba(34, 197, 94, 0.18)'  },
-  { emoji: '📌', label: 'Important',          color: 'rgba(245, 158, 11, 0.18)' },
+  { emoji: '👍', label: 'Helpful', color: 'rgba(24, 119, 242, 0.18)' },
+  { emoji: '✅', label: 'Understood', color: 'rgba(34, 197, 94, 0.18)' },
+  { emoji: '📌', label: 'Important', color: 'rgba(245, 158, 11, 0.18)' },
   { emoji: '❓', label: 'Need Clarification', color: 'rgba(168, 85, 247, 0.18)' },
 ];
 
@@ -45,7 +44,7 @@ const REACTIONS = [
 const SHARE_PLATFORMS = [
   { label: 'Email', icon: <MdEmail size={22} color="#fff" />, bg: '#757575', action: (url) => window.open(`mailto:?subject=Check this out&body=${encodeURIComponent(url)}`) },
   { label: 'WhatsApp', icon: <FaWhatsapp size={22} color="#fff" />, bg: '#25D366', action: (url) => window.open(`https://wa.me/?text=${encodeURIComponent(url)}`, '_blank') },
-  { label: 'X', icon: <FaXTwitter size={22} color="#fff" />, bg: '#000',    action: (url) => window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}`, '_blank') },
+  { label: 'X', icon: <FaXTwitter size={22} color="#fff" />, bg: '#000', action: (url) => window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}`, '_blank') },
   { label: 'Instagram', icon: <IoLogoInstagram size={22} color="#fff" />, bg: '#E4405F', action: (url) => window.open(`https://www.instagram.com/?url=${encodeURIComponent(url)}`, '_blank') },
   { label: 'Facebook', icon: <FaFacebook size={22} color="#fff" />, bg: '#1877F2', action: (url) => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank') },
   { label: 'Embed', icon: <MdOutlineCode size={22} color="#fff" />, bg: '#606060', action: (url) => alert(`Embed code:\n<iframe src="${url}"></iframe>`) },
@@ -53,8 +52,8 @@ const SHARE_PLATFORMS = [
 
 //  File-type helpers 
 function getFileCategory(fileType, mimeType = '') {
-  const ext  = (fileType  || '').toLowerCase().replace('.', '');
-  const mime = (mimeType  || '').toLowerCase();
+  const ext = (fileType || '').toLowerCase().replace('.', '');
+  const mime = (mimeType || '').toLowerCase();
 
   if (ext === 'pdf' || mime.includes('pdf')) return 'pdf';
   if (ext === 'docx' || mime.includes('wordprocessingml')) return 'docx';
@@ -64,31 +63,31 @@ function getFileCategory(fileType, mimeType = '') {
   if (ext === 'pptx' || mime.includes('presentationml')) return 'pptx';
   if (ext === 'ppt' || mime.includes('powerpoint')) return 'ppt';
   if (ext === 'txt' || mime.includes('text/plain')) return 'txt';
-  if (ext === 'rar' || mime.includes('rar'))  return 'rar';
+  if (ext === 'rar' || mime.includes('rar')) return 'rar';
   if (ext === 'zip' || mime.includes('zip')) return 'zip';
-  if (['png','jpg','jpeg','gif','webp'].includes(ext) || mime.startsWith('image/')) return 'image';
+  if (['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(ext) || mime.startsWith('image/')) return 'image';
   return 'file';
 }
 
 // Map category → { icon (PNG asset), label, bg }
 const FILE_META = {
-  pdf:{ icon: pdfIcon, label: 'PDF', bg: '#ffeaea' },
-  doc:{ icon: docIcon, label: 'DOC', bg: '#e3f2fd' },
-  docx:{ icon: wordIcon, label: 'DOCX',bg: '#e3f2fd' },
-  xls:{ icon: excelIcon, label: 'XLS', bg: '#e8f5e9' },
-  xlsx:{ icon: excelIcon, label: 'XLSX', bg: '#e8f5e9' },
-  ppt:{ icon: pptIcon, label: 'PPT',  bg: '#fff3e0' },
-  pptx:{ icon: pptxIcon, label: 'PPTX', bg: '#fff3e0' },
-  txt:{ icon: txtIcon, label: 'TXT', bg: '#f5f5f5' },
-  rar:{ icon: rarIcon, label: 'RAR', bg: '#f3e5f5' },
-  zip:{ icon: zipIcon, label: 'ZIP', bg: '#f3e5f5' },
-  file:{ icon: fileIcon, label: 'FILE', bg: '#eceff1' },
+  pdf: { icon: pdfIcon, label: 'PDF', bg: '#ffeaea' },
+  doc: { icon: docIcon, label: 'DOC', bg: '#e3f2fd' },
+  docx: { icon: wordIcon, label: 'DOCX', bg: '#e3f2fd' },
+  xls: { icon: excelIcon, label: 'XLS', bg: '#e8f5e9' },
+  xlsx: { icon: excelIcon, label: 'XLSX', bg: '#e8f5e9' },
+  ppt: { icon: pptIcon, label: 'PPT', bg: '#fff3e0' },
+  pptx: { icon: pptxIcon, label: 'PPTX', bg: '#fff3e0' },
+  txt: { icon: txtIcon, label: 'TXT', bg: '#f5f5f5' },
+  rar: { icon: rarIcon, label: 'RAR', bg: '#f3e5f5' },
+  zip: { icon: zipIcon, label: 'ZIP', bg: '#f3e5f5' },
+  file: { icon: fileIcon, label: 'FILE', bg: '#eceff1' },
 };
 
 function formatFileSize(bytes) {
   if (!bytes) return '';
   const n = Number(bytes);
-  if (isNaN(n)) return bytes;  
+  if (isNaN(n)) return bytes;
   if (n === 0) return '0 B';
   const sizes = ['B', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(n) / Math.log(1024));
@@ -99,7 +98,7 @@ function getFileName(url, fileType) {
   if (!url) return `file${fileType || ''}`;
   try {
     const parts = url.split('/');
-    const raw  = parts[parts.length - 1].split('?')[0];
+    const raw = parts[parts.length - 1].split('?')[0];
     return raw || `file${fileType || ''}`;
   } catch {
     return `file${fileType || ''}`;
@@ -248,12 +247,12 @@ function PdfCard({ fileUrl, thumbnailUrl, fileSize, fileName }) {
       onMouseEnter={e => {
         if (fileUrl) {
           e.currentTarget.style.borderColor = '#e53935';
-          e.currentTarget.style.boxShadow   = '0 4px 16px rgba(229,57,53,0.15)';
+          e.currentTarget.style.boxShadow = '0 4px 16px rgba(229,57,53,0.15)';
         }
       }}
       onMouseLeave={e => {
         e.currentTarget.style.borderColor = 'var(--border)';
-        e.currentTarget.style.boxShadow   = 'none';
+        e.currentTarget.style.boxShadow = 'none';
       }}
     >
       {hasThumbnail && (
@@ -463,32 +462,33 @@ function ClaimModal({ postId, onClose, onSuccess }) {
         top: '50%', left: '50%',
         transform: 'translate(-50%, -50%)',
         width: '90%', maxWidth: '600px',
-        background: '#fff',
+        background: 'var(--surface)',
         borderRadius: '24px',
         zIndex: 501,
         fontFamily: "'Inter', 'Nunito', sans-serif",
-        boxShadow: '0 10px 50px rgba(0,0,0,0.2)',
+        boxShadow: 'var(--shadow)',
         animation: 'claimFadeInScale 0.2s ease-out',
         overflow: 'hidden',
         display: 'flex', flexDirection: 'column',
-        maxHeight: '90vh'
+        maxHeight: '90vh',
+        border: '1px solid var(--border)'
       }}>
         {/* Close Button */}
         <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '16px 20px 0' }}>
-          <button onClick={onClose} style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '24px', color: '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', borderRadius: '50%', transition: 'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = '#f1f5f9'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+          <button onClick={onClose} style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '24px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', borderRadius: '50%', transition: 'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = 'var(--surface-2)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
             &times;
           </button>
         </div>
 
         {/* Custom Tabs */}
         <div style={{ display: 'flex', justifyContent: 'center', padding: '0 20px', marginBottom: '24px' }}>
-          <div style={{ display: 'flex', background: '#e2e8f0', borderRadius: '30px', padding: '4px', width: '100%', maxWidth: '400px' }}>
+          <div style={{ display: 'flex', background: 'var(--surface-2)', borderRadius: '30px', padding: '4px', width: '100%', maxWidth: '400px', border: '1px solid var(--border)' }}>
             <button
               onClick={() => setTab('overview')}
               style={{
                 flex: 1, padding: '12px 0', borderRadius: '26px', fontSize: '15px', fontWeight: 700,
-                background: tab === 'overview' ? '#0033a0' : 'transparent',
-                color: tab === 'overview' ? '#fff' : '#fff', // From screenshot, the inactive tab text is white inside grey? Wait, the screenshot shows the inactive tab text is white inside the light grey background? Actually no, the inactive tab seems to have white text "Overview" or "Create Concern" when inactive? Let's check image 2: "Overview" is white. Ah! The background is `#d2d2d2` and the text is white `#ffffff`.
+                background: tab === 'overview' ? 'var(--primary)' : 'transparent',
+                color: tab === 'overview' ? '#fff' : 'var(--text-primary)',
                 border: 'none', cursor: 'pointer', transition: 'all 0.2s',
                 textShadow: tab === 'overview' ? 'none' : '0px 1px 2px rgba(0,0,0,0.1)'
               }}
@@ -499,8 +499,8 @@ function ClaimModal({ postId, onClose, onSuccess }) {
               onClick={() => setTab('create')}
               style={{
                 flex: 1, padding: '12px 0', borderRadius: '26px', fontSize: '15px', fontWeight: 700,
-                background: tab === 'create' ? '#0033a0' : 'transparent',
-                color: tab === 'create' ? '#fff' : '#fff',
+                background: tab === 'create' ? 'var(--primary)' : 'transparent',
+                color: tab === 'create' ? '#fff' : 'var(--text-primary)',
                 border: 'none', cursor: 'pointer', transition: 'all 0.2s',
                 textShadow: tab === 'create' ? 'none' : '0px 1px 2px rgba(0,0,0,0.1)'
               }}
@@ -512,29 +512,29 @@ function ClaimModal({ postId, onClose, onSuccess }) {
 
         {/* Content Area */}
         <div style={{ padding: '0 24px 30px', overflowY: 'auto' }}>
-          
+
           {tab === 'overview' && (
             <div style={{ animation: 'claimFadeIn 0.2s ease' }}>
-              <div style={{ textAlign: 'center', fontSize: '18px', fontWeight: 800, color: '#000', marginBottom: '20px' }}>
+              <div style={{ textAlign: 'center', fontSize: '18px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '20px' }}>
                 {totalActiveConcerns} Active Concerns across {activeTopicsCount} Topics
               </div>
 
               {loadingCats ? (
-                 <div style={{ textAlign: 'center', color: '#64748b', padding: '20px' }}>Loading...</div>
+                <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '20px' }}>Loading...</div>
               ) : categories.length === 0 ? (
-                 <div style={{ textAlign: 'center', color: '#64748b', padding: '20px', border: '1px solid #f1f5f9', borderRadius: '20px' }}>No active concerns yet.</div>
+                <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '20px', border: '1px solid var(--border)', borderRadius: '20px' }}>No active concerns yet.</div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   {categories.map(cat => {
                     const numClaims = Number(cat.NumberOfClaims || 0);
                     const percent = totalActiveConcerns > 0 ? Math.round((numClaims / totalActiveConcerns) * 100) : 0;
                     return (
-                      <div key={cat.CategoryId} style={{ border: '1px solid #f1f5f9', borderRadius: '20px', padding: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
-                        <div style={{ fontSize: '16px', fontWeight: 800, color: '#000', marginBottom: '14px' }}>{cat.CategoryName}</div>
-                        <div style={{ height: '12px', background: '#e2e8f0', borderRadius: '6px', overflow: 'hidden', marginBottom: '10px' }}>
-                          <div style={{ height: '100%', width: `${percent}%`, background: '#0033a0', borderRadius: '6px' }} />
+                      <div key={cat.CategoryId} style={{ border: '1px solid var(--border)', borderRadius: '20px', padding: '20px', background: 'var(--surface)' }}>
+                        <div style={{ fontSize: '16px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '14px' }}>{cat.CategoryName}</div>
+                        <div style={{ height: '12px', background: 'var(--surface-2)', borderRadius: '6px', overflow: 'hidden', marginBottom: '10px' }}>
+                          <div style={{ height: '100%', width: `${percent}%`, background: 'var(--primary)', borderRadius: '6px' }} />
                         </div>
-                        <div style={{ fontSize: '14px', color: '#333' }}>
+                        <div style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
                           {numClaims} Concerns ({percent}%)
                         </div>
                       </div>
@@ -547,47 +547,47 @@ function ClaimModal({ postId, onClose, onSuccess }) {
 
           {tab === 'create' && (
             <div style={{ animation: 'claimFadeIn 0.2s ease' }}>
-              <div style={{ fontSize: '24px', fontWeight: 800, color: '#000', marginBottom: '6px' }}>Create Your Concern</div>
-              <div style={{ fontSize: '15px', color: '#64748b', marginBottom: '24px' }}>Report an issue or concern related to this post.</div>
+              <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '6px' }}>Create Your Concern</div>
+              <div style={{ fontSize: '15px', color: 'var(--text-muted)', marginBottom: '24px' }}>Report an issue or concern related to this post.</div>
 
               {step === 'done' && (
-                <div style={{ textAlign: 'center', padding: '40px 0', border: '1px solid #f1f5f9', borderRadius: '20px', background: '#fff' }}>
+                <div style={{ textAlign: 'center', padding: '40px 0', border: '1px solid var(--border)', borderRadius: '20px', background: 'var(--surface)' }}>
                   <div style={{ fontSize: '56px', marginBottom: '12px' }}>✅</div>
-                  <div style={{ fontSize: '20px', fontWeight: 800, color: '#000' }}>Concern Submitted!</div>
-                  <div style={{ fontSize: '15px', color: '#64748b', marginTop: '6px' }}>Your concern has been received.</div>
+                  <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-primary)' }}>Concern Submitted!</div>
+                  <div style={{ fontSize: '15px', color: 'var(--text-muted)', marginTop: '6px' }}>Your concern has been received.</div>
                 </div>
               )}
 
               {step === 'submitting' && (
-                <div style={{ textAlign: 'center', padding: '40px 0', border: '1px solid #f1f5f9', borderRadius: '20px', background: '#fff' }}>
-                  <div style={{ fontSize: '15px', color: '#64748b', fontWeight: 600 }}>Submitting your concern…</div>
+                <div style={{ textAlign: 'center', padding: '40px 0', border: '1px solid var(--border)', borderRadius: '20px', background: 'var(--surface)' }}>
+                  <div style={{ fontSize: '15px', color: 'var(--text-muted)', fontWeight: 600 }}>Submitting your concern…</div>
                 </div>
               )}
 
               {(step === 'form' || step === 'error') && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                   {/* Select Topic */}
-                  <div style={{ border: '1px solid #f1f5f9', borderRadius: '20px', padding: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
-                    <div style={{ fontSize: '16px', fontWeight: 800, color: '#000', marginBottom: '16px' }}>
+                  <div style={{ border: '1px solid var(--border)', borderRadius: '20px', padding: '20px', background: 'var(--surface)' }}>
+                    <div style={{ fontSize: '16px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '16px' }}>
                       Select Topic <span style={{ color: '#e53935' }}>*</span>
                     </div>
                     {loadingCats ? (
-                      <div style={{ fontSize: '14px', color: '#64748b' }}>Loading...</div>
+                      <div style={{ fontSize: '14px', color: 'var(--text-muted)' }}>Loading...</div>
                     ) : (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                         {categories.map(c => (
                           <div
                             key={c.CategoryId}
                             onClick={() => { setSelectedCategoryId(c.CategoryId); setUseNewCategory(false); }}
-                            style={{ padding: '16px 20px', border: `1px solid ${!useNewCategory && selectedCategoryId === c.CategoryId ? '#0033a0' : '#f1f5f9'}`, borderRadius: '16px', fontSize: '15px', color: '#000', cursor: 'pointer', background: '#fff' }}
+                            style={{ padding: '16px 20px', border: `1px solid ${!useNewCategory && selectedCategoryId === c.CategoryId ? 'var(--primary)' : 'var(--border)'}`, borderRadius: '16px', fontSize: '15px', color: 'var(--text-primary)', cursor: 'pointer', background: 'var(--surface)' }}
                           >
                             {c.CategoryName}
                           </div>
                         ))}
-                        
+
                         <div
                           onClick={() => setUseNewCategory(true)}
-                          style={{ padding: '16px 20px', border: `1px solid ${useNewCategory ? '#0033a0' : '#f1f5f9'}`, borderRadius: '16px', fontSize: '15px', color: '#000', cursor: 'pointer', background: '#fff' }}
+                          style={{ padding: '16px 20px', border: `1px solid ${useNewCategory ? 'var(--primary)' : 'var(--border)'}`, borderRadius: '16px', fontSize: '15px', color: 'var(--text-primary)', cursor: 'pointer', background: 'var(--surface)' }}
                         >
                           Other
                         </div>
@@ -600,8 +600,8 @@ function ClaimModal({ postId, onClose, onSuccess }) {
                             onChange={e => setNewCategoryText(e.target.value)}
                             style={{
                               width: '100%', padding: '16px 20px', borderRadius: '16px',
-                              border: '1px solid #0033a0', background: '#fff',
-                              color: '#000', fontSize: '15px',
+                              border: '1px solid var(--primary)', background: 'var(--surface)',
+                              color: 'var(--text-primary)', fontSize: '15px',
                               fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box',
                               marginTop: '8px'
                             }}
@@ -612,11 +612,11 @@ function ClaimModal({ postId, onClose, onSuccess }) {
                   </div>
 
                   {/* Concern Description */}
-                  <div style={{ border: '1px solid #f1f5f9', borderRadius: '20px', padding: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
-                    <div style={{ fontSize: '16px', fontWeight: 800, color: '#000', marginBottom: '16px' }}>
+                  <div style={{ border: '1px solid var(--border)', borderRadius: '20px', padding: '20px', background: 'var(--surface)' }}>
+                    <div style={{ fontSize: '16px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '16px' }}>
                       Concern Description <span style={{ color: '#e53935' }}>*</span>
                     </div>
-                    <div style={{ border: '1px solid #f1f5f9', borderRadius: '16px', overflow: 'hidden' }}>
+                    <div style={{ border: '1px solid var(--border)', borderRadius: '16px', overflow: 'hidden', background: 'var(--surface-2)' }}>
                       <textarea
                         rows={4}
                         placeholder="Describe the issue in detail..."
@@ -624,70 +624,70 @@ function ClaimModal({ postId, onClose, onSuccess }) {
                         onChange={e => setClaimText(e.target.value.slice(0, 500))}
                         style={{
                           width: '100%', padding: '20px', border: 'none', background: 'transparent',
-                          color: '#000', fontSize: '15px', lineHeight: 1.5,
+                          color: 'var(--text-primary)', fontSize: '15px', lineHeight: 1.5,
                           fontFamily: 'inherit', resize: 'vertical', outline: 'none',
                           boxSizing: 'border-box', minHeight: '140px',
                         }}
                       />
-                      <div style={{ textAlign: 'right', padding: '10px 20px', fontSize: '13px', color: '#94a3b8' }}>
+                      <div style={{ textAlign: 'right', padding: '10px 20px', fontSize: '13px', color: 'var(--text-muted)' }}>
                         {claimText.length}/500
                       </div>
                     </div>
                   </div>
 
                   {/* Visibility */}
-                  <div style={{ border: '1px solid #f1f5f9', borderRadius: '20px', padding: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
-                    <div style={{ fontSize: '16px', fontWeight: 800, color: '#000', marginBottom: '16px' }}>
+                  <div style={{ border: '1px solid var(--border)', borderRadius: '20px', padding: '20px', background: 'var(--surface)' }}>
+                    <div style={{ fontSize: '16px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '16px' }}>
                       Visibility
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                       <div
                         onClick={() => setVisibility('public')}
-                        style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '16px 20px', border: `1px solid ${visibility === 'public' ? '#f0f9ff' : '#f1f5f9'}`, borderRadius: '16px', cursor: 'pointer', background: visibility === 'public' ? '#f8fafc' : '#fff' }}
+                        style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '16px 20px', border: `1px solid ${visibility === 'public' ? 'var(--primary)' : 'var(--border)'}`, borderRadius: '16px', cursor: 'pointer', background: visibility === 'public' ? 'var(--surface-2)' : 'var(--surface)' }}
                       >
-                        <MdPublic size={24} color={visibility === 'public' ? '#0033a0' : '#64748b'} />
+                        <MdPublic size={24} color={visibility === 'public' ? 'var(--primary)' : 'var(--text-muted)'} />
                         <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: '15px', fontWeight: 800, color: visibility === 'public' ? '#0033a0' : '#000' }}>Public</div>
-                          <div style={{ fontSize: '13px', color: '#64748b' }}>Other students can view this concern.</div>
+                          <div style={{ fontSize: '15px', fontWeight: 800, color: visibility === 'public' ? 'var(--primary)' : 'var(--text-primary)' }}>Public</div>
+                          <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Other students can view this concern.</div>
                         </div>
-                        {visibility === 'public' && <BsCheckCircleFill size={20} color="#0033a0" />}
+                        {visibility === 'public' && <BsCheckCircleFill size={20} color="var(--primary)" />}
                       </div>
-                      
+
                       <div
                         onClick={() => setVisibility('private')}
-                        style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '16px 20px', border: `1px solid ${visibility === 'private' ? '#f0f9ff' : '#f1f5f9'}`, borderRadius: '16px', cursor: 'pointer', background: visibility === 'private' ? '#f8fafc' : '#fff' }}
+                        style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '16px 20px', border: `1px solid ${visibility === 'private' ? 'var(--primary)' : 'var(--border)'}`, borderRadius: '16px', cursor: 'pointer', background: visibility === 'private' ? 'var(--surface-2)' : 'var(--surface)' }}
                       >
-                        <MdLockOutline size={24} color={visibility === 'private' ? '#0033a0' : '#64748b'} />
+                        <MdLockOutline size={24} color={visibility === 'private' ? 'var(--primary)' : 'var(--text-muted)'} />
                         <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: '15px', fontWeight: 800, color: visibility === 'private' ? '#0033a0' : '#000' }}>Private</div>
-                          <div style={{ fontSize: '13px', color: '#64748b' }}>Visible only to AUCASA Minister.</div>
+                          <div style={{ fontSize: '15px', fontWeight: 800, color: visibility === 'private' ? 'var(--primary)' : 'var(--text-primary)' }}>Private</div>
+                          <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Visible only to AUCASA Minister.</div>
                         </div>
-                        {visibility === 'private' && <BsCheckCircleFill size={20} color="#0033a0" />}
+                        {visibility === 'private' && <BsCheckCircleFill size={20} color="var(--primary)" />}
                       </div>
                     </div>
                   </div>
 
                   {/* Image Evidence (Optional) */}
-                  <div style={{ border: '1px solid #f1f5f9', borderRadius: '20px', padding: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
-                    <div style={{ fontSize: '16px', fontWeight: 800, color: '#000', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      Image Evidence <span style={{ color: '#94a3b8', fontWeight: 500, fontSize: '14px' }}>(Optional)</span>
+                  <div style={{ border: '1px solid var(--border)', borderRadius: '20px', padding: '20px', background: 'var(--surface)' }}>
+                    <div style={{ fontSize: '16px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      Image Evidence <span style={{ color: 'var(--text-muted)', fontWeight: 500, fontSize: '14px' }}>(Optional)</span>
                     </div>
-                    <input 
-                      type="file" 
-                      ref={fileInputRef} 
-                      onChange={handleImageChange} 
-                      accept="image/*" 
-                      style={{ display: 'none' }} 
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleImageChange}
+                      accept="image/*"
+                      style={{ display: 'none' }}
                     />
                     {!imagePreview ? (
-                      <div onClick={() => fileInputRef.current.click()} style={{ border: '1px dashed #cbd5e1', borderRadius: '16px', padding: '30px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', background: '#fff' }}>
-                         <MdOutlineImage size={32} color="#0033a0" style={{ marginBottom: '10px' }} />
-                         <div style={{ fontSize: '15px', color: '#0033a0' }}>Tap to add image</div>
+                      <div onClick={() => fileInputRef.current.click()} style={{ border: '1px dashed var(--border)', borderRadius: '16px', padding: '30px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', background: 'var(--surface-2)' }}>
+                        <MdOutlineImage size={32} color="var(--text-muted)" style={{ marginBottom: '10px' }} />
+                        <div style={{ fontSize: '15px', color: 'var(--text-muted)' }}>Tap to add image</div>
                       </div>
                     ) : (
-                      <div style={{ position: 'relative', borderRadius: '16px', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
+                      <div style={{ position: 'relative', borderRadius: '16px', overflow: 'hidden', border: '1px solid var(--border)' }}>
                         <img src={imagePreview} alt="Preview" style={{ width: '100%', display: 'block', maxHeight: '200px', objectFit: 'cover' }} />
-                        <button 
+                        <button
                           onClick={() => { setImageFile(null); setImagePreview(null); }}
                           style={{ position: 'absolute', top: '10px', right: '10px', background: 'rgba(0,0,0,0.6)', color: '#fff', border: 'none', borderRadius: '50%', width: '30px', height: '30px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}
                         >
@@ -711,8 +711,8 @@ function ClaimModal({ postId, onClose, onSuccess }) {
                     style={{
                       width: '100%', padding: '18px',
                       borderRadius: '16px', border: 'none',
-                      background: isFormValid ? '#0033a0' : '#8ca3ba',
-                      color: '#fff', fontSize: '16px', fontWeight: 800,
+                      background: isFormValid ? 'var(--primary)' : 'var(--surface-2)',
+                      color: isFormValid ? '#fff' : 'var(--text-muted)', fontSize: '16px', fontWeight: 800,
                       cursor: isFormValid ? 'pointer' : 'not-allowed', fontFamily: 'inherit',
                       marginTop: '10px',
                       transition: 'background 0.2s ease'
@@ -961,7 +961,7 @@ export default function PostCard({ post, onDelete, onComment, isStudent }) {
         <ClaimModal
           postId={Number(id)}
           onClose={() => setShowClaimModal(false)}
-          onSuccess={() => {}}
+          onSuccess={() => { }}
         />
       )}
 
@@ -1042,7 +1042,7 @@ export default function PostCard({ post, onDelete, onComment, isStudent }) {
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
               <span style={{ fontWeight: 700, fontSize: '14px', color: 'var(--primary)' }}>{author}</span>
               {department && (<><span style={{ color: 'var(--border)' }}>|</span><span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{department}</span></>)}
-              {timestamp  && (<><span style={{ color: 'var(--border)' }}>•</span><span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{timestamp}</span></>)}
+              {timestamp && (<><span style={{ color: 'var(--border)' }}>•</span><span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{timestamp}</span></>)}
             </div>
             {role && <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '1px' }}>{role}</div>}
           </div>
