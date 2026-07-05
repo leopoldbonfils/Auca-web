@@ -175,14 +175,14 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange, o
   return (
     <>
       {/* ── Hamburger button — mobile only ─────────────────────────────── */}
-      {isMobile && (
+      {isMobile && !mobileOpen && (
         <button
-          className={`hamburger-btn ${mobileOpen ? 'open' : ''}`}
-          style={{ transform: (showHamburger || mobileOpen) ? 'translateY(0)' : 'translateY(-150%)' }}
-          onClick={() => setMobileOpen(o => !o)}
-          aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+          className="hamburger-btn"
+          style={{ transform: showHamburger ? 'translateY(0)' : 'translateY(-150%)' }}
+          onClick={() => setMobileOpen(true)}
+          aria-label="Open menu"
         >
-          {mobileOpen ? '✕' : '☰'}
+          ☰
         </button>
       )}
 
@@ -217,11 +217,23 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange, o
       }}
     >
       {/*  LOGO  */}
-      <div style={{ padding: navExpanded ? '22px 20px 18px' : '22px 0 18px', borderBottom: '1px solid var(--nav-border)', width: '100%', display: 'flex', justifyContent: navExpanded ? 'flex-start' : 'center', flexShrink: 0, transition: 'padding 0.25s' }}>
+      <div style={{ padding: navExpanded ? '22px 20px 18px' : '22px 0 18px', borderBottom: '1px solid var(--nav-border)', width: '100%', display: 'flex', justifyContent: navExpanded ? 'space-between' : 'center', alignItems: 'center', flexShrink: 0, transition: 'padding 0.25s' }}>
         {aucaLogo ? (
           <img src={aucaLogo} alt="AUCA" style={{ width: navExpanded ? '110px' : '36px', height: '36px', objectFit: 'contain', objectPosition: 'left center', transition: 'width 0.25s' }} />
         ) : (
           <div style={{ width: '36px', height: '36px', flexShrink: 0, background: 'linear-gradient(135deg, #0d3b8e, #1a4fa8)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: '18px' }}>A</div>
+        )}
+
+        {/* Close Button (Mobile Only) */}
+        {isMobile && mobileOpen && (
+          <button
+            className="hamburger-btn open"
+            onClick={() => setMobileOpen(false)}
+            aria-label="Close menu"
+            style={{ position: 'relative', top: 'auto', left: 'auto', zIndex: 1, transform: 'none' }}
+          >
+            ✕
+          </button>
         )}
       </div>
 
