@@ -134,6 +134,16 @@ img { display: block; max-width: 100%; }
     background: var(--surface-2);
   }
 
+  .hamburger-btn.open {
+    width: 36px;
+    height: 36px;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    font-size: 22px;
+    color: var(--nav-text);
+  }
+
   /* ── Sidebar overlay on mobile ── */
   .mobile-nav-overlay {
     position: fixed;

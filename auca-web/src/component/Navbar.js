@@ -177,7 +177,7 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange, o
       {/* ── Hamburger button — mobile only ─────────────────────────────── */}
       {isMobile && (
         <button
-          className="hamburger-btn"
+          className={`hamburger-btn ${mobileOpen ? 'open' : ''}`}
           style={{ transform: (showHamburger || mobileOpen) ? 'translateY(0)' : 'translateY(-150%)' }}
           onClick={() => setMobileOpen(o => !o)}
           aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
