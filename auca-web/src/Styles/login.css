@@ -3,7 +3,8 @@
         body { font-family: 'Nunito', sans-serif; }
 
         .lp-root {
-          min-height: 100vh;
+          height: 100vh;
+          overflow: hidden;
           display: grid;
           grid-template-columns: 1fr 1fr;
           font-family: 'Nunito', sans-serif;
@@ -16,6 +17,7 @@
           align-items: center; justify-content: center;
           padding: 60px 40px;
           position: relative; overflow: hidden;
+          height: 100vh;
         }
         .lp-left::before {
           content: '';
@@ -75,7 +77,8 @@
           align-items: center; justify-content: flex-start;
           padding: 60px 48px;
           position: relative;
-          min-height: 100vh;
+          height: 100vh;
+          overflow-y: auto;
         }
 
         .lp-signup-btn {
@@ -184,7 +187,7 @@
         @keyframes lp-spin { to { transform: rotate(360deg); } }
 
         @media (max-width: 720px) {
-          .lp-root { grid-template-columns: 1fr; }
+          .lp-root { grid-template-columns: 1fr; height: auto; overflow: visible; }
           .lp-left { display: none; }
-          .lp-right { padding: 80px 24px 40px; background: #fff; }
+          .lp-right { padding: 80px 24px 40px; background: #fff; height: auto; overflow-y: visible; }
         }
