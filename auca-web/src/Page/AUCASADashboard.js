@@ -301,7 +301,7 @@ export default function AUCASADashboard({ onNavigate }) {
                         style={{ padding: '24px', backgroundColor: 'var(--surface)', borderRadius: '12px', border: '1px solid var(--border)', marginBottom: '16px', display: 'flex', flexDirection: 'column' }}
                       >
                         {/* Top Header Row */}
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+                        <div className="aucasa-concern-top" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                             <button style={{ backgroundColor: 'var(--primary-pale)', color: 'var(--primary)', border: 'none', padding: '8px 16px', borderRadius: '6px', fontWeight: '700', fontSize: '13px', cursor: 'pointer', textTransform: 'uppercase' }}>
                               {c.CategoryName}
@@ -342,7 +342,7 @@ export default function AUCASADashboard({ onNavigate }) {
                         <hr style={{ border: 'none', borderTop: '1px solid var(--border)', margin: '0 0 16px 0', width: '100%' }} />
 
                         {/* Actions */}
-                        <div style={{ display: 'flex', gap: '10px' }}>
+                        <div className="aucasa-concern-actions" style={{ display: 'flex', gap: '10px' }}>
                           <button
                             style={{ flex: 1, backgroundColor: 'var(--primary)', color: '#ffffff', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: '700', fontSize: '14px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
                             onClick={() => onNavigate({ page: 'claimDetails', post: selectedPost })}

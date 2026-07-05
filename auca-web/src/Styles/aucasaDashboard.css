@@ -356,3 +356,60 @@
   color: var(--text-muted);
   font-size: 14px;
 }
+
+/* RESPONSIVE DESIGN FOR MOBILE */
+@media (max-width: 768px) {
+  .aucasa-header {
+    margin-top: 10px;
+  }
+  
+  .aucasa-title {
+    font-size: 20px;
+  }
+  
+  .aucasa-metrics {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  
+  .aucasa-metric-card {
+    padding: 16px;
+  }
+  
+  .aucasa-metric-value {
+    font-size: 24px;
+  }
+  
+  .aucasa-content {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .aucasa-feed {
+    padding-right: 0;
+    max-height: 400px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 24px;
+  }
+  
+  .aucasa-panel {
+    width: 100%;
+    min-height: 500px;
+  }
+  
+  .aucasa-panel-tab {
+    padding: 12px 8px;
+    font-size: 13px;
+  }
+  
+  .aucasa-concern-top {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .aucasa-concern-actions {
+    flex-direction: column;
+  }
+}
+
