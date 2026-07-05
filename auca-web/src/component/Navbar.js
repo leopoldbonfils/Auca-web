@@ -206,7 +206,7 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange, o
       }}
       style={{
         position: 'fixed', top: 0, left: 0, bottom: 0,
-        width: isMobile ? '100vw' : `${expanded ? EXPANDED_W : SLIM_W}px`,
+        width: isMobile ? `${EXPANDED_W}px` : `${expanded ? EXPANDED_W : SLIM_W}px`,
         background: 'var(--nav-bg)', borderRight: '1px solid var(--nav-border)',
         display: 'flex', flexDirection: 'column',
         alignItems: navExpanded ? 'flex-start' : 'center',
