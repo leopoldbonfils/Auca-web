@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { HiOutlineUser, HiOutlineLockClosed } from 'react-icons/hi';
 import { HiOutlineEye, HiOutlineEyeOff }      from 'react-icons/hi';
 import { HiOutlineUserGroup, HiOutlineBadgeCheck } from 'react-icons/hi';
@@ -12,6 +13,7 @@ try { aucaLogo = require('../assets/auca_logoo.png'); } catch (e) { aucaLogo = n
 const API = process.env.REACT_APP_API_URL || 'http://localhost:3000';
 
 export default function LoginPage({ onLoginSuccess }) {
+  const navigate = useNavigate();
   const [isStaff, setIsStaff]  = useState(false);
   const [isAucasa, setIsAucasa] = useState(false);
   const [id, setId] = useState('');
@@ -83,7 +85,7 @@ export default function LoginPage({ onLoginSuccess }) {
         <div className="lp-right">
           <button 
             className="lp-signup-btn"
-            onClick={() => alert("Go to your app to create an account. This button doesn't do or show anything. Thank you for understanding.")}
+            onClick={() => navigate('/register')}
           >
             Sign Up
           </button>

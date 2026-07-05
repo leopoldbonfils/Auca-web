@@ -8,6 +8,7 @@ import CreatePost from './Page/CreatePost';
 import Profile from './Page/Profile';
 import Comment from './Page/Comment';
 import LoginPage from './Page/LoginPage';
+import RegisterPage from './Page/RegisterPage';
 import AUCASADashboard from './Page/AUCASADashboard';
 import ClaimDetails from './Page/ClaimDetails';
 
@@ -99,21 +100,25 @@ export default function App() {
     navigate('/login', { replace: true });
   };
 
-  // ── NOT LOGGED IN → Login page ────────────────────────────────────────────
+  // ── NOT LOGGED IN → Login or Register page ────────────────────────────────
   if (!auth) {
     return (
-      <LoginPage
-        onLoginSuccess={({ accessToken, profile, isStaff, isAucasa }) => {
-          localStorage.setItem('accessToken', accessToken);
-          localStorage.setItem('isStaff',  String(isStaff));
-          localStorage.setItem('isAucasa', String(isAucasa));
-          if (profile) localStorage.setItem('userProfile', JSON.stringify(profile));
-          setAuth({ accessToken, profile, isStaff, isAucasa });
-          // Route based on role: AUCASA members go to dashboard, everyone else to home
-          const isAucasaRole = isAucasa || !!profile?.aucasaUserRole;
-          navigate(isAucasaRole ? '/aucasa' : '/home', { replace: true });
-        }}
-      />
+      <Routes>
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="*" element={
+          <LoginPage
+            onLoginSuccess={({ accessToken, profile, isStaff, isAucasa }) => {
+              localStorage.setItem('accessToken', accessToken);
+              localStorage.setItem('isStaff',  String(isStaff));
+              localStorage.setItem('isAucasa', String(isAucasa));
+              if (profile) localStorage.setItem('userProfile', JSON.stringify(profile));
+              setAuth({ accessToken, profile, isStaff, isAucasa });
+              const isAucasaRole = isAucasa || !!profile?.aucasaUserRole;
+              navigate(isAucasaRole ? '/aucasa' : '/home', { replace: true });
+            }}
+          />
+        } />
+      </Routes>
     );
   }
 
