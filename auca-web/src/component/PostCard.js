@@ -309,6 +309,7 @@ function PdfCard({ fileUrl, thumbnailUrl, fileSize, fileName }) {
 }
 
 //  Share modal 
+// eslint-disable-next-line no-unused-vars
 function ShareModal({ postUrl, onClose }) {
   const [copied, setCopied] = useState(false);
   const ref = useRef(null);
@@ -889,7 +890,7 @@ export default function PostCard({ post, onDelete, onComment, isStudent }) {
   const {
     id, author = 'Unknown', role = '', department = '',
     timestamp = '', content = '', image = null,
-    type = 'post', commentCount = 0, isOwner = false,
+    type = 'post', isOwner = false,
   } = post || {};
 
   const raw = post?._raw || {};
@@ -904,7 +905,6 @@ export default function PostCard({ post, onDelete, onComment, isStudent }) {
   const isPdf = fileCategory === 'pdf';
   const isOtherFile = fileCategory && fileCategory !== 'image';
 
-  const postUrl = `${window.location.origin}/posts/${id}`;
 
   const handleReaction = async (emoji) => {
     if (reactionLoading) return;

@@ -1,9 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import '../Styles/aucasaDashboard.css';
-import { HiOutlineChatAlt2, HiOutlineDocumentReport } from 'react-icons/hi';
-import { BsShieldFillCheck } from 'react-icons/bs';
-import { MdOutlineChatBubbleOutline, MdOutlineAnalytics } from 'react-icons/md';
+import { HiOutlineChatAlt2 } from 'react-icons/hi';
+import { MdOutlineAnalytics } from 'react-icons/md';
 import api from '../utils/api';
 import PostCard from '../component/PostCard';
 
@@ -27,7 +25,7 @@ function relativeTime(isoString) {
 }
 
 export default function AUCASADashboard({ onNavigate }) {
-  const navigate = useNavigate();
+
 
   // ── dashboard tab: 'claims' | 'feed' ─────────────────────────────────────
   const [dashTab, setDashTab] = useState('claims');
@@ -108,7 +106,6 @@ export default function AUCASADashboard({ onNavigate }) {
         // Map to the shape PostCard expects
         const mapped = list.map(post => {
           const p = JSON.parse(localStorage.getItem('userProfile') || '{}');
-          const myId = p?.Id || p?.StudentId;
           const resolveUrl = (url) => url?.startsWith('https://') ? url : null;
           return {
             id: String(post.Id),

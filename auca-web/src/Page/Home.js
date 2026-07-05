@@ -64,7 +64,6 @@ function getCurrentUser() {
     const rawUrl = p.ProfileUrl || '';
     const avatarUrl = rawUrl.startsWith('https://') ? rawUrl : null;
     const isStaff  = localStorage.getItem('isStaff')  === 'true';
-    const isAucasa = localStorage.getItem('isAucasa') === 'true';
     // A user can see the claim/concerns button if they are not staff (student or AUCASA role)
     const isStudent = !isStaff;
     return { name, initials, avatarUrl, isStaff, isStudent };
