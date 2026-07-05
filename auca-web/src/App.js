@@ -47,6 +47,14 @@ export default function App() {
   });
 
   const [navExpanded, setNavExpanded] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 768);
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
   const [theme, setTheme] = useState(
     () => localStorage.getItem('auca-theme') || 'light'
   );
@@ -122,9 +130,10 @@ export default function App() {
       />
       <main
         style={{
-          marginLeft: navExpanded ? '240px' : '72px',
+          marginLeft: isMobile ? '0' : (navExpanded ? '240px' : '72px'),
           flex: 1,
-          padding: '24px 16px',
+          padding: isMobile ? '12px 8px' : '24px 16px',
+          paddingTop: isMobile ? '64px' : '24px',
           background: 'var(--bg)',
           minHeight: '100vh',
           transition: 'background 0.3s',

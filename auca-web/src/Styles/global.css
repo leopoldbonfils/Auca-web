@@ -91,3 +91,113 @@ img { display: block; max-width: 100%; }
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+
+/* ═══════════════════════════════════════════════
+   MOBILE RESPONSIVE  — max-width: 768px
+   Desktop styles above are completely untouched.
+   ═══════════════════════════════════════════════ */
+@media (max-width: 768px) {
+
+  /* ── Layout: full-width content, no sidebar margin ── */
+  .app-layout {
+    flex-direction: column;
+  }
+
+  .app-main {
+    margin-left: 0 !important;
+    padding: 12px 8px;
+    width: 100%;
+  }
+
+  /* ── Hamburger button (shown only on mobile) ── */
+  .hamburger-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 500;
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    color: var(--text-primary);
+    font-size: 22px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .hamburger-btn:active {
+    background: var(--surface-2);
+  }
+
+  /* ── Sidebar overlay on mobile ── */
+  .mobile-nav-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 200;
+    animation: fadeIn 0.2s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  /* ── Nav: slide in from left as overlay ── */
+  .mobile-nav-open {
+    width: 240px !important;
+    transform: translateX(0) !important;
+  }
+
+  .mobile-nav-closed {
+    transform: translateX(-100%) !important;
+    width: 240px !important;
+  }
+
+  /* ── Post cards & content: full width ── */
+  .post-card,
+  [class*="post-card"],
+  [class*="PostCard"],
+  [class*="card"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  /* ── Images inside posts: responsive ── */
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* ── Touch targets: at least 44px ── */
+  button,
+  [role="button"],
+  a {
+    min-height: 44px;
+  }
+
+  /* ── Font & padding: slightly reduced ── */
+  html {
+    font-size: 14px;
+  }
+
+  h1 { font-size: 1.4rem; }
+  h2 { font-size: 1.2rem; }
+  h3 { font-size: 1.05rem; }
+
+  /* ── Padding top to clear hamburger button ── */
+  .app-main > * {
+    padding-top: 4px;
+  }
+
+  main[style] {
+    padding-top: 64px !important;
+  }
+}

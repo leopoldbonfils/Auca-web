@@ -107,6 +107,16 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange, o
   const [showMore, setShowMore] = useState(false);
   const [showAccount, setShowAccount] = useState(false);
 
+  // ── Mobile: hamburger state ────────────────────────────────────────────────
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 768);
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
   // FIX: load real user info on mount
   const [userInfo, setUserInfo] = useState(getUserInfo());
 
@@ -143,25 +153,56 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange, o
     fontFamily: "'Nunito', sans-serif",
   });
 
+  // On mobile: treat nav as always-expanded when open
+  const navExpanded = isMobile ? mobileOpen : expanded;
+
   return (
+    <>
+      {/* ── Hamburger button — mobile only ─────────────────────────────── */}
+      {isMobile && (
+        <button
+          className="hamburger-btn"
+          onClick={() => setMobileOpen(o => !o)}
+          aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+        >
+          {mobileOpen ? '✕' : '☰'}
+        </button>
+      )}
+
+      {/* ── Backdrop overlay — closes nav on tap ───────────────────────── */}
+      {isMobile && mobileOpen && (
+        <div
+          className="mobile-nav-overlay"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+
     <nav
       ref={navRef}
-      onMouseEnter={() => { setExpanded(true); onExpandedChange && onExpandedChange(true); }}
-      onMouseLeave={() => { setExpanded(false); setShowMore(false); setShowAccount(false); onExpandedChange && onExpandedChange(false); }}
+      onMouseEnter={() => {
+        if (isMobile) return;
+        setExpanded(true); onExpandedChange && onExpandedChange(true);
+      }}
+      onMouseLeave={() => {
+        if (isMobile) return;
+        setExpanded(false); setShowMore(false); setShowAccount(false); onExpandedChange && onExpandedChange(false);
+      }}
       style={{
         position: 'fixed', top: 0, left: 0, height: '100vh',
-        width: `${expanded ? EXPANDED_W : SLIM_W}px`,
+        width: isMobile ? `${EXPANDED_W}px` : `${expanded ? EXPANDED_W : SLIM_W}px`,
         background: 'var(--nav-bg)', borderRight: '1px solid var(--nav-border)',
         display: 'flex', flexDirection: 'column',
-        alignItems: expanded ? 'flex-start' : 'center',
-        zIndex: 100, overflow: 'hidden', transition: 'width 0.25s ease',
+        alignItems: navExpanded ? 'flex-start' : 'center',
+        zIndex: 300, overflow: 'hidden',
+        transition: isMobile ? 'transform 0.25s ease' : 'width 0.25s ease',
+        transform: isMobile ? (mobileOpen ? 'translateX(0)' : 'translateX(-100%)') : 'none',
         boxShadow: isDark ? '2px 0 24px rgba(0,0,0,0.5)' : '2px 0 16px rgba(13,59,142,0.08)',
       }}
     >
       {/*  LOGO  */}
-      <div style={{ padding: expanded ? '22px 20px 18px' : '22px 0 18px', borderBottom: '1px solid var(--nav-border)', width: '100%', display: 'flex', justifyContent: expanded ? 'flex-start' : 'center', flexShrink: 0, transition: 'padding 0.25s' }}>
+      <div style={{ padding: navExpanded ? '22px 20px 18px' : '22px 0 18px', borderBottom: '1px solid var(--nav-border)', width: '100%', display: 'flex', justifyContent: navExpanded ? 'flex-start' : 'center', flexShrink: 0, transition: 'padding 0.25s' }}>
         {aucaLogo ? (
-          <img src={aucaLogo} alt="AUCA" style={{ width: expanded ? '110px' : '36px', height: '36px', objectFit: 'contain', objectPosition: 'left center', transition: 'width 0.25s' }} />
+          <img src={aucaLogo} alt="AUCA" style={{ width: navExpanded ? '110px' : '36px', height: '36px', objectFit: 'contain', objectPosition: 'left center', transition: 'width 0.25s' }} />
         ) : (
           <div style={{ width: '36px', height: '36px', flexShrink: 0, background: 'linear-gradient(135deg, #0d3b8e, #1a4fa8)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: '18px' }}>A</div>
         )}
@@ -180,16 +221,16 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange, o
           const isActive = activePage === item.id;
           return (
             <button key={item.id}
-              onClick={() => onNavigate && onNavigate(item.id)}
-              title={!expanded ? item.label : ''}
-              style={btnStyle(isActive, expanded)}
-              onMouseEnter={e => e.currentTarget.style.background = isActive && expanded ? 'var(--nav-active-bg)' : 'var(--surface-2)'}
-              onMouseLeave={e => e.currentTarget.style.background = isActive && expanded ? 'var(--nav-active-bg)' : 'transparent'}
+              onClick={() => { onNavigate && onNavigate(item.id); if (isMobile) setMobileOpen(false); }}
+              title={!navExpanded ? item.label : ''}
+              style={btnStyle(isActive, navExpanded)}
+              onMouseEnter={e => e.currentTarget.style.background = isActive && navExpanded ? 'var(--nav-active-bg)' : 'var(--surface-2)'}
+              onMouseLeave={e => e.currentTarget.style.background = isActive && navExpanded ? 'var(--nav-active-bg)' : 'transparent'}
             >
               <span style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
                 {isActive ? item.iconActive : item.icon}
               </span>
-              {expanded && (
+              {navExpanded && (
                 <span style={{ fontSize: '14px', fontWeight: isActive ? 700 : 500, whiteSpace: 'nowrap' }}>{item.label}</span>
               )}
             </button>
@@ -198,22 +239,22 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange, o
       </div>
 
       {/* Bottom section  */}
-      <div style={{ padding: '10px 0 18px', borderTop: '1px solid var(--nav-border)', width: '100%', flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: expanded ? 'flex-start' : 'center', gap: '0px' }}>
+      <div style={{ padding: '10px 0 18px', borderTop: '1px solid var(--nav-border)', width: '100%', flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: navExpanded ? 'flex-start' : 'center', gap: '0px' }}>
 
         {/* More button */}
         <div style={{ position: 'relative', width: '100%' }} ref={moreRef}>
           <button
             onClick={() => { setShowMore(p => !p); setShowAccount(false); }}
-            title={!expanded ? 'More' : ''}
-            style={{ ...btnStyle(false, expanded), background: showMore && expanded ? 'var(--surface-2)' : 'transparent' }}
+            title={!navExpanded ? 'More' : ''}
+            style={{ ...btnStyle(false, navExpanded), background: showMore && navExpanded ? 'var(--surface-2)' : 'transparent' }}
             onMouseEnter={e => e.currentTarget.style.background = 'var(--surface-2)'}
-            onMouseLeave={e => e.currentTarget.style.background = showMore && expanded ? 'var(--surface-2)' : 'transparent'}
+            onMouseLeave={e => e.currentTarget.style.background = showMore && navExpanded ? 'var(--surface-2)' : 'transparent'}
           >
             <span style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}><CiCircleMore size={30} /></span>
-            {expanded && <span style={{ fontSize: '14px', fontWeight: 500, whiteSpace: 'nowrap' }}>More</span>}
+            {navExpanded && <span style={{ fontSize: '14px', fontWeight: 500, whiteSpace: 'nowrap' }}>More</span>}
           </button>
 
-          {showMore && expanded && (
+          {showMore && navExpanded && (
             <Popup bottom="80px">
               <PopupRow
                 iconBg={isDark ? '#1a2744' : '#fff7ed'}
@@ -238,10 +279,10 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange, o
         <div style={{ position: 'relative', width: '100%' }} ref={accountRef}>
           <button
             onClick={() => { setShowAccount(p => !p); setShowMore(false); }}
-            title={!expanded ? 'Account' : ''}
-            style={{ ...btnStyle(false, expanded), background: showAccount && expanded ? 'var(--surface-2)' : 'transparent' }}
+            title={!navExpanded ? 'Account' : ''}
+            style={{ ...btnStyle(false, navExpanded), background: showAccount && navExpanded ? 'var(--surface-2)' : 'transparent' }}
             onMouseEnter={e => e.currentTarget.style.background = 'var(--surface-2)'}
-            onMouseLeave={e => e.currentTarget.style.background = showAccount && expanded ? 'var(--surface-2)' : 'transparent'}
+            onMouseLeave={e => e.currentTarget.style.background = showAccount && navExpanded ? 'var(--surface-2)' : 'transparent'}
           >
             {/* real profile image if available, else initials */}
             <div style={{
@@ -264,7 +305,7 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange, o
             </div>
 
             {/* real name and role */}
-            {expanded && (
+            {navExpanded && (
               <div style={{ minWidth: 0 }}>
                 <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '130px' }}>
                   {userInfo.fullName}
@@ -274,7 +315,7 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange, o
             )}
           </button>
 
-          {showAccount && expanded && (
+          {showAccount && navExpanded && (
             <Popup bottom="70px">
               <PopupRow
                 iconBg="var(--primary-pale)" iconColor="var(--primary)"
@@ -297,5 +338,6 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange, o
 
       <style>{`@keyframes popupIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }`}</style>
     </nav>
+    </>
   );
 }
