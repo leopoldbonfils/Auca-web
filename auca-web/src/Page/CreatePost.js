@@ -22,7 +22,7 @@ const POST_TYPES = [
 ];
 
 // Accepted file types 
-const ACCEPT_ATTR = 'image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.rar,.zip';
+const ACCEPT_ATTR = 'image/*,.pdf,.doc,.docx,.xls,.xlsx,.csv,.ppt,.pptx,.txt,.rar,.zip';
 
 // Audience data (mirrors the RN app) 
 const FACULTY_DEPARTMENTS = {
@@ -255,6 +255,7 @@ function RadioOption({ value, selected, onChange, label, sub, children }) {
 //  Main component 
 export default function CreatePost({ onNavigate, onPostCreated }) {
   const [postType, setPostType] = useState('post');
+  const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [audience, setAudience] = useState('all');
   const [audienceList, setAudienceList] = useState([]);
@@ -289,12 +290,14 @@ export default function CreatePost({ onNavigate, onPostCreated }) {
   const removeAttachment = () => { setAttachedFile(null); if (fileInputRef.current) fileInputRef.current.value = ''; };
 
   const handlePost = async () => {
+    if (!title.trim()) { setErrorMsg('Please add a title before posting.'); return; }
     if (!content.trim()) { setErrorMsg('Please write something before posting.'); return; }
     setErrorMsg('');
     setIsPosting(true);
     try {
       const token = localStorage.getItem('accessToken');
       const formData = new FormData();
+      formData.append('title', title.trim());
       formData.append('description', content.trim());
       formData.append('audience', audience);
       if (audience === 'students' && audienceList.length > 0)
@@ -309,6 +312,7 @@ export default function CreatePost({ onNavigate, onPostCreated }) {
       const data = await res.json().catch(() => null);
       if (!res.ok) throw new Error(data?.message || 'Failed to create post');
 
+      setTitle('');
       setContent('');
       setAttachedFile(null);
       setAudienceList([]);
@@ -341,6 +345,17 @@ export default function CreatePost({ onNavigate, onPostCreated }) {
         ))}
       </div>
 
+      {/* Title input */}
+      <div style={{ background: 'var(--surface)', borderRadius: '14px', border: `1.5px solid ${title.length > 0 ? '#0d3b8e44' : 'var(--border)'}`, marginBottom: '12px', overflow: 'hidden', boxShadow: 'var(--shadow)', transition: 'border-color 0.2s' }}>
+        <input
+          type="text"
+          value={title}
+          onChange={e => setTitle(e.target.value)}
+          placeholder="Enter post title..."
+          style={{ width: '100%', padding: '14px 16px', border: 'none', outline: 'none', fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', fontFamily: "'Nunito', sans-serif", background: 'transparent', boxSizing: 'border-box' }}
+        />
+      </div>
+
       {/* Text area */}
       <div style={{ background: 'var(--surface)', borderRadius: '14px', border: `1.5px solid ${isOverLimit ? '#e53935' : content.length > 0 ? '#0d3b8e44' : 'var(--border)'}`, marginBottom: '14px', overflow: 'hidden', boxShadow: 'var(--shadow)', transition: 'border-color 0.2s' }}>
         <textarea
@@ -353,7 +368,6 @@ export default function CreatePost({ onNavigate, onPostCreated }) {
           }
           style={{ width: '100%', minHeight: '140px', padding: '16px', border: 'none', outline: 'none', resize: 'vertical', fontSize: '14px', color: 'var(--text-primary)', lineHeight: 1.7, fontFamily: "'Nunito', sans-serif", background: 'transparent' }}
         />
-       
       </div>
 
       {/*  Attachment section  */}
@@ -399,7 +413,7 @@ export default function CreatePost({ onNavigate, onPostCreated }) {
 
               {/* PDF / Doc / Excel / PPT / etc. picker */}
               <button
-                onClick={() => { if (fileInputRef.current) { fileInputRef.current.accept = '.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.rar,.zip'; fileInputRef.current.click(); } }}
+                onClick={() => { if (fileInputRef.current) { fileInputRef.current.accept = '.pdf,.doc,.docx,.xls,.xlsx,.csv,.ppt,.pptx,.txt,.rar,.zip'; fileInputRef.current.click(); } }}
                 style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 18px', borderRadius: '10px', border: '1.5px solid var(--border)', background: 'var(--surface)', cursor: 'pointer', fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)', fontFamily: "'Nunito', sans-serif", transition: 'all 0.15s' }}
                 onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.background = 'var(--primary-pale)'; e.currentTarget.style.color = 'var(--primary)'; }}
                 onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.background = 'var(--surface)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
@@ -409,7 +423,7 @@ export default function CreatePost({ onNavigate, onPostCreated }) {
             </div>
 
             <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '10px' }}>
-              JPG, PNG, PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT, RAR, ZIP
+              JPG, PNG, PDF, DOC, DOCX, XLS, XLSX, CSV, PPT, PPTX, TXT, RAR, ZIP
             </div>
           </div>
 
@@ -449,7 +463,7 @@ export default function CreatePost({ onNavigate, onPostCreated }) {
       {/* Post button */}
       <button
         onClick={handlePost}
-        disabled={isPosting || isOverLimit || !content.trim()}
+        disabled={isPosting || isOverLimit || !content.trim() || !title.trim()}
         style={{ width: '100%', padding: '16px', borderRadius: '14px', border: 'none', background: isPosting || !content.trim() || isOverLimit ? 'var(--border)' : 'linear-gradient(135deg, #0d3b8e, #1a4fa8)', color: isPosting || !content.trim() || isOverLimit ? 'var(--text-muted)' : '#fff', fontSize: '16px', fontWeight: 800, cursor: isPosting || !content.trim() || isOverLimit ? 'not-allowed' : 'pointer', boxShadow: !isPosting && content.trim() && !isOverLimit ? '0 4px 16px rgba(13,59,142,0.3)' : 'none', transition: 'all 0.2s ease', letterSpacing: '0.5px', fontFamily: "'Nunito', sans-serif" }}
       >
         {isPosting ? (
