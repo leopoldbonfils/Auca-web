@@ -105,7 +105,6 @@ export default function AUCASADashboard({ onNavigate }) {
         const list = Array.isArray(data) ? data : (data.posts || []);
         // Map to the shape PostCard expects
         const mapped = list.map(post => {
-          const p = JSON.parse(localStorage.getItem('userProfile') || '{}');
           const resolveUrl = (url) => url?.startsWith('https://') ? url : null;
           return {
             id: String(post.Id),
