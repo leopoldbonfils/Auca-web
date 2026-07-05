@@ -118,16 +118,16 @@ img { display: block; max-width: 100%; }
     top: 12px;
     left: 12px;
     z-index: 500;
-    width: 44px;
-    height: 44px;
+    width: 38px;
+    height: 38px;
     border-radius: 10px;
     background: var(--surface);
     border: 1px solid var(--border);
     box-shadow: var(--shadow);
     color: var(--text-primary);
-    font-size: 22px;
+    font-size: 18px;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: transform 0.3s ease, background 0.2s ease;
   }
 
   .hamburger-btn:active {
@@ -146,17 +146,6 @@ img { display: block; max-width: 100%; }
   @keyframes fadeIn {
     from { opacity: 0; }
     to   { opacity: 1; }
-  }
-
-  /* ── Nav: slide in from left as overlay ── */
-  .mobile-nav-open {
-    width: 240px !important;
-    transform: translateX(0) !important;
-  }
-
-  .mobile-nav-closed {
-    transform: translateX(-100%) !important;
-    width: 240px !important;
   }
 
   /* ── Post cards & content: full width ── */

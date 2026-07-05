@@ -110,11 +110,27 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange, o
   // ── Mobile: hamburger state ────────────────────────────────────────────────
   const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 768);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [showHamburger, setShowHamburger] = useState(true);
+  const lastScrollY = useRef(0);
 
   useEffect(() => {
     const onResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      if (currentScrollY > lastScrollY.current && currentScrollY > 50) {
+        setShowHamburger(false);
+      } else {
+        setShowHamburger(true);
+      }
+      lastScrollY.current = currentScrollY;
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   // FIX: load real user info on mount
@@ -162,6 +178,7 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange, o
       {isMobile && (
         <button
           className="hamburger-btn"
+          style={{ transform: (showHamburger || mobileOpen) ? 'translateY(0)' : 'translateY(-150%)' }}
           onClick={() => setMobileOpen(o => !o)}
           aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
         >
@@ -188,8 +205,8 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange, o
         setExpanded(false); setShowMore(false); setShowAccount(false); onExpandedChange && onExpandedChange(false);
       }}
       style={{
-        position: 'fixed', top: 0, left: 0, height: '100vh',
-        width: isMobile ? `${EXPANDED_W}px` : `${expanded ? EXPANDED_W : SLIM_W}px`,
+        position: 'fixed', top: 0, left: 0, bottom: 0,
+        width: isMobile ? '100vw' : `${expanded ? EXPANDED_W : SLIM_W}px`,
         background: 'var(--nav-bg)', borderRight: '1px solid var(--nav-border)',
         display: 'flex', flexDirection: 'column',
         alignItems: navExpanded ? 'flex-start' : 'center',
