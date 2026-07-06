@@ -9,6 +9,7 @@ import { MdEmail } from 'react-icons/md';
 import { FaXTwitter } from 'react-icons/fa6';
 import { MdContentCopy } from 'react-icons/md';
 import { BsCheck2, BsCheckCircleFill } from 'react-icons/bs';
+import { HiArrowLeft, HiOutlineClock, HiOutlineEye, HiOutlineCheckCircle, HiOutlineXCircle, HiOutlineUsers } from 'react-icons/hi';
 import { IoLogoInstagram } from 'react-icons/io5';
 import { MdDownload, MdOpenInNew } from 'react-icons/md';
 import docIcon from '../assets/doc.png';
@@ -358,13 +359,18 @@ function ShareModal({ postUrl, onClose }) {
 
 // ── Claim / Concerns Modal (student only) ────────────────────────────────────
 function ClaimModal({ postId, onClose, onSuccess }) {
-  const [tab, setTab] = useState('overview'); // 'overview' | 'create'
+  const [activeScreen, setActiveScreen] = useState('overview'); // 'overview' | 'claims' | 'create'
   const [step, setStep] = useState('form'); // 'form' | 'submitting' | 'done' | 'error'
   const [categories, setCategories] = useState([]);
   const [loadingCats, setLoadingCats] = useState(true);
 
-  // form fields
+  // claims inside selected category
   const [selectedCategoryId, setSelectedCategoryId] = useState('');
+  const [selectedCategoryName, setSelectedCategoryName] = useState('');
+  const [claimsList, setClaimsList] = useState([]);
+  const [loadingClaims, setLoadingClaims] = useState(false);
+
+  // form fields
   const [newCategoryText, setNewCategoryText] = useState('');
   const [claimText, setClaimText] = useState('');
   const [visibility, setVisibility] = useState('public');
@@ -398,25 +404,95 @@ function ClaimModal({ postId, onClose, onSuccess }) {
     }
   };
 
-  // Load existing categories for this post
-  useEffect(() => {
+  const fetchCategories = () => {
+    setLoadingCats(true);
     api.get(`/home/posts/claims/categories?PostId=${postId}`)
       .then(data => {
-        setCategories(Array.isArray(data) ? data : []);
+        const cats = Array.isArray(data) ? data : [];
+        setCategories(cats);
+        // If there are no categories, automatically select new category mode
+        if (cats.length === 0) {
+          setUseNewCategory(true);
+        }
         setLoadingCats(false);
       })
       .catch(() => {
         setCategories([]);
+        setUseNewCategory(true);
         setLoadingCats(false);
       });
+  };
+
+  // Load existing categories for this post
+  useEffect(() => {
+    fetchCategories();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [postId]);
+
+  const fetchClaimsForCategory = (catId) => {
+    setLoadingClaims(true);
+    api.get(`/home/posts/claims/categories/${catId}`)
+      .then(data => {
+        const list = (Array.isArray(data) ? data : []).map(c => ({
+          ...c,
+          isSupportedByMe: c.isSupportedByMe === 1 || c.isSupportedByMe === true,
+          isOwner: c.isOwner === 1 || c.isOwner === true
+        }));
+        setClaimsList(list);
+      })
+      .catch(err => {
+        console.error("fetchClaims error:", err);
+        setClaimsList([]);
+      })
+      .finally(() => {
+        setLoadingClaims(false);
+      });
+  };
+
+  // Load claims when category selected and claims screen active
+  useEffect(() => {
+    if (activeScreen === 'claims' && selectedCategoryId) {
+      fetchClaimsForCategory(selectedCategoryId);
+    }
+  }, [activeScreen, selectedCategoryId]);
+
+  const handleDeleteClaim = async (claimId) => {
+    if (!window.confirm("Are you sure you want to delete this concern?")) return;
+    setClaimsList(prev => prev.filter(c => c.ClaimId !== claimId));
+    try {
+      await api.delete(`/home/posts/claims/deleteClaim/${claimId}`);
+      // Refresh categories list
+      fetchCategories();
+    } catch (err) {
+      console.error("Delete claim error:", err);
+      alert(err.message || "Failed to delete concern.");
+      fetchClaimsForCategory(selectedCategoryId);
+    }
+  };
+
+  const handleToggleSupport = async (claimId) => {
+    setClaimsList(prev =>
+      prev.map(c => {
+        if (c.ClaimId !== claimId) return c;
+        const nextSupported = !c.isSupportedByMe;
+        return {
+          ...c,
+          isSupportedByMe: nextSupported,
+          NumberOfSupports: nextSupported ? c.NumberOfSupports + 1 : c.NumberOfSupports - 1
+        };
+      })
+    );
+    try {
+      await api.post('/home/posts/claims/newClaimSupport', { ClaimId: claimId });
+    } catch (err) {
+      console.error("Toggle support error:", err);
+      fetchClaimsForCategory(selectedCategoryId);
+    }
+  };
 
   const handleSubmit = async () => {
     setErrorMsg('');
-    if (!claimText.trim()) { setErrorMsg('Please describe your concern.'); return; }
-    if (!useNewCategory && !selectedCategoryId) { setErrorMsg('Please select a category or create a new one.'); return; }
-    if (useNewCategory && !newCategoryText.trim()) { setErrorMsg('Please enter a name for the new category.'); return; }
-    if (useNewCategory && newCategoryText.trim().length > 50) { setErrorMsg('Category name must be 50 characters or less.'); return; }
+    if (!canSubmit) return;
 
     setStep('submitting');
 
@@ -424,7 +500,7 @@ function ClaimModal({ postId, onClose, onSuccess }) {
     formData.append('PostId', postId);
     formData.append('ClaimText', claimText.trim());
     formData.append('ClaimVisibility', visibility);
-    if (useNewCategory) {
+    if (isNewCategory) {
       formData.append('NewClaimCategoryText', newCategoryText.trim());
     } else {
       formData.append('ClaimCategoryId', selectedCategoryId);
@@ -436,16 +512,104 @@ function ClaimModal({ postId, onClose, onSuccess }) {
     try {
       await api.post('/home/posts/claims/newClaim', formData);
       setStep('done');
-      setTimeout(() => { onClose(); onSuccess && onSuccess(); }, 1800);
+      fetchCategories();
+      setTimeout(() => {
+        setStep('form');
+        setActiveScreen('overview');
+        setClaimText('');
+        setNewCategoryText('');
+        setSelectedCategoryId('');
+        setUseNewCategory(categories.length === 0);
+        setImageFile(null);
+        setImagePreview(null);
+        onSuccess && onSuccess();
+      }, 1500);
     } catch (err) {
       setErrorMsg(err.message || 'Failed to submit concern.');
       setStep('form');
     }
   };
 
+  // Validation criteria (from React Native app)
+  const isNewCategory = categories.length === 0 || useNewCategory;
+  const categorySelected = categories.length === 0 || selectedCategoryId !== '' || useNewCategory;
+  const newCategoryValid = !isNewCategory || (newCategoryText.trim().length >= 3 && newCategoryText.trim().length <= 50);
+  const descriptionValid = claimText.trim().length >= 10 && claimText.trim().length <= 500;
+  const canSubmit = categorySelected && newCategoryValid && descriptionValid;
+
   const totalActiveConcerns = categories.reduce((sum, cat) => sum + Number(cat.NumberOfClaims || 0), 0);
   const activeTopicsCount = categories.length;
-  const isFormValid = claimText.trim() && (useNewCategory ? newCategoryText.trim() : selectedCategoryId);
+  const sortedCategories = [...categories].sort((a, b) => Number(b.NumberOfClaims || 0) - Number(a.NumberOfClaims || 0));
+
+  const STATUS_CONFIG = {
+    pending: { label: "Pending", color: "#F59E0B", icon: HiOutlineClock },
+    reviewed: { label: "Reviewed", color: "#10B981", icon: HiOutlineEye },
+    resolved: { label: "Resolved", color: "#10B981", icon: HiOutlineCheckCircle },
+    rejected: { label: "Rejected", color: "#EF4444", icon: HiOutlineXCircle },
+  };
+
+  function formatTimeFromUTC(utcTimestamp) {
+    if (!utcTimestamp) return '';
+    const messageDate = new Date(utcTimestamp);
+    const now = new Date();
+    const diffInMs = now - messageDate;
+    const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+    const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+    
+    const formatTime = (date) => {
+      return date.toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      });
+    };
+    
+    const isSameDay = (date1, date2) => date1.toDateString() === date2.toDateString();
+    
+    const isYesterday = (date) => {
+      const yesterday = new Date(now);
+      yesterday.setDate(yesterday.getDate() - 1);
+      return isSameDay(date, yesterday);
+    };
+    
+    const isThisWeek = (date) => {
+      const weekStart = new Date(now);
+      weekStart.setDate(now.getDate() - now.getDay());
+      weekStart.setHours(0, 0, 0, 0);
+      return date >= weekStart;
+    };
+    
+    if (diffInMinutes < 1) {
+      return 'now';
+    } else if (diffInMinutes < 60) {
+      return `${diffInMinutes} minute${diffInMinutes === 1 ? '' : 's'} ago`;
+    } else if (diffInHours < 24 && isSameDay(messageDate, now)) {
+      if (diffInHours < 2) {
+        return `${diffInHours} hour${diffInHours === 1 ? '' : 's'} ago`;
+      } else {
+        return formatTime(messageDate);
+      }
+    } else if (isYesterday(messageDate)) {
+      return `Yesterday at ${formatTime(messageDate)}`;
+    } else if (isThisWeek(messageDate) && diffInDays < 7) {
+      const dayName = messageDate.toLocaleDateString('en-US', { weekday: 'long' });
+      return `${dayName} at ${formatTime(messageDate)}`;
+    } else if (messageDate.getFullYear() === now.getFullYear()) {
+      const monthDay = messageDate.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric'
+      });
+      return `${monthDay} at ${formatTime(messageDate)}`;
+    } else {
+      const fullDate = messageDate.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      });
+      return `${fullDate} at ${formatTime(messageDate)}`;
+    }
+  }
 
   return (
     <>
@@ -482,39 +646,41 @@ function ClaimModal({ postId, onClose, onSuccess }) {
         </div>
 
         {/* Custom Tabs */}
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '0 20px', marginBottom: '24px' }}>
-          <div style={{ display: 'flex', background: 'var(--surface-2)', borderRadius: '30px', padding: '4px', width: '100%', maxWidth: '400px', border: '1px solid var(--border)' }}>
-            <button
-              onClick={() => setTab('overview')}
-              style={{
-                flex: 1, padding: '12px 0', borderRadius: '26px', fontSize: '15px', fontWeight: 700,
-                background: tab === 'overview' ? 'var(--primary)' : 'transparent',
-                color: tab === 'overview' ? '#fff' : 'var(--text-primary)',
-                border: 'none', cursor: 'pointer', transition: 'all 0.2s',
-                textShadow: tab === 'overview' ? 'none' : '0px 1px 2px rgba(0,0,0,0.1)'
-              }}
-            >
-              Overview
-            </button>
-            <button
-              onClick={() => setTab('create')}
-              style={{
-                flex: 1, padding: '12px 0', borderRadius: '26px', fontSize: '15px', fontWeight: 700,
-                background: tab === 'create' ? 'var(--primary)' : 'transparent',
-                color: tab === 'create' ? '#fff' : 'var(--text-primary)',
-                border: 'none', cursor: 'pointer', transition: 'all 0.2s',
-                textShadow: tab === 'create' ? 'none' : '0px 1px 2px rgba(0,0,0,0.1)'
-              }}
-            >
-              Create Concern
-            </button>
+        {(activeScreen === 'overview' || activeScreen === 'create') && (
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '0 20px', marginBottom: '24px' }}>
+            <div style={{ display: 'flex', background: 'var(--surface-2)', borderRadius: '30px', padding: '4px', width: '100%', maxWidth: '400px', border: '1px solid var(--border)' }}>
+              <button
+                onClick={() => setActiveScreen('overview')}
+                style={{
+                  flex: 1, padding: '12px 0', borderRadius: '26px', fontSize: '15px', fontWeight: 700,
+                  background: activeScreen === 'overview' ? 'var(--primary)' : 'transparent',
+                  color: activeScreen === 'overview' ? '#fff' : 'var(--text-primary)',
+                  border: 'none', cursor: 'pointer', transition: 'all 0.2s',
+                  textShadow: activeScreen === 'overview' ? 'none' : '0px 1px 2px rgba(0,0,0,0.1)'
+                }}
+              >
+                Overview
+              </button>
+              <button
+                onClick={() => setActiveScreen('create')}
+                style={{
+                  flex: 1, padding: '12px 0', borderRadius: '26px', fontSize: '15px', fontWeight: 700,
+                  background: activeScreen === 'create' ? 'var(--primary)' : 'transparent',
+                  color: activeScreen === 'create' ? '#fff' : 'var(--text-primary)',
+                  border: 'none', cursor: 'pointer', transition: 'all 0.2s',
+                  textShadow: activeScreen === 'create' ? 'none' : '0px 1px 2px rgba(0,0,0,0.1)'
+                }}
+              >
+                Create Concern
+              </button>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Content Area */}
         <div style={{ padding: '0 24px 30px', overflowY: 'auto' }}>
 
-          {tab === 'overview' && (
+          {activeScreen === 'overview' && (
             <div style={{ animation: 'claimFadeIn 0.2s ease' }}>
               <div style={{ textAlign: 'center', fontSize: '18px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '20px' }}>
                 {totalActiveConcerns} Active Concerns across {activeTopicsCount} Topics
@@ -522,15 +688,24 @@ function ClaimModal({ postId, onClose, onSuccess }) {
 
               {loadingCats ? (
                 <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '20px' }}>Loading...</div>
-              ) : categories.length === 0 ? (
+              ) : sortedCategories.length === 0 ? (
                 <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '20px', border: '1px solid var(--border)', borderRadius: '20px' }}>No active concerns yet.</div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  {categories.map(cat => {
+                  {sortedCategories.map(cat => {
                     const numClaims = Number(cat.NumberOfClaims || 0);
                     const percent = totalActiveConcerns > 0 ? Math.round((numClaims / totalActiveConcerns) * 100) : 0;
                     return (
-                      <div key={cat.CategoryId} style={{ border: '1px solid var(--border)', borderRadius: '20px', padding: '20px', background: 'var(--surface)' }}>
+                      <div
+                        key={cat.CategoryId}
+                        onClick={() => {
+                          setSelectedCategoryId(cat.CategoryId);
+                          setSelectedCategoryName(cat.CategoryName);
+                          setActiveScreen('claims');
+                        }}
+                        style={{ border: '1px solid var(--border)', borderRadius: '20px', padding: '20px', background: 'var(--surface)', cursor: 'pointer', transition: 'all 0.2s ease' }}
+                        className="category-card"
+                      >
                         <div style={{ fontSize: '16px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '14px' }}>{cat.CategoryName}</div>
                         <div style={{ height: '12px', background: 'var(--surface-2)', borderRadius: '6px', overflow: 'hidden', marginBottom: '10px' }}>
                           <div style={{ height: '100%', width: `${percent}%`, background: 'var(--primary)', borderRadius: '6px' }} />
@@ -546,7 +721,168 @@ function ClaimModal({ postId, onClose, onSuccess }) {
             </div>
           )}
 
-          {tab === 'create' && (
+          {activeScreen === 'claims' && (
+            <div style={{ animation: 'claimFadeIn 0.2s ease' }}>
+              {/* Claims list header */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+                <button
+                  onClick={() => setActiveScreen('overview')}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '8px 14px',
+                    borderRadius: '20px',
+                    border: '1px solid var(--border)',
+                    background: 'var(--surface-2)',
+                    color: 'var(--text-primary)',
+                    fontSize: '14px',
+                    fontWeight: 700,
+                    cursor: 'pointer'
+                  }}
+                >
+                  <HiArrowLeft size={16} /> Back
+                </button>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <h3 style={{ fontSize: '18px', fontWeight: 800, color: 'var(--text-primary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {selectedCategoryName}
+                  </h3>
+                  <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '2px' }}>
+                    {claimsList.length} {claimsList.length === 1 ? 'claim' : 'claims'} • {claimsList.reduce((sum, c) => sum + Number(c.NumberOfSupports || 0), 0)} total supports
+                  </div>
+                </div>
+              </div>
+
+              {loadingClaims ? (
+                <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '40px' }}>Loading concerns...</div>
+              ) : claimsList.length === 0 ? (
+                <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '40px', border: '1px solid var(--border)', borderRadius: '20px' }}>
+                  No concerns in this category yet.
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  {claimsList.map(claim => {
+                    const status = STATUS_CONFIG[claim.ClaimStatus] || STATUS_CONFIG.pending;
+                    const StatusIcon = status.icon;
+                    return (
+                      <div
+                        key={claim.ClaimId}
+                        style={{
+                          border: '1px solid var(--border)',
+                          borderRadius: '20px',
+                          padding: '20px',
+                          background: 'var(--surface)',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '14px'
+                        }}
+                        className="claim-card"
+                      >
+                        {/* Badge & Trash Action */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <div
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '6px',
+                              padding: '6px 12px',
+                              borderRadius: '20px',
+                              background: `${status.color}18`,
+                              color: status.color,
+                              fontSize: '13px',
+                              fontWeight: 700
+                            }}
+                          >
+                            <StatusIcon size={14} />
+                            <span>{status.label}</span>
+                          </div>
+                          {claim.isOwner && (
+                            <button
+                              onClick={() => handleDeleteClaim(claim.ClaimId)}
+                              style={{
+                                background: 'transparent',
+                                border: 'none',
+                                color: 'orangered',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                padding: '4px'
+                              }}
+                              title="Delete concern"
+                            >
+                              <FiTrash2 size={16} />
+                            </button>
+                          )}
+                        </div>
+
+                        {/* Text */}
+                        <p style={{ fontSize: '15px', color: 'var(--text-primary)', lineHeight: 1.5, fontWeight: 600, margin: 0 }}>
+                          {claim.ClaimText}
+                        </p>
+
+                        {/* Image Evidence */}
+                        {claim.ClaimEvidenceUrl && (
+                          <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border)', maxHeight: '240px' }}>
+                            <img
+                              src={claim.ClaimEvidenceUrl}
+                              alt="Evidence"
+                              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                            />
+                          </div>
+                        )}
+
+                        {/* Supports Row */}
+                        {claim.NumberOfSupports > 0 && (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)', fontSize: '13px' }}>
+                            <HiOutlineUsers size={16} />
+                            <span>
+                              {claim.NumberOfSupports} {claim.NumberOfSupports === 1 ? 'student' : 'students'} affected
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Footer */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px', color: 'var(--text-muted)' }}>
+                          <span>By {claim.Lname}</span>
+                          <span>{formatTimeFromUTC(claim.DateCreated)}</span>
+                        </div>
+
+                        {/* Support button */}
+                        {!claim.isOwner && (
+                          <button
+                            onClick={() => handleToggleSupport(claim.ClaimId)}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '8px',
+                              width: '100%',
+                              padding: '12px',
+                              borderRadius: '12px',
+                              border: `1px solid var(--primary)`,
+                              background: claim.isSupportedByMe ? 'var(--primary)' : 'transparent',
+                              color: claim.isSupportedByMe ? '#fff' : 'var(--primary)',
+                              fontWeight: 700,
+                              fontSize: '14px',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s ease'
+                            }}
+                          >
+                            <BsCheckCircleFill size={16} />
+                            <span>
+                              {claim.isSupportedByMe ? 'Supporting' : 'I have the same concern'}
+                            </span>
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeScreen === 'create' && (
             <div style={{ animation: 'claimFadeIn 0.2s ease' }}>
               <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '6px' }}>Create Your Concern</div>
               <div style={{ fontSize: '15px', color: 'var(--text-muted)', marginBottom: '24px' }}>Report an issue or concern related to this post.</div>
@@ -568,49 +904,67 @@ function ClaimModal({ postId, onClose, onSuccess }) {
               {(step === 'form' || step === 'error') && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                   {/* Select Topic */}
-                  <div style={{ border: '1px solid var(--border)', borderRadius: '20px', padding: '20px', background: 'var(--surface)' }}>
-                    <div style={{ fontSize: '16px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '16px' }}>
-                      Select Topic <span style={{ color: '#e53935' }}>*</span>
-                    </div>
-                    {loadingCats ? (
-                      <div style={{ fontSize: '14px', color: 'var(--text-muted)' }}>Loading...</div>
-                    ) : (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                        {categories.map(c => (
-                          <div
-                            key={c.CategoryId}
-                            onClick={() => { setSelectedCategoryId(c.CategoryId); setUseNewCategory(false); }}
-                            style={{ padding: '16px 20px', border: `1px solid ${!useNewCategory && selectedCategoryId === c.CategoryId ? 'var(--primary)' : 'var(--border)'}`, borderRadius: '16px', fontSize: '15px', color: 'var(--text-primary)', cursor: 'pointer', background: 'var(--surface)' }}
-                          >
-                            {c.CategoryName}
-                          </div>
-                        ))}
-
-                        <div
-                          onClick={() => setUseNewCategory(true)}
-                          style={{ padding: '16px 20px', border: `1px solid ${useNewCategory ? 'var(--primary)' : 'var(--border)'}`, borderRadius: '16px', fontSize: '15px', color: 'var(--text-primary)', cursor: 'pointer', background: 'var(--surface)' }}
-                        >
-                          Other
-                        </div>
-                        {useNewCategory && (
-                          <input
-                            type="text"
-                            placeholder="Enter new topic..."
-                            maxLength={50}
-                            value={newCategoryText}
-                            onChange={e => setNewCategoryText(e.target.value)}
-                            style={{
-                              width: '100%', padding: '16px 20px', borderRadius: '16px',
-                              border: '1px solid var(--primary)', background: 'var(--surface)',
-                              color: 'var(--text-primary)', fontSize: '15px',
-                              fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box',
-                              marginTop: '8px'
-                            }}
-                          />
-                        )}
+                  {categories.length > 0 && (
+                    <div style={{ border: '1px solid var(--border)', borderRadius: '20px', padding: '20px', background: 'var(--surface)' }}>
+                      <div style={{ fontSize: '16px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '16px' }}>
+                        Select Topic <span style={{ color: '#e53935' }}>*</span>
                       </div>
-                    )}
-                  </div>
+                      {loadingCats ? (
+                        <div style={{ fontSize: '14px', color: 'var(--text-muted)' }}>Loading...</div>
+                      ) : (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                          {categories.map(c => (
+                            <div
+                              key={c.CategoryId}
+                              onClick={() => { setSelectedCategoryId(c.CategoryId); setUseNewCategory(false); }}
+                              style={{ padding: '16px 20px', border: `1px solid ${!useNewCategory && selectedCategoryId === c.CategoryId ? 'var(--primary)' : 'var(--border)'}`, borderRadius: '16px', fontSize: '15px', color: 'var(--text-primary)', cursor: 'pointer', background: 'var(--surface)' }}
+                            >
+                              {c.CategoryName}
+                            </div>
+                          ))}
+
+                          <div
+                            onClick={() => setUseNewCategory(true)}
+                            style={{ padding: '16px 20px', border: `1px solid ${useNewCategory ? 'var(--primary)' : 'var(--border)'}`, borderRadius: '16px', fontSize: '15px', color: 'var(--text-primary)', cursor: 'pointer', background: 'var(--surface)' }}
+                          >
+                            Other
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* New Topic Input */}
+                  {isNewCategory && (
+                    <div style={{ border: '1px solid var(--border)', borderRadius: '20px', padding: '20px', background: 'var(--surface)' }}>
+                      <div style={{ fontSize: '16px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '16px' }}>
+                        New Topic <span style={{ color: '#e53935' }}>*</span>
+                      </div>
+                      <input
+                        type="text"
+                        placeholder="Name it clearly so others can support it…"
+                        maxLength={50}
+                        value={newCategoryText}
+                        onChange={e => setNewCategoryText(e.target.value)}
+                        style={{
+                          width: '100%', padding: '16px 20px', borderRadius: '16px',
+                          border: '1px solid var(--border)', background: 'var(--surface)',
+                          color: 'var(--text-primary)', fontSize: '15px',
+                          fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box'
+                        }}
+                      />
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px' }}>
+                        <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                          {newCategoryText.length > 0 && !newCategoryValid && (
+                            <span style={{ color: '#e53935' }}>Topic must be between 3 and 50 characters.</span>
+                          )}
+                        </span>
+                        <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                          {newCategoryText.length}/50
+                        </span>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Concern Description */}
                   <div style={{ border: '1px solid var(--border)', borderRadius: '20px', padding: '20px', background: 'var(--surface)' }}>
@@ -630,8 +984,15 @@ function ClaimModal({ postId, onClose, onSuccess }) {
                           boxSizing: 'border-box', minHeight: '140px',
                         }}
                       />
-                      <div style={{ textAlign: 'right', padding: '10px 20px', fontSize: '13px', color: 'var(--text-muted)' }}>
-                        {claimText.length}/500
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 20px', fontSize: '13px', color: 'var(--text-muted)' }}>
+                        <span>
+                          {claimText.length > 0 && !descriptionValid && (
+                            <span style={{ color: '#e53935' }}>Description must be between 10 and 500 characters.</span>
+                          )}
+                        </span>
+                        <span>
+                          {claimText.length}/500
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -708,18 +1069,19 @@ function ClaimModal({ postId, onClose, onSuccess }) {
                   {/* Submit Button */}
                   <button
                     onClick={handleSubmit}
-                    disabled={!isFormValid}
+                    disabled={!canSubmit}
                     style={{
                       width: '100%', padding: '18px',
                       borderRadius: '16px', border: 'none',
-                      background: isFormValid ? 'var(--primary)' : 'var(--surface-2)',
-                      color: isFormValid ? '#fff' : 'var(--text-muted)', fontSize: '16px', fontWeight: 800,
-                      cursor: isFormValid ? 'pointer' : 'not-allowed', fontFamily: 'inherit',
+                      background: canSubmit ? 'var(--primary)' : 'var(--surface-2)',
+                      color: canSubmit ? '#fff' : 'var(--text-muted)', fontSize: '16px', fontWeight: 800,
+                      cursor: canSubmit ? 'pointer' : 'not-allowed', fontFamily: 'inherit',
                       marginTop: '10px',
-                      transition: 'background 0.2s ease'
+                      transition: 'background 0.2s ease',
+                      opacity: canSubmit ? 1 : 0.5
                     }}
-                    onMouseEnter={e => { if (isFormValid) e.currentTarget.style.opacity = '0.9'; }}
-                    onMouseLeave={e => { if (isFormValid) e.currentTarget.style.opacity = '1'; }}
+                    onMouseEnter={e => { if (canSubmit) e.currentTarget.style.opacity = '0.9'; }}
+                    onMouseLeave={e => { if (canSubmit) e.currentTarget.style.opacity = '1'; }}
                   >
                     Submit Concern
                   </button>
@@ -734,6 +1096,17 @@ function ClaimModal({ postId, onClose, onSuccess }) {
       <style>{`
         @keyframes claimFadeIn  { from { opacity: 0 } to { opacity: 1 } }
         @keyframes claimFadeInScale { from { opacity: 0; transform: translate(-50%, -46%) scale(0.96); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+        .category-card:hover {
+          transform: translateY(-2px);
+          box-shadow: var(--shadow-hover);
+          border-color: var(--primary) !important;
+        }
+        .claim-card {
+          transition: all 0.2s ease;
+        }
+        .claim-card:hover {
+          box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
       `}</style>
     </>
   );
