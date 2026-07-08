@@ -15,15 +15,15 @@ let aucaLogo;
 try { aucaLogo = require('../assets/auca_logoo.png'); } catch (e) { aucaLogo = null; }
 
 //  All nav items:
-//  - staffOnly: true  → hidden from plain Students; visible to Staff AND AUCASA
-//  - aucasaOnly: true → only visible to AUCASA users
+//  staffOnly: true hidden from plain Students; visible to Staff AND AUCASA
+//  aucasaOnly: true only visible to AUCASA users
 const NAV_ITEMS_ALL = [
-  { id: 'home',    label: 'Home',    icon: <GoHome size={30} />,                  iconActive: <GoHomeFill size={30} /> },
-  { id: 'search',  label: 'Search',  icon: <RiSearchLine size={30} />,            iconActive: <RiSearchFill size={30} /> },
-  { id: 'create',  label: 'Create',  staffOnly: true,  icon: <FiPlusCircle size={30} />,          iconActive: <FiPlusCircle size={30} /> },
-  { id: 'profile', label: 'Profile', icon: <RiUser3Line size={30} />,             iconActive: <RiUser3Fill size={30} /> },
-  // 🚩 AUCASA-only — Claims Management link
-  { id: 'aucasa',  label: 'Claims',  aucasaOnly: true, icon: <HiOutlineDocumentReport size={30} />, iconActive: <HiDocumentReport size={30} /> },
+  { id: 'home', label: 'Home', icon: <GoHome size={30} />, iconActive: <GoHomeFill size={30} /> },
+  { id: 'search', label: 'Search', icon: <RiSearchLine size={30} />, iconActive: <RiSearchFill size={30} /> },
+  { id: 'create', label: 'Create', staffOnly: true, icon: <FiPlusCircle size={30} />, iconActive: <FiPlusCircle size={30} /> },
+  { id: 'profile', label: 'Profile', icon: <RiUser3Line size={30} />, iconActive: <RiUser3Fill size={30} /> },
+  // AUCASA-only  Claims Management link
+  { id: 'aucasa', label: 'Claims', aucasaOnly: true, icon: <HiOutlineDocumentReport size={30} />, iconActive: <HiDocumentReport size={30} /> },
 ];
 
 const SLIM_W = 72;
@@ -32,13 +32,13 @@ const EXPANDED_W = 240;
 // Read real user info from localStorage
 function getUserInfo() {
   try {
-    const raw      = localStorage.getItem('userProfile');
-    const profile  = raw ? JSON.parse(raw) : {};
-    const isStaff  = localStorage.getItem('isStaff')  === 'true';
+    const raw = localStorage.getItem('userProfile');
+    const profile = raw ? JSON.parse(raw) : {};
+    const isStaff = localStorage.getItem('isStaff') === 'true';
     const isAucasa = localStorage.getItem('isAucasa') === 'true';
 
-    const fname    = profile.Fname || '';
-    const lname    = profile.Lname || '';
+    const fname = profile.Fname || '';
+    const lname = profile.Lname || '';
     const fullName = `${fname} ${lname}`.trim() || 'User';
 
     // Initials from real name
@@ -49,11 +49,11 @@ function getUserInfo() {
       .slice(0, 2)
       .toUpperCase();
 
-    // Role label — prefer the profile field, then derive from flags
+    // Role label prefer the profile field, then derive from flags
     const role = profile.Role || (isAucasa ? 'AUCASA' : isStaff ? 'Staff' : 'Student');
 
-    // Profile image URL — only use https:// URLs (Cloudinary), not localhost
-    const rawUrl    = profile.ProfileUrl || '';
+    // Profile image URL only use https:// URLs (Cloudinary), not localhost
+    const rawUrl = profile.ProfileUrl || '';
     const avatarUrl = rawUrl.startsWith('https://') ? rawUrl : null;
 
     return { fullName, initials, role, avatarUrl, isStaff, isAucasa };
@@ -107,7 +107,7 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange, o
   const [showMore, setShowMore] = useState(false);
   const [showAccount, setShowAccount] = useState(false);
 
-  // ── Mobile: hamburger state ────────────────────────────────────────────────
+  // Mobile: hamburger state 
   const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 768);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showHamburger, setShowHamburger] = useState(true);
@@ -174,7 +174,7 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange, o
 
   return (
     <>
-      {/* ── Hamburger button — mobile only ─────────────────────────────── */}
+      {/*  Hamburger button mobile only  */}
       {isMobile && !mobileOpen && (
         <button
           className="hamburger-btn"
@@ -186,7 +186,7 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange, o
         </button>
       )}
 
-      {/* ── Backdrop overlay — closes nav on tap ───────────────────────── */}
+      {/*  Backdrop overlay — closes nav on tap */}
       {isMobile && mobileOpen && (
         <div
           className="mobile-nav-overlay"
@@ -194,179 +194,179 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange, o
         />
       )}
 
-    <nav
-      ref={navRef}
-      onMouseEnter={() => {
-        if (isMobile) return;
-        setExpanded(true); onExpandedChange && onExpandedChange(true);
-      }}
-      onMouseLeave={() => {
-        if (isMobile) return;
-        setExpanded(false); setShowMore(false); setShowAccount(false); onExpandedChange && onExpandedChange(false);
-      }}
-      style={{
-        position: 'fixed', top: 0, left: 0, bottom: 0,
-        width: isMobile ? `${EXPANDED_W}px` : `${expanded ? EXPANDED_W : SLIM_W}px`,
-        background: 'var(--nav-bg)', borderRight: '1px solid var(--nav-border)',
-        display: 'flex', flexDirection: 'column',
-        alignItems: navExpanded ? 'flex-start' : 'center',
-        zIndex: 300, overflow: 'hidden',
-        transition: isMobile ? 'transform 0.25s ease' : 'width 0.25s ease',
-        transform: isMobile ? (mobileOpen ? 'translateX(0)' : 'translateX(-100%)') : 'none',
-        boxShadow: isDark ? '2px 0 24px rgba(0,0,0,0.5)' : '2px 0 16px rgba(13,59,142,0.08)',
-      }}
-    >
-      {/*  LOGO  */}
-      <div style={{ padding: navExpanded ? '22px 20px 18px' : '22px 0 18px', borderBottom: '1px solid var(--nav-border)', width: '100%', display: 'flex', justifyContent: navExpanded ? 'space-between' : 'center', alignItems: 'center', flexShrink: 0, transition: 'padding 0.25s' }}>
-        {aucaLogo ? (
-          <img src={aucaLogo} alt="AUCA" style={{ width: navExpanded ? '110px' : '36px', height: '36px', objectFit: 'contain', objectPosition: 'left center', transition: 'width 0.25s' }} />
-        ) : (
-          <div style={{ width: '36px', height: '36px', flexShrink: 0, background: 'linear-gradient(135deg, #0d3b8e, #1a4fa8)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: '18px' }}>A</div>
-        )}
+      <nav
+        ref={navRef}
+        onMouseEnter={() => {
+          if (isMobile) return;
+          setExpanded(true); onExpandedChange && onExpandedChange(true);
+        }}
+        onMouseLeave={() => {
+          if (isMobile) return;
+          setExpanded(false); setShowMore(false); setShowAccount(false); onExpandedChange && onExpandedChange(false);
+        }}
+        style={{
+          position: 'fixed', top: 0, left: 0, bottom: 0,
+          width: isMobile ? `${EXPANDED_W}px` : `${expanded ? EXPANDED_W : SLIM_W}px`,
+          background: 'var(--nav-bg)', borderRight: '1px solid var(--nav-border)',
+          display: 'flex', flexDirection: 'column',
+          alignItems: navExpanded ? 'flex-start' : 'center',
+          zIndex: 300, overflow: 'hidden',
+          transition: isMobile ? 'transform 0.25s ease' : 'width 0.25s ease',
+          transform: isMobile ? (mobileOpen ? 'translateX(0)' : 'translateX(-100%)') : 'none',
+          boxShadow: isDark ? '2px 0 24px rgba(0,0,0,0.5)' : '2px 0 16px rgba(13,59,142,0.08)',
+        }}
+      >
+        {/*  LOGO  */}
+        <div style={{ padding: navExpanded ? '22px 20px 18px' : '22px 0 18px', borderBottom: '1px solid var(--nav-border)', width: '100%', display: 'flex', justifyContent: navExpanded ? 'space-between' : 'center', alignItems: 'center', flexShrink: 0, transition: 'padding 0.25s' }}>
+          {aucaLogo ? (
+            <img src={aucaLogo} alt="AUCA" style={{ width: navExpanded ? '110px' : '36px', height: '36px', objectFit: 'contain', objectPosition: 'left center', transition: 'width 0.25s' }} />
+          ) : (
+            <div style={{ width: '36px', height: '36px', flexShrink: 0, background: 'linear-gradient(135deg, #0d3b8e, #1a4fa8)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: '18px' }}>A</div>
+          )}
 
-        {/* Close Button (Mobile Only) */}
-        {isMobile && mobileOpen && (
-          <button
-            className="hamburger-btn open"
-            onClick={() => setMobileOpen(false)}
-            aria-label="Close menu"
-            style={{ position: 'relative', top: 'auto', left: 'auto', zIndex: 1, transform: 'none' }}
-          >
-            ✕
-          </button>
-        )}
-      </div>
-
-      {/*  Nav items */}
-      <div style={{ flex: 1, width: '100%', padding: '14px 0', overflowY: 'auto', overflowX: 'hidden' }}>
-        {NAV_ITEMS_ALL.filter(item => {
-          // staffOnly items: hidden from plain Students only.
-          // Staff AND AUCASA users both get Create.
-          if (item.staffOnly  && !userInfo.isStaff && !userInfo.isAucasa) return false;
-          // aucasaOnly items: only visible to AUCASA users
-          if (item.aucasaOnly && !userInfo.isAucasa) return false;
-          return true;
-        }).map(item => {
-          const isActive = activePage === item.id;
-          return (
-            <button key={item.id}
-              onClick={() => { onNavigate && onNavigate(item.id); if (isMobile) setMobileOpen(false); }}
-              title={!navExpanded ? item.label : ''}
-              style={btnStyle(isActive, navExpanded)}
-              onMouseEnter={e => e.currentTarget.style.background = isActive && navExpanded ? 'var(--nav-active-bg)' : 'var(--surface-2)'}
-              onMouseLeave={e => e.currentTarget.style.background = isActive && navExpanded ? 'var(--nav-active-bg)' : 'transparent'}
+          {/* Close Button (Mobile Only) */}
+          {isMobile && mobileOpen && (
+            <button
+              className="hamburger-btn open"
+              onClick={() => setMobileOpen(false)}
+              aria-label="Close menu"
+              style={{ position: 'relative', top: 'auto', left: 'auto', zIndex: 1, transform: 'none' }}
             >
-              <span style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
-                {isActive ? item.iconActive : item.icon}
-              </span>
-              {navExpanded && (
-                <span style={{ fontSize: '14px', fontWeight: isActive ? 700 : 500, whiteSpace: 'nowrap' }}>{item.label}</span>
-              )}
+              ✕
             </button>
-          );
-        })}
-      </div>
-
-      {/* Bottom section  */}
-      <div style={{ padding: '10px 0 18px', borderTop: '1px solid var(--nav-border)', width: '100%', flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: navExpanded ? 'flex-start' : 'center', gap: '0px' }}>
-
-        {/* More button */}
-        <div style={{ position: 'relative', width: '100%' }} ref={moreRef}>
-          <button
-            onClick={() => { setShowMore(p => !p); setShowAccount(false); }}
-            title={!navExpanded ? 'More' : ''}
-            style={{ ...btnStyle(false, navExpanded), background: showMore && navExpanded ? 'var(--surface-2)' : 'transparent' }}
-            onMouseEnter={e => e.currentTarget.style.background = 'var(--surface-2)'}
-            onMouseLeave={e => e.currentTarget.style.background = showMore && navExpanded ? 'var(--surface-2)' : 'transparent'}
-          >
-            <span style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}><CiCircleMore size={30} /></span>
-            {navExpanded && <span style={{ fontSize: '14px', fontWeight: 500, whiteSpace: 'nowrap' }}>More</span>}
-          </button>
-
-          {showMore && navExpanded && (
-            <Popup bottom="80px">
-              <PopupRow
-                iconBg={isDark ? '#1a2744' : '#fff7ed'}
-                iconColor={isDark ? '#4d8af0' : '#f0a500'}
-                icon={isDark ? <BsMoonStars size={20} /> : <HiOutlineSun size={20} />}
-                label={isDark ? 'Dark Mode' : 'Light Mode'}
-                sublabel={isDark ? 'Switch to light' : 'Switch to dark'}
-                right={<Toggle checked={isDark} onChange={val => onThemeChange(val ? 'dark' : 'light')} />}
-                onClick={() => onThemeChange(isDark ? 'light' : 'dark')}
-              />
-              <PopupRow
-                iconBg="var(--primary-pale)" iconColor="var(--primary)"
-                icon={<RiSettings3Line size={20} />}
-                label="Settings" sublabel="Account & preferences"
-                border={false}
-              />
-            </Popup>
           )}
         </div>
 
-        {/* Account button */}
-        <div style={{ position: 'relative', width: '100%' }} ref={accountRef}>
-          <button
-            onClick={() => { setShowAccount(p => !p); setShowMore(false); }}
-            title={!navExpanded ? 'Account' : ''}
-            style={{ ...btnStyle(false, navExpanded), background: showAccount && navExpanded ? 'var(--surface-2)' : 'transparent' }}
-            onMouseEnter={e => e.currentTarget.style.background = 'var(--surface-2)'}
-            onMouseLeave={e => e.currentTarget.style.background = showAccount && navExpanded ? 'var(--surface-2)' : 'transparent'}
-          >
-            {/* real profile image if available, else initials */}
-            <div style={{
-              width: '30px', height: '30px', borderRadius: '50%', flexShrink: 0,
-              background: userInfo.avatarUrl ? 'transparent' : '#0d3b8e',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: '#fff', fontWeight: 800, fontSize: '10px', overflow: 'hidden',
-              border: showAccount ? '2px solid var(--primary)' : '2px solid transparent',
-              transition: 'border-color 0.2s',
-            }}>
-              {userInfo.avatarUrl
-                ? <img
+        {/*  Nav items */}
+        <div style={{ flex: 1, width: '100%', padding: '14px 0', overflowY: 'auto', overflowX: 'hidden' }}>
+          {NAV_ITEMS_ALL.filter(item => {
+            // staffOnly items: hidden from plain Students only.
+            // Staff AND AUCASA users both get Create.
+            if (item.staffOnly && !userInfo.isStaff && !userInfo.isAucasa) return false;
+            // aucasaOnly items: only visible to AUCASA users
+            if (item.aucasaOnly && !userInfo.isAucasa) return false;
+            return true;
+          }).map(item => {
+            const isActive = activePage === item.id;
+            return (
+              <button key={item.id}
+                onClick={() => { onNavigate && onNavigate(item.id); if (isMobile) setMobileOpen(false); }}
+                title={!navExpanded ? item.label : ''}
+                style={btnStyle(isActive, navExpanded)}
+                onMouseEnter={e => e.currentTarget.style.background = isActive && navExpanded ? 'var(--nav-active-bg)' : 'var(--surface-2)'}
+                onMouseLeave={e => e.currentTarget.style.background = isActive && navExpanded ? 'var(--nav-active-bg)' : 'transparent'}
+              >
+                <span style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                  {isActive ? item.iconActive : item.icon}
+                </span>
+                {navExpanded && (
+                  <span style={{ fontSize: '14px', fontWeight: isActive ? 700 : 500, whiteSpace: 'nowrap' }}>{item.label}</span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Bottom section  */}
+        <div style={{ padding: '10px 0 18px', borderTop: '1px solid var(--nav-border)', width: '100%', flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: navExpanded ? 'flex-start' : 'center', gap: '0px' }}>
+
+          {/* More button */}
+          <div style={{ position: 'relative', width: '100%' }} ref={moreRef}>
+            <button
+              onClick={() => { setShowMore(p => !p); setShowAccount(false); }}
+              title={!navExpanded ? 'More' : ''}
+              style={{ ...btnStyle(false, navExpanded), background: showMore && navExpanded ? 'var(--surface-2)' : 'transparent' }}
+              onMouseEnter={e => e.currentTarget.style.background = 'var(--surface-2)'}
+              onMouseLeave={e => e.currentTarget.style.background = showMore && navExpanded ? 'var(--surface-2)' : 'transparent'}
+            >
+              <span style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}><CiCircleMore size={30} /></span>
+              {navExpanded && <span style={{ fontSize: '14px', fontWeight: 500, whiteSpace: 'nowrap' }}>More</span>}
+            </button>
+
+            {showMore && navExpanded && (
+              <Popup bottom="80px">
+                <PopupRow
+                  iconBg={isDark ? '#1a2744' : '#fff7ed'}
+                  iconColor={isDark ? '#4d8af0' : '#f0a500'}
+                  icon={isDark ? <BsMoonStars size={20} /> : <HiOutlineSun size={20} />}
+                  label={isDark ? 'Dark Mode' : 'Light Mode'}
+                  sublabel={isDark ? 'Switch to light' : 'Switch to dark'}
+                  right={<Toggle checked={isDark} onChange={val => onThemeChange(val ? 'dark' : 'light')} />}
+                  onClick={() => onThemeChange(isDark ? 'light' : 'dark')}
+                />
+                <PopupRow
+                  iconBg="var(--primary-pale)" iconColor="var(--primary)"
+                  icon={<RiSettings3Line size={20} />}
+                  label="Settings" sublabel="Account & preferences"
+                  border={false}
+                />
+              </Popup>
+            )}
+          </div>
+
+          {/* Account button */}
+          <div style={{ position: 'relative', width: '100%' }} ref={accountRef}>
+            <button
+              onClick={() => { setShowAccount(p => !p); setShowMore(false); }}
+              title={!navExpanded ? 'Account' : ''}
+              style={{ ...btnStyle(false, navExpanded), background: showAccount && navExpanded ? 'var(--surface-2)' : 'transparent' }}
+              onMouseEnter={e => e.currentTarget.style.background = 'var(--surface-2)'}
+              onMouseLeave={e => e.currentTarget.style.background = showAccount && navExpanded ? 'var(--surface-2)' : 'transparent'}
+            >
+              {/* real profile image if available, else initials */}
+              <div style={{
+                width: '30px', height: '30px', borderRadius: '50%', flexShrink: 0,
+                background: userInfo.avatarUrl ? 'transparent' : '#0d3b8e',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                color: '#fff', fontWeight: 800, fontSize: '10px', overflow: 'hidden',
+                border: showAccount ? '2px solid var(--primary)' : '2px solid transparent',
+                transition: 'border-color 0.2s',
+              }}>
+                {userInfo.avatarUrl
+                  ? <img
                     src={userInfo.avatarUrl}
                     alt={userInfo.fullName}
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     onError={e => { e.target.style.display = 'none'; }}
                   />
-                : userInfo.initials
-              }
-            </div>
-
-            {/* real name and role */}
-            {navExpanded && (
-              <div style={{ minWidth: 0 }}>
-                <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '130px' }}>
-                  {userInfo.fullName}
-                </div>
-                <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{userInfo.role}</div>
+                  : userInfo.initials
+                }
               </div>
-            )}
-          </button>
 
-          {showAccount && navExpanded && (
-            <Popup bottom="70px">
-              <PopupRow
-                iconBg="var(--primary-pale)" iconColor="var(--primary)"
-                icon={<MdOutlinePersonAddAlt size={16} />}
-                label="Add Account" sublabel="Switch or add another account"
-              />
-              <PopupRow
-                iconBg="#fff0f0" iconColor="#e53935"
-                icon={<RiLogoutBoxLine size={16} />}
-                label="Log Out"
-                sublabel={`Sign out of ${userInfo.fullName}`}
-                border={false} danger
-                onClick={() => { setShowAccount(false); onLogout && onLogout(); }}
-              />
-            </Popup>
-          )}
+              {/* real name and role */}
+              {navExpanded && (
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '130px' }}>
+                    {userInfo.fullName}
+                  </div>
+                  <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{userInfo.role}</div>
+                </div>
+              )}
+            </button>
+
+            {showAccount && navExpanded && (
+              <Popup bottom="70px">
+                <PopupRow
+                  iconBg="var(--primary-pale)" iconColor="var(--primary)"
+                  icon={<MdOutlinePersonAddAlt size={16} />}
+                  label="Add Account" sublabel="Switch or add another account"
+                />
+                <PopupRow
+                  iconBg="#fff0f0" iconColor="#e53935"
+                  icon={<RiLogoutBoxLine size={16} />}
+                  label="Log Out"
+                  sublabel={`Sign out of ${userInfo.fullName}`}
+                  border={false} danger
+                  onClick={() => { setShowAccount(false); onLogout && onLogout(); }}
+                />
+              </Popup>
+            )}
+          </div>
+
         </div>
 
-      </div>
-
-      <style>{`@keyframes popupIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }`}</style>
-    </nav>
+        <style>{`@keyframes popupIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }`}</style>
+      </nav>
     </>
   );
 }

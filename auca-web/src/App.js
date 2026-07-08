@@ -14,11 +14,11 @@ import ClaimDetails from './Page/ClaimDetails';
 
 // No bypass logic - standard authentication flow is enforced.
 
-// ── Route wrappers for pages that need a "post" object passed via nav state ─
+//  Route wrappers for pages that need a "post" object passed via nav state 
 // This avoids modifying Comment.js or ClaimDetails.js internals.
 function CommentRoute() {
   const { state } = useLocation();
-  const navigate   = useNavigate();
+  const navigate = useNavigate();
   const post = state?.post;
   if (!post) return <Navigate to="/home" replace />;
   return <Comment post={post} onBack={() => navigate('/home')} />;
@@ -26,23 +26,23 @@ function CommentRoute() {
 
 function ClaimDetailsRoute() {
   const { state } = useLocation();
-  const navigate   = useNavigate();
+  const navigate = useNavigate();
   const post = state?.post;
   if (!post) return <Navigate to="/aucasa" replace />;
   return <ClaimDetails post={post} onBack={() => navigate('/aucasa')} />;
 }
 
-// ── Main app (requires BrowserRouter in index.js, which is already there) ──
+//  Main app (requires BrowserRouter in index.js, which is already there) 
 export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // ── Auth — read real values from localStorage ────────
+  //  Auth — read real values from localStorage 
   const [auth, setAuth] = useState(() => {
-    const token   = localStorage.getItem('accessToken');
-    const raw     = localStorage.getItem('userProfile');
+    const token = localStorage.getItem('accessToken');
+    const raw = localStorage.getItem('userProfile');
     const profile = raw ? JSON.parse(raw) : null;
-    const isStaff  = localStorage.getItem('isStaff')  === 'true';
+    const isStaff = localStorage.getItem('isStaff') === 'true';
     const isAucasa = localStorage.getItem('isAucasa') === 'true';
     return token ? { accessToken: token, profile, isStaff, isAucasa } : null;
   });
@@ -67,17 +67,17 @@ export default function App() {
 
 
 
-  // ── Derive the active nav item from the real URL path ────────────────────
+  // Derive the active nav item from the real URL path 
   const activePage = (() => {
     const p = location.pathname;
-    if (p.startsWith('/search'))  return 'search';
-    if (p.startsWith('/create'))  return 'create';
+    if (p.startsWith('/search')) return 'search';
+    if (p.startsWith('/create')) return 'create';
     if (p.startsWith('/profile')) return 'profile';
-    if (p.startsWith('/aucasa'))  return 'aucasa';
+    if (p.startsWith('/aucasa')) return 'aucasa';
     return 'home';
   })();
 
-  // ── Navigation handler — maps page names / objects to real URL paths ──────
+  //  Navigation handler — maps page names / objects to real URL paths 
   const handleNavigate = (target) => {
     if (target && typeof target === 'object') {
       const { page, post } = target;
@@ -93,14 +93,14 @@ export default function App() {
     }
   };
 
-  // ── Logout ────────────────────────────────────────────────────────────────
+  // Logout
   const handleLogout = () => {
     localStorage.clear();
     setAuth(null);
     navigate('/login', { replace: true });
   };
 
-  // ── NOT LOGGED IN → Login or Register page ────────────────────────────────
+  // NOT LOGGED IN  Login or Register page 
   if (!auth) {
     return (
       <Routes>
@@ -109,7 +109,7 @@ export default function App() {
           <LoginPage
             onLoginSuccess={({ accessToken, profile, isStaff, isAucasa }) => {
               localStorage.setItem('accessToken', accessToken);
-              localStorage.setItem('isStaff',  String(isStaff));
+              localStorage.setItem('isStaff', String(isStaff));
               localStorage.setItem('isAucasa', String(isAucasa));
               if (profile) localStorage.setItem('userProfile', JSON.stringify(profile));
               setAuth({ accessToken, profile, isStaff, isAucasa });
@@ -122,7 +122,7 @@ export default function App() {
     );
   }
 
-  // ── LOGGED IN → main layout with real React Router routes ────────────────
+  //  LOGGED IN  main layout with real React Router routes 
   return (
     <div className="app-layout">
       <Navbar
@@ -146,13 +146,13 @@ export default function App() {
       >
         <Routes>
           {/* Root redirect */}
-          <Route path="/"       element={<Navigate to="/home"  replace />} />
-          <Route path="/login"  element={<Navigate to="/home"  replace />} />
+          <Route path="/" element={<Navigate to="/home" replace />} />
+          <Route path="/login" element={<Navigate to="/home" replace />} />
 
           {/* Main pages */}
-          <Route path="/home"    element={<Home onNavigate={handleNavigate} />} />
-          <Route path="/search"  element={<Search />} />
-          <Route path="/create"  element={
+          <Route path="/home" element={<Home onNavigate={handleNavigate} />} />
+          <Route path="/search" element={<Search />} />
+          <Route path="/create" element={
             <CreatePost
               onNavigate={handleNavigate}
               onPostCreated={() => navigate('/home')}
@@ -161,7 +161,7 @@ export default function App() {
           <Route path="/profile" element={<Profile onNavigate={handleNavigate} />} />
 
           {/* Pages that receive a post object via location.state */}
-          <Route path="/comments"     element={<CommentRoute />} />
+          <Route path="/comments" element={<CommentRoute />} />
           <Route path="/aucasa/claims" element={<ClaimDetailsRoute />} />
 
           {/* AUCASA dashboard — AUCASA users only (redirects others to /home) */}

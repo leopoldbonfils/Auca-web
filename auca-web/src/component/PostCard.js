@@ -24,8 +24,8 @@ import txtIcon from '../assets/txt.png';
 import wordIcon from '../assets/word.png';
 import api from '../utils/api';
 
-// ── Academic Reactions (mirrors mobile app's emojiData) ─────────────────────
-// Maps emoji character → backend reaction name
+// Academic Reactions mirrors mobile app's emojiData
+// Maps emoji character backend reaction name
 const EMOJI_TO_NAME = {
   '👍': 'helpful',
   '✅': 'understood',
@@ -310,7 +310,6 @@ function PdfCard({ fileUrl, thumbnailUrl, fileSize, fileName }) {
 }
 
 //  Share modal 
-// eslint-disable-next-line no-unused-vars
 function ShareModal({ postUrl, onClose }) {
   const [copied, setCopied] = useState(false);
   const ref = useRef(null);
@@ -357,7 +356,7 @@ function ShareModal({ postUrl, onClose }) {
   );
 }
 
-// ── Claim / Concerns Modal (student only) ────────────────────────────────────
+// Claim / Concerns Modal (student only) 
 function ClaimModal({ postId, onClose, onSuccess }) {
   const [activeScreen, setActiveScreen] = useState('overview'); // 'overview' | 'claims' | 'create'
   const [step, setStep] = useState('form'); // 'form' | 'submitting' | 'done' | 'error'
@@ -556,7 +555,7 @@ function ClaimModal({ postId, onClose, onSuccess }) {
     const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
     const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
     const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
-    
+
     const formatTime = (date) => {
       return date.toLocaleTimeString('en-US', {
         hour: 'numeric',
@@ -564,22 +563,22 @@ function ClaimModal({ postId, onClose, onSuccess }) {
         hour12: true
       });
     };
-    
+
     const isSameDay = (date1, date2) => date1.toDateString() === date2.toDateString();
-    
+
     const isYesterday = (date) => {
       const yesterday = new Date(now);
       yesterday.setDate(yesterday.getDate() - 1);
       return isSameDay(date, yesterday);
     };
-    
+
     const isThisWeek = (date) => {
       const weekStart = new Date(now);
       weekStart.setDate(now.getDate() - now.getDay());
       weekStart.setHours(0, 0, 0, 0);
       return date >= weekStart;
     };
-    
+
     if (diffInMinutes < 1) {
       return 'now';
     } else if (diffInMinutes < 60) {
@@ -621,7 +620,7 @@ function ClaimModal({ postId, onClose, onSuccess }) {
         animation: 'claimFadeIn 0.15s ease',
       }} />
 
-      {/* Modal - Centered Style */}
+      {/* Modal Centered Style */}
       <div ref={ref} style={{
         position: 'fixed',
         top: '50%', left: '50%',
@@ -1228,8 +1227,8 @@ function ReactionSummary({ reactions, myReaction }) {
   );
 }
 
-//  PostCard 
-// isStudent prop: true = show Concerns button; false/undefined = hide it (staff)
+// PostCard 
+// isStudent prop: true show Concerns button; false/undefined = hide it (staff)
 export default function PostCard({ post, onDelete, onComment, isStudent }) {
   const [showPicker, setShowPicker] = useState(false);
   const [myReaction, setMyReaction] = useState(null);
@@ -1329,7 +1328,7 @@ export default function PostCard({ post, onDelete, onComment, isStudent }) {
   return (
     <>
 
-      {/* Claim Modal — student only */}
+      {/* Claim Modal student only */}
       {showClaimModal && (
         <ClaimModal
           postId={Number(id)}
@@ -1477,7 +1476,7 @@ export default function PostCard({ post, onDelete, onComment, isStudent }) {
         {/* FOOTER */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '10px 18px 14px', borderTop: '1px solid var(--border)', flexWrap: 'wrap' }}>
 
-          {/* ── React button ── */}
+          {/* React button */}
           <div style={{ position: 'relative' }} ref={pickerRef}>
             <button
               id={`reaction-btn-${id}`}
@@ -1511,7 +1510,7 @@ export default function PostCard({ post, onDelete, onComment, isStudent }) {
               </span>
             </button>
 
-            {/* Emoji picker — academic reactions */}
+            {/* Emoji picker academic reactions */}
             {showPicker && (
               <div style={{
                 position: 'absolute', bottom: '48px', left: '0',
@@ -1550,7 +1549,7 @@ export default function PostCard({ post, onDelete, onComment, isStudent }) {
           </div>
 
 
-          {/* ── Concerns button — students only ── */}
+          {/* Concerns button — students only */}
           {isStudent && (
             <button
               id={`concerns-btn-${id}`}

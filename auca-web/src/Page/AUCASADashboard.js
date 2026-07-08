@@ -13,7 +13,7 @@ const getScoreColor = (score) => {
 };
 
 // helpers 
-/** Convert a UTC timestamp string to a human-readable relative label */
+
 function relativeTime(isoString) {
   if (!isoString) return '';
   const diff = Math.floor((Date.now() - new Date(isoString).getTime()) / 1000);
@@ -27,10 +27,10 @@ function relativeTime(isoString) {
 export default function AUCASADashboard({ onNavigate }) {
 
 
-  // ── dashboard tab: 'claims' | 'feed' ─────────────────────────────────────
+  // dashboard tab: 'claims' | 'feed'
   const [dashTab, setDashTab] = useState('claims');
 
-  // ── state (claims management) ──────────────────────────────────────────────
+  // state (claims management)
   const [posts, setPosts] = useState([]);
   const [metrics, setMetrics] = useState({ activePosts: 0, activePostClaims: 0, unreviewedClaims: 0 });
   const [selectedPost, setSelectedPost] = useState(null);
@@ -40,20 +40,20 @@ export default function AUCASADashboard({ onNavigate }) {
   const [loadingClaims, setLoadingClaims] = useState(false);
   const [error, setError] = useState('');
 
-  // ── state (post feed) ────────────────────────────────────────────────────
+  // state (post feed)
   const [feedPosts, setFeedPosts] = useState([]);
   const [feedLoading, setFeedLoading] = useState(false);
   const [feedFetched, setFeedFetched] = useState(false);
   const [feedError, setFeedError] = useState('');
 
-  // ── fetch top-level metrics (summary card values) ──────────────────────────
+  // fetch top-level metrics (summary card values)
   useEffect(() => {
     api.get('/home/posts/claims/management/summary')
       .then(data => setMetrics(data))
       .catch(err => console.error('Metrics fetch error:', err));
   }, []);
 
-  // ── fetch posts that have claims (left feed) ───────────────────────────────
+  // fetch posts that have claims (left feed)
   useEffect(() => {
     const fetchPosts = () => {
       setLoadingPosts(true);
@@ -75,7 +75,7 @@ export default function AUCASADashboard({ onNavigate }) {
     return () => clearInterval(interval);          // cleanup on unmount
   }, []);
 
-  // ── fetch claims for the selected post (right panel) ──────────────────────
+  //fetch claims for the selected post (right panel)
   useEffect(() => {
     if (!selectedPost) return;
     setLoadingClaims(true);
@@ -86,8 +86,8 @@ export default function AUCASADashboard({ onNavigate }) {
       .finally(() => setLoadingClaims(false));
   }, [selectedPost]);
 
-  // ── derive unique category tabs from the loaded claims ────────────────────
-  // W-2: API returns "CategoryName" — was incorrectly reading "Category"
+  //  derive unique category tabs from the loaded claims
+  // API returns "CategoryName" — was incorrectly reading "Category"
   const categories = ['All', ...new Set(postClaims.map(c => c.CategoryName).filter(Boolean))];
 
   const filteredClaims = postClaims.filter(c => {
@@ -95,7 +95,7 @@ export default function AUCASADashboard({ onNavigate }) {
     return c.CategoryName === activeTab;
   });
 
-  // ── fetch post feed (read-only, mirrors Home.js logic) ───────────────────
+  // fetch post feed (read-only, mirrors Home.js logic)
   useEffect(() => {
     if (dashTab !== 'feed' || feedFetched) return;
     setFeedLoading(true);
@@ -152,7 +152,7 @@ export default function AUCASADashboard({ onNavigate }) {
     }
   };
 
-  // ── render ─────────────────────────────────────────────────────────────────
+  // render
   return (
     <div className="aucasa-dashboard">
       <div className="aucasa-header">
@@ -266,10 +266,10 @@ export default function AUCASADashboard({ onNavigate }) {
               )}
             </div>
 
-            {/* RIGHT PANEL — claims for selected post */}
+            {/* RIGHT PANEL claims for selected post */}
             <div className="aucasa-panel">
 
-              {/* Category tabs — built from real data */}
+              {/* Category tabs built from real data */}
               <div className="aucasa-panel-tabs">
                 {categories.map(tab => (
                   <button
