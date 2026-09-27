@@ -114,7 +114,12 @@ export default function App() {
               if (profile) localStorage.setItem('userProfile', JSON.stringify(profile));
               setAuth({ accessToken, profile, isStaff, isAucasa });
               const isAucasaRole = isAucasa || !!profile?.aucasaUserRole;
-              navigate(isAucasaRole ? '/aucasa' : '/home', { replace: true });
+              const isCommunicationStaffRole =
+                isStaff && profile?.Department?.trim().toLowerCase() === 'communication';
+              navigate(
+                (isAucasaRole || isCommunicationStaffRole) ? '/aucasa' : '/home',
+                { replace: true }
+              );
             }}
           />
         } />
@@ -164,13 +169,18 @@ export default function App() {
           <Route path="/comments" element={<CommentRoute />} />
           <Route path="/aucasa/claims" element={<ClaimDetailsRoute />} />
 
-          {/* AUCASA dashboard — AUCASA users only (redirects others to /home) */}
+          {/* AUCASA / Communication Staff dashboard — authorized users only */}
           <Route
             path="/aucasa"
             element={
-              auth?.isAucasa
-                ? <AUCASADashboard onNavigate={handleNavigate} />
-                : <Navigate to="/home" replace />
+              (() => {
+                const isCommunicationStaff =
+                  auth?.isStaff &&
+                  auth?.profile?.Department?.trim().toLowerCase() === 'communication';
+                return (auth?.isAucasa || isCommunicationStaff)
+                  ? <AUCASADashboard onNavigate={handleNavigate} />
+                  : <Navigate to="/home" replace />;
+              })()
             }
           />
 

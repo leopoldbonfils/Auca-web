@@ -56,9 +56,12 @@ function getUserInfo() {
     const rawUrl = profile.ProfileUrl || '';
     const avatarUrl = rawUrl.startsWith('https://') ? rawUrl : null;
 
-    return { fullName, initials, role, avatarUrl, isStaff, isAucasa };
+    // Department — only populated for Staff users; used for Claims access check
+    const department = (profile.Department || '').trim().toLowerCase();
+
+    return { fullName, initials, role, avatarUrl, isStaff, isAucasa, department };
   } catch {
-    return { fullName: 'User', initials: 'U', role: '', avatarUrl: null, isStaff: false, isAucasa: false };
+    return { fullName: 'User', initials: 'U', role: '', avatarUrl: null, isStaff: false, isAucasa: false, department: '' };
   }
 }
 
@@ -243,8 +246,10 @@ export default function Navbar({ activePage, onNavigate, theme, onThemeChange, o
             // staffOnly items: hidden from plain Students only.
             // Staff AND AUCASA users both get Create.
             if (item.staffOnly && !userInfo.isStaff && !userInfo.isAucasa) return false;
-            // aucasaOnly items: only visible to AUCASA users
-            if (item.aucasaOnly && !userInfo.isAucasa) return false;
+            // aucasaOnly items (Claims): visible to AUCASA users OR Communication Staff only.
+            // Exact match on 'communication' — partial match intentionally avoided.
+            const isCommunicationStaff = userInfo.isStaff && userInfo.department === 'communication';
+            if (item.aucasaOnly && !userInfo.isAucasa && !isCommunicationStaff) return false;
             return true;
           }).map(item => {
             const isActive = activePage === item.id;
