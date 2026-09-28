@@ -49,10 +49,10 @@ function formatUserName(fullName) {
 }
 
 const EMOJI_NAME_MAP = {
-  helpful:            '👍',
-  understood:         '✅',
-  important:          '📌',
-  need_clarification: '❓',
+  helpful:'👍',
+  understood:'✅',
+  important:'📌',
+  need_clarification:'❓',
 };
 
 function parseReactions(raw) {
@@ -602,7 +602,7 @@ export default function Profile({ onNavigate }) {
           {postsLoading && <><SkeletonPostCard /><SkeletonPostCard /></>}
           {!postsLoading && filteredPosts.length === 0 && (
             <div style={{ textAlign: 'center', padding: '50px 20px', color: 'var(--text-muted)' }}>
-              <div style={{ fontSize: '40px', marginBottom: '10px' }}>📝</div>
+              <div style={{ fontSize: '40px', marginBottom: '10px' }}></div>
               <div style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-secondary)' }}>No posts yet</div>
               <div style={{ fontSize: '13px', marginTop: '4px' }}>Your posts will appear here</div>
               <button onClick={() => onNavigate && onNavigate('create')}
@@ -623,7 +623,7 @@ export default function Profile({ onNavigate }) {
           {postsLoading && <><SkeletonPostCard /><SkeletonPostCard /></>}
           {!postsLoading && filteredPosts.length === 0 && (
             <div style={{ textAlign: 'center', padding: '50px 20px', color: 'var(--text-muted)' }}>
-              <div style={{ fontSize: '40px', marginBottom: '10px' }}>📢</div>
+              <div style={{ fontSize: '40px', marginBottom: '10px' }}></div>
               <div style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-secondary)' }}>No announcements yet</div>
             </div>
           )}
@@ -637,12 +637,12 @@ export default function Profile({ onNavigate }) {
       {activeTab === 'About' && (
         <div style={{ background: 'var(--surface)', borderRadius: '14px', padding: '20px', border: '1px solid var(--border)', boxShadow: 'var(--shadow)', marginBottom: '40px' }}>
           {[
-            { label: 'Full Name',   value: fullName },
-            { label: 'Role',        value: role },
-            { label: 'Department',  value: department },
-            { label: 'Email',       value: email },
-            { label: 'Phone',       value: profile?.Phone ? `+250 ${profile.Phone}` : '—' },
-            { label: 'Faculty',     value: profile?.StudFaculty || profile?.Faculty || '—' },
+            { label: 'Full Name', value: fullName },
+            { label: 'Role', value: role },
+            { label: 'Department', value: department },
+            { label: 'Email', value: email },
+            { label: 'Phone', value: profile?.Phone ? `+250 ${profile.Phone}` : '—' },
+            { label: 'Faculty', value: profile?.StudFaculty || profile?.Faculty || '—' },
             // AUCASA-specific field
             ...(isAucasa && profile?.aucasaUserRole
               ? [{ label: 'AUCASA Role', value: profile.aucasaUserRole }]

@@ -310,6 +310,7 @@ function PdfCard({ fileUrl, thumbnailUrl, fileSize, fileName }) {
 }
 
 //  Share modal 
+// eslint-disable-next-line no-unused-vars
 function ShareModal({ postUrl, onClose }) {
   const [copied, setCopied] = useState(false);
   const ref = useRef(null);

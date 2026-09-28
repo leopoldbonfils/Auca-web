@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { HiOutlineUser, HiOutlineLockClosed } from 'react-icons/hi';
-import { HiOutlineEye, HiOutlineEyeOff }      from 'react-icons/hi';
+import { HiOutlineEye, HiOutlineEyeOff } from 'react-icons/hi';
 import { HiOutlineUserGroup, HiOutlineBadgeCheck } from 'react-icons/hi';
 import { MdArrowForward } from 'react-icons/md';
 import '../Styles/login.css';
@@ -14,7 +14,7 @@ const API = process.env.REACT_APP_API_URL || 'http://localhost:3000';
 
 export default function LoginPage({ onLoginSuccess }) {
   const navigate = useNavigate();
-  const [isStaff, setIsStaff]  = useState(false);
+  const [isStaff, setIsStaff] = useState(false);
   const [isAucasa, setIsAucasa] = useState(false);
   const [id, setId] = useState('');
   const [password, setPassword] = useState('');
@@ -28,7 +28,7 @@ export default function LoginPage({ onLoginSuccess }) {
     setLoading(true);
     // Send as number if it's all digits, otherwise send as string (email)
     const IdValue = /^\d+$/.test(id.trim()) ? Number(id.trim()) : id.trim();
-    
+
     let UserType = "student";
     if (isStaff) UserType = "staff";
     else if (isAucasa) UserType = "aucasa";
@@ -78,15 +78,12 @@ export default function LoginPage({ onLoginSuccess }) {
           </div>
 
           <div className="lp-left-title">AUCA Communication</div>
-          
+
         </div>
 
         {/* RIGHT PANEL */}
         <div className="lp-right">
-          <button 
-            className="lp-signup-btn"
-            onClick={() => navigate('/register')}
-          >
+          <button className="lp-signup-btn" onClick={() => navigate('/register')}>
             Sign Up
           </button>
           <div className="lp-form">
